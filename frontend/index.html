@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>练完吃啥 · 运动×饮食智能体</title>
+  <meta name="description" content="面向中山大学学生的运动饮食智能体：练完吃啥(食堂运动餐推荐) + 体测急救站(14天体测提分教练)" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">🔥 练完吃啥<small>运动 × 饮食 · 智能体</small></div>
+    <div class="header-status off" id="backendStatus">
+      <span class="dot"></span><span id="backendStatusText">检测中…</span>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="eat" class="active">🥗 练完吃啥</button>
+    <button data-tab="records">📊 记录</button>
+    <button data-tab="science">📚 原理与数据</button>
+    <button data-tab="fitness">⏱️ 体测急救站</button>
+    <button data-tab="profile" id="btnProfile" style="margin-left:auto">👤 我的档案</button>
+  </nav>
+
+  <main>
+    <!-- ================= 练完吃啥（Plan A 配餐） ================= -->
+    <section class="tab active" id="tab-eat">
+      <div class="card">
+        <h2><span class="icon">🎯</span> 你的目标</h2>
+        <div class="seg" id="goalSeg">
+          <button class="pill" data-goal="增肌">💪 增肌</button>
+          <button class="pill" data-goal="减脂">🔥 减脂</button>
+          <button class="pill active" data-goal="维持">⚖️ 维持</button>
+        </div>
+        <p class="hint" id="goalHint">增肌：高蛋白+热量盈余；减脂：高蛋白低脂+热量缺口；维持：均衡饮食。</p>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">🏋️</span> 今天练了什么</h2>
+        <label class="fld">运动项目</label>
+        <select id="exerciseSelect"></select>
+        <div id="exerciseSubGroup" class="seg" style="margin-top:10px;display:none"></div>
+
+        <div class="slider-wrap">
+          <label class="fld">时长</label>
+          <div class="slider-row">
+            <input type="range" id="durationRange" min="0" max="180" step="5" value="30" />
+            <output id="durationVal">30 分钟</output>
+          </div>
+          <div class="range-marks"><span>0</span><span>45</span><span>90</span><span>135</span><span>180分钟</span></div>
+        </div>
+
+        <label class="fld">强度</label>
+        <div class="seg" id="intensitySeg"></div>
+        <p class="hint" id="intensityNote"></p>
+
+        <div id="exerciseResult" style="margin-top:14px"></div>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">🍚</span> 今天食堂有什么 <span class="badge blue">中山大学五校区</span></h2>
+        <div class="grid3">
+          <div>
+            <label class="fld">校区</label>
+            <select id="campusSelect"></select>
+          </div>
+          <div>
+            <label class="fld">食堂</label>
+            <select id="canteenSelect"></select>
+          </div>
+          <div>
+            <label class="fld">窗口/楼层</label>
+            <select id="windowSelect"></select>
+          </div>
+        </div>
+        <p class="hint" id="canteenMeta"></p>
+        <div class="dish-list" id="dishList"></div>
+        <div class="grid2" style="margin-top:12px">
+          <div>
+            <label class="fld">手动添加菜品（不在列表里？）</label>
+            <input type="text" id="manualDishInput" placeholder="例如：白切鸡饭" />
+          </div>
+          <div style="display:flex;align-items:flex-end">
+            <button class="btn btn-ghost btn-sm" id="btnAddManual" style="width:100%">＋ 添加</button>
+          </div>
+        </div>
+        <h3>已选菜品 <span class="muted" id="selectedCount">0 项</span></h3>
+        <div class="seg" id="selectedDishes" style="min-height:20px"></div>
+        <div class="kpi-grid" id="selectedTotal"></div>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">🎒</span> 这顿的约束</h2>
+        <div class="slider-wrap">
+          <label class="fld">预算</label>
+          <div class="slider-row">
+            <input type="range" id="budgetRange" min="0" max="30" step="1" value="15" />
+            <output id="budgetVal">15 元</output>
+          </div>
+          <div class="range-marks"><span>0元</span><span>10</span><span>20</span><span>30元</span></div>
+          <div class="slider-opts">
+            <button class="pill mini" data-budget="unlimited">不限</button>
+            <button class="pill mini active" data-budget="custom">自定义</button>
+            <input type="number" id="budgetCustom" min="0" max="100" placeholder="自定义金额" style="width:110px;display:none" />
+          </div>
+        </div>
+        <div class="slider-wrap">
+          <label class="fld">最多花在路上的时间</label>
+          <div class="slider-row">
+            <input type="range" id="timeRange" min="0" max="30" step="1" value="10" />
+            <output id="timeVal">10 分钟</output>
+          </div>
+          <div class="range-marks"><span>0分钟</span><span>10</span><span>20</span><span>30分钟</span></div>
+          <div class="slider-opts">
+            <button class="pill mini" data-time="norush">不赶时间</button>
+            <button class="pill mini active" data-time="custom">自定义</button>
+            <input type="number" id="timeCustom" min="0" max="120" placeholder="自定义分钟" style="width:110px;display:none" />
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-block" id="btnGenerate" style="margin-bottom:16px">
+        ✨ 生成我的搭配
+      </button>
+
+      <div id="mealResult"></div>
+    </section>
+
+    <!-- ================= 记录 ================= -->
+    <section class="tab" id="tab-records">
+      <div class="card">
+        <h2><span class="icon">✏️</span> 修改今日方案</h2>
+        <p class="hint">按当天实际就餐情况增删菜品，AI 会给出未来 1–2 餐的调整建议。</p>
+        <div id="recordMeals"></div>
+        <button class="btn btn-orange btn-block" id="btnRegenerateAfter">🧠 让 AI 给我接下来的建议</button>
+        <div id="aiAdjustResult" style="margin-top:12px"></div>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">💰</span> 饮食花销统计</h2>
+        <div id="spendingStats"></div>
+        <label class="fld">设定未来一个月饮食预算（元）</label>
+        <div class="grid2">
+          <input type="number" id="budgetInput" placeholder="例如 1200" />
+          <button class="btn btn-primary btn-sm" id="btnBudgetAdvice">让 AI 给建议</button>
+        </div>
+        <div id="budgetAdviceResult" style="margin-top:12px"></div>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">📈</span> 最近运动</h2>
+        <div class="seg" id="sportPeriodSeg">
+          <button class="pill active" data-period="week">本周</button>
+          <button class="pill" data-period="month">本月</button>
+          <button class="pill" data-period="year">今年</button>
+        </div>
+        <div id="sportChart" style="margin-top:12px"></div>
+        <button class="btn btn-ghost btn-sm" id="btnSportAdvice" style="margin-top:8px">💡 AI 运动建议</button>
+        <div id="sportAiAdvice" style="margin-top:8px"></div>
+      </div>
+    </section>
+
+    <!-- ================= 原理与数据 ================= -->
+    <section class="tab" id="tab-science">
+      <div class="card">
+        <h2><span class="icon">🤖</span> 智能健身教练</h2>
+        <p class="hint">运动、饮食、体测相关问题都能问。默认走「本地规则引擎」，后端配置 GLM-4-Flash 后回答更自然。</p>
+        <div class="chat-box" id="coachChat"></div>
+        <div class="chat-input">
+          <input type="text" id="coachInput" placeholder="例如：今晚练完腿很酸，该吃点什么？" />
+          <button class="btn btn-primary" id="btnCoachSend">发送</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">📖</span> AI 参考的文献与依据</h2>
+        <ul class="ref-list" id="refList"></ul>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">🗂️</span> 数据来源说明</h2>
+        <div id="dataSourceList"></div>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">⚙️</span> 开发者后端 · Agent API Key</h2>
+        <p class="hint">API Key <b>只放在后端</b>（不暴露给浏览器）。未填写时自动降级为本地免费引擎，答辩现场不依赖网络也能完整演示。</p>
+        <div class="callout green" id="devConfigNote"></div>
+        <a class="btn btn-ghost btn-sm" href="https://github.com/你的GitHub用户名/sports-fuel-agent" target="_blank" rel="noopener">📄 在 GitHub 查看 README 配置说明（替换成你的用户名）</a>
+      </div>
+    </section>
+
+    <!-- ================= 体测急救站（Plan B） ================= -->
+    <section class="tab" id="tab-fitness">
+      <div class="card">
+        <h2><span class="icon">🚑</span> 体测急救站 <span class="badge orange">14 天提分教练</span></h2>
+        <p class="hint">30 秒输入成绩与剩余天数，算出当前分、告诉你“先练哪项、每天练什么、什么时候减量”。</p>
+        <div class="grid2">
+          <div>
+            <label class="fld">性别</label>
+            <select id="ftGender"><option value="male">男</option><option value="female">女</option></select>
+          </div>
+          <div>
+            <label class="fld">年级</label>
+            <select id="ftGrade"><option>大一</option><option>大二</option><option>大三</option><option>大四</option></select>
+          </div>
+        </div>
+        <div class="grid2">
+          <div>
+            <label class="fld">耐力跑项目</label>
+            <select id="ftEvent"><option value="1000">1000 米（男）</option><option value="800">800 米（女）</option></select>
+          </div>
+          <div>
+            <label class="fld">成绩（分:秒）</label>
+            <input type="text" id="ftRunScore" placeholder="例如 4:35" />
+          </div>
+        </div>
+        <div class="grid2">
+          <div id="ftPullupWrap">
+            <label class="fld">引体向上（男，个）</label>
+            <input type="number" id="ftPullup" placeholder="例如 3" min="0" />
+          </div>
+          <div id="ftSitupWrap">
+            <label class="fld">仰卧起坐（女，个/分钟）</label>
+            <input type="number" id="ftSitup" placeholder="例如 30" min="0" />
+          </div>
+        </div>
+        <div class="grid3">
+          <div>
+            <label class="fld">距体测天数</label>
+            <input type="number" id="ftDaysLeft" value="12" min="1" max="30" />
+          </div>
+          <div>
+            <label class="fld">每周可练天数</label>
+            <input type="number" id="ftDaysPerWeek" value="5" min="1" max="7" />
+          </div>
+          <div>
+            <label class="fld">伤病/场地限制</label>
+            <input type="text" id="ftInjury" placeholder="例如：膝盖有点疼" />
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" id="btnFtDiagnose" style="margin-top:14px">🔍 生成诊断与 7 天计划</button>
+      </div>
+
+      <div id="ftResult"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>练完吃啥 · 面向中山大学的运动饮食智能体（软件工程学院「软工菁英杯」参赛作品）</p>
+    <p style="margin-top:4px">健康建议仅供参考，不构成医疗意见；体测评分请以学校执行版本为准。</p>
+  </footer>
+
+  <!-- 档案抽屉 -->
+  <div class="drawer-mask" id="drawerMask"></div>
+  <aside class="drawer" id="drawer">
+    <h2>👤 我的档案</h2>
+    <label class="fld">性别</label>
+    <select id="pGender"><option value="male">男</option><option value="female">女</option></select>
+    <label class="fld">年龄</label>
+    <input type="number" id="pAge" value="19" min="15" max="40" />
+    <label class="fld">身高（cm）</label>
+    <input type="number" id="pHeight" value="175" min="130" max="210" />
+    <label class="fld">体重（kg）</label>
+    <input type="number" id="pWeight" value="65" min="35" max="150" />
+    <label class="fld">默认目标</label>
+    <select id="pGoal"><option value="维持">维持</option><option value="增肌">增肌</option><option value="减脂">减脂</option></select>
+    <button class="btn btn-primary btn-block" id="btnSaveProfile" style="margin-top:16px">保存档案</button>
+    <button class="btn btn-ghost btn-block" id="btnResetData" style="margin-top:10px">清空本地记录</button>
+    <p class="hint" style="margin-top:12px">档案与记录仅保存在本机浏览器 localStorage，不上传服务器。</p>
+  </aside>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- 数据（顺序不能乱：先数据，后逻辑） -->
+  <script src="data/nutrition.js"></script>
+  <script src="data/exercise.js"></script>
+  <script src="data/canteen.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
