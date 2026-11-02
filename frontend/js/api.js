@@ -40,9 +40,22 @@
     });
   }
 
+  // 填入即用：Agent Key 只存在本机浏览器 localStorage，随请求发给后端
+  var KEY_STORE = 'sf_agent_key';
+  function getAgentKey() {
+    try { return localStorage.getItem(KEY_STORE) || ''; } catch (e) { return ''; }
+  }
+  function setAgentKey(k) {
+    try { k ? localStorage.setItem(KEY_STORE, k) : localStorage.removeItem(KEY_STORE); } catch (e) {}
+  }
+  function hasAgentKey() { return !!getAgentKey(); }
+
   // 调用后端 Agent（失败自动回退本地）
   // payload: { type: 'meal'|'coach'|'adjust'|'budget'|'sport', ... }
   async function callAgent(payload) {
+    // 注入用户在页面里粘贴的 Key（若已填）
+    var k = getAgentKey();
+    if (k) payload.agentKey = k;
     if (API_BASE) {
       try {
         var r = await fetch(API_BASE + '/api/agent', {
@@ -254,5 +267,8 @@
     getState: function () { return state; },
     generatePlanLocal: generatePlanLocal,
     macroRatio: macroRatio,
+    getAgentKey: getAgentKey,
+    setAgentKey: setAgentKey,
+    hasAgentKey: hasAgentKey,
   };
 })();

@@ -45,9 +45,11 @@ app.get('/api/health', (req, res) => {
 });
 
 // Agent 入口（前端 callAgent 调用）
+// 「填入即用」：前端把用户在页面里粘贴的 Key 放在 agentKey 字段随请求传来，
+// 后端优先用它；其次用运行态 Key / 环境变量；都没有则明确告知前端走本地引擎。
 app.post('/api/agent', async (req, res) => {
-  const { type, ...payload } = req.body || {};
-  const key = runtimeKey || process.env.GLM_API_KEY;
+  const { type, agentKey, ...payload } = req.body || {};
+  const key = agentKey || runtimeKey || process.env.GLM_API_KEY;
 
   if (!key) {
     // 未配置 Key → 明确告知前端走本地引擎

@@ -689,14 +689,38 @@
     { t: '数据来源说明', d: '食堂原始数据标注了出处（如「中大饮食公众号」「松涛园实测」「食在中大」等），可在数据表中追溯。' },
   ];
 
+  function refreshAgentKeyStatus() {
+    var hasKey = API.hasAgentKey();
+    var st = API.getState();
+    $('agentKeyStatus').innerHTML = hasKey
+      ? '✅ 已填入 Key，将随请求发给后端调用 <b>GLM-4-Flash</b>（仅存你本机浏览器，不写进仓库）。'
+      : '未填 Key：使用<b>本地免费引擎</b>，离线也能完整演示。';
+    $('devConfigNote').innerHTML = '后端状态：<b>' + esc(st.backendReason) + '</b>。<br>' +
+      (hasKey ? '填入即用：Key 已就绪，后端会用它调用大模型。' : '未填 Key 时自动降级本地引擎，无需联网、无需付费。') +
+      '<br>后端部署后把 <code>frontend/js/api.js</code> 的 <code>API_BASE</code> 指向它即可（见 README）。';
+  }
+
+  function initAgentKey() {
+    $('agentKeyInput').value = API.getAgentKey();
+    refreshAgentKeyStatus();
+    $('btnSaveKey').addEventListener('click', function () {
+      var k = $('agentKeyInput').value.trim();
+      API.setAgentKey(k);
+      refreshAgentKeyStatus();
+      toast(k ? 'Key 已保存并生效 🔑' : '未填 Key，使用本地引擎');
+    });
+    $('btnClearKey').addEventListener('click', function () {
+      API.setAgentKey('');
+      $('agentKeyInput').value = '';
+      refreshAgentKeyStatus();
+      toast('已清空 Key，回到本地引擎');
+    });
+  }
+
   function renderScience() {
     $('refList').innerHTML = REFS.map(function (r) { return '<li><div class="t">' + esc(r.t) + '</div><div class="d">' + esc(r.d) + '</div></li>'; }).join('');
     $('dataSourceList').innerHTML = SOURCES.map(function (r) { return '<div class="callout green" style="margin-bottom:8px"><b>' + esc(r.t) + '</b><br>' + esc(r.d) + '</div>'; }).join('');
-    var st = API.getState();
-    $('devConfigNote').innerHTML = '当前模式：<b>' + esc(st.backendReason) + '</b>。<br>' +
-      '① 在 <code>backend/.env</code> 或 Vercel 环境变量中填 <code>GLM_API_KEY</code>（智谱 GLM-4-Flash，免费）；<br>' +
-      '② 把 <code>frontend/js/api.js</code> 顶部的 <code>API_BASE</code> 改成你的后端地址；<br>' +
-      '③ 未填写 Key 时自动使用本地规则引擎，无需联网、无需付费，答辩现场最稳妥。';
+    refreshAgentKeyStatus();
   }
 
   /* ================= 智能教练 ================= */
@@ -974,6 +998,7 @@
     initRecords();
     initCoach();
     initFitness();
+    initAgentKey();
     renderSelectedDishes();
     refreshExerciseResult();
 

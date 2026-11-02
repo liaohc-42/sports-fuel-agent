@@ -442,10 +442,20 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; margin-top: 2
       </div>
 
       <div class="card">
-        <h2><span class="icon">⚙️</span> 开发者后端 · Agent API Key</h2>
-        <p class="hint">API Key <b>只放在后端</b>（不暴露给浏览器）。未填写时自动降级为本地免费引擎，答辩现场不依赖网络也能完整演示。</p>
+        <h2><span class="icon">⚙️</span> Agent API Key · 填入即用</h2>
+        <p class="hint">把智谱 GLM-4-Flash 的 Key 粘到下面，点「保存并生效」即可立即启用大模型（Key 只存在<b>你本机浏览器</b>，随请求发给后端调用，不写进代码仓库）。留空则自动用<b>本地免费引擎</b>，离线也能完整演示。</p>
+        <div class="grid2" style="align-items:end">
+          <div>
+            <label class="fld">Agent API Key（可选）</label>
+            <input type="password" id="agentKeyInput" placeholder="粘贴 GLM API Key，如 xxxx.xxxxxx" autocomplete="off" />
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary btn-sm" id="btnSaveKey" style="flex:1">🔑 保存并生效</button>
+            <button class="btn btn-ghost btn-sm" id="btnClearKey">清空</button>
+          </div>
+        </div>
+        <p class="hint" id="agentKeyStatus"></p>
         <div class="callout green" id="devConfigNote"></div>
-        <a class="btn btn-ghost btn-sm" href="https://github.com/你的GitHub用户名/sports-fuel-agent" target="_blank" rel="noopener">📄 在 GitHub 查看 README 配置说明（替换成你的用户名）</a>
       </div>
     </section>
 
@@ -920,9 +930,22 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
     });
   }
 
+  // 填入即用：Agent Key 只存在本机浏览器 localStorage，随请求发给后端
+  var KEY_STORE = 'sf_agent_key';
+  function getAgentKey() {
+    try { return localStorage.getItem(KEY_STORE) || ''; } catch (e) { return ''; }
+  }
+  function setAgentKey(k) {
+    try { k ? localStorage.setItem(KEY_STORE, k) : localStorage.removeItem(KEY_STORE); } catch (e) {}
+  }
+  function hasAgentKey() { return !!getAgentKey(); }
+
   // 调用后端 Agent（失败自动回退本地）
   // payload: { type: 'meal'|'coach'|'adjust'|'budget'|'sport', ... }
   async function callAgent(payload) {
+    // 注入用户在页面里粘贴的 Key（若已填）
+    var k = getAgentKey();
+    if (k) payload.agentKey = k;
     if (API_BASE) {
       try {
         var r = await fetch(API_BASE + '/api/agent', {
@@ -1134,6 +1157,9 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
     getState: function () { return state; },
     generatePlanLocal: generatePlanLocal,
     macroRatio: macroRatio,
+    getAgentKey: getAgentKey,
+    setAgentKey: setAgentKey,
+    hasAgentKey: hasAgentKey,
   };
 })();
 
@@ -1830,14 +1856,38 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
     { t: '数据来源说明', d: '食堂原始数据标注了出处（如「中大饮食公众号」「松涛园实测」「食在中大」等），可在数据表中追溯。' },
   ];
 
+  function refreshAgentKeyStatus() {
+    var hasKey = API.hasAgentKey();
+    var st = API.getState();
+    $('agentKeyStatus').innerHTML = hasKey
+      ? '✅ 已填入 Key，将随请求发给后端调用 <b>GLM-4-Flash</b>（仅存你本机浏览器，不写进仓库）。'
+      : '未填 Key：使用<b>本地免费引擎</b>，离线也能完整演示。';
+    $('devConfigNote').innerHTML = '后端状态：<b>' + esc(st.backendReason) + '</b>。<br>' +
+      (hasKey ? '填入即用：Key 已就绪，后端会用它调用大模型。' : '未填 Key 时自动降级本地引擎，无需联网、无需付费。') +
+      '<br>后端部署后把 <code>frontend/js/api.js</code> 的 <code>API_BASE</code> 指向它即可（见 README）。';
+  }
+
+  function initAgentKey() {
+    $('agentKeyInput').value = API.getAgentKey();
+    refreshAgentKeyStatus();
+    $('btnSaveKey').addEventListener('click', function () {
+      var k = $('agentKeyInput').value.trim();
+      API.setAgentKey(k);
+      refreshAgentKeyStatus();
+      toast(k ? 'Key 已保存并生效 🔑' : '未填 Key，使用本地引擎');
+    });
+    $('btnClearKey').addEventListener('click', function () {
+      API.setAgentKey('');
+      $('agentKeyInput').value = '';
+      refreshAgentKeyStatus();
+      toast('已清空 Key，回到本地引擎');
+    });
+  }
+
   function renderScience() {
     $('refList').innerHTML = REFS.map(function (r) { return '<li><div class="t">' + esc(r.t) + '</div><div class="d">' + esc(r.d) + '</div></li>'; }).join('');
     $('dataSourceList').innerHTML = SOURCES.map(function (r) { return '<div class="callout green" style="margin-bottom:8px"><b>' + esc(r.t) + '</b><br>' + esc(r.d) + '</div>'; }).join('');
-    var st = API.getState();
-    $('devConfigNote').innerHTML = '当前模式：<b>' + esc(st.backendReason) + '</b>。<br>' +
-      '① 在 <code>backend/.env</code> 或 Vercel 环境变量中填 <code>GLM_API_KEY</code>（智谱 GLM-4-Flash，免费）；<br>' +
-      '② 把 <code>frontend/js/api.js</code> 顶部的 <code>API_BASE</code> 改成你的后端地址；<br>' +
-      '③ 未填写 Key 时自动使用本地规则引擎，无需联网、无需付费，答辩现场最稳妥。';
+    refreshAgentKeyStatus();
   }
 
   /* ================= 智能教练 ================= */
@@ -2115,6 +2165,7 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
     initRecords();
     initCoach();
     initFitness();
+    initAgentKey();
     renderSelectedDishes();
     refreshExerciseResult();
 
