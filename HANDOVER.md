@@ -31,8 +31,12 @@
 ## 二、完成度
 
 - **方案 A「练完吃啥」**：配餐（目标/30+运动/时长数轴/强度/热量缺口/通用菜品库+中大食堂可选/校区→食堂→窗口/预算时间数轴/餐次/不吃的东西/图片识别/3套推荐+为什么这么配/替换建议）、记录（改方案/花销/最近运动直方图）、原理与数据（文献/教练/后端Key）—— **完成**
-- **方案 B「体测急救站」**：全项目评分（BMI/肺活量/50米/体前屈/跳远/引体·仰卧/1000·800米）、短板诊断、引体·仰卧 4 周专项训练计划、7 天计划、打卡调载、配速器 —— **完成**
-- **部署**：GitHub Pages 自动部署（Actions），后端 Vercel —— **完成**
+- **方案 B「体测急救站」**：全项目评分（BMI/肺活量/50米/体前屈/跳远/引体·仰卧/1000·800米）、**提分性价比榜**、短板诊断、引体·仰卧 4 周专项训练计划、7 天计划、打卡调载、配速器 —— **完成**
+- **新 · 积分雷达（「练」的主线）**：13 条校园体育积分机会（8 官方 + 5 社团/民间）、分类/状态/搜索三叠加、未结束升序/已结束沉底、详情页（AI 摘要 + 意向 + 讨论 + 评分）、票根章分值 —— **完成**
+- **新 · 场馆与人流**：五校区 22 个场馆、自绘 SVG 示意图、**两级兜底判定**（近 2 小时上报 >60% 优先 → 历史规律表 → 默认适中）、上报即时生效、人多时给替代场馆建议 —— **完成**
+- **新 · 约运动 / 装备 / 我的**：可发帖、可回复、可筛选的**本地演示版**（无账号体系，数据存本机），页面明确标注边界 —— **完成**
+- **新 · UI 重构**：融合「纸质票据 + 硬阴影」色系（米白/砖红/深绿/墨），目标三段式控件、宏量营养条、横向对比卡、菜品搜索 + 分类吸顶、场景切换 —— **完成**
+- **部署**：GitHub Pages（Actions）+ **阿里云 ECS（Nginx + systemd，国内直连 `http://120.78.120.161/`）** —— **完成**
 - **文档**：README、答辩稿、答辩PPT、使用说明、完善路线、数据说明 —— **完成**
 
 ## 三、目录地图
@@ -42,12 +46,17 @@ sports-fuel-agent/
 ├── frontend/                 # 部署到 GitHub Pages 的静态站点
 │   ├── index.html            # 单页应用（配餐/记录/原理/体测 4 个 tab）
 │   ├── css/style.css         # 深绿主题
-│   ├── js/app.js             # 全部业务逻辑（约 1000 行）
+│   ├── js/app.js             # 配餐/记录/体测/标签路由（约 1200 行）
 │   ├── js/api.js             # 多后端调用 + 本地规则引擎兜底
+│   ├── js/credits.js         # 积分雷达（列表/详情/意向/讨论/评价/AI 摘要）
+│   ├── js/venues.js          # 场馆与人流（两级兜底判定 + SVG 地图 + 上报）
+│   ├── js/campus.js          # 约运动 / 装备 / 我的（本地演示版）
 │   └── data/
 │       ├── nutrition.js      # 营养库（~80 道菜，标注 库/估）
 │       ├── dishes.js         # 通用菜品库（默认数据源）
 │       ├── exercise.js       # 30+ 运动项目 + MET
+│       ├── credits.js        # 13 条积分机会（含 5 条社团/民间）
+│       ├── venues.js         # 五校区 22 个场馆 + 拥挤规律
 │       └── canteen.js        # 中大五校区 647 道菜（由 Excel 生成）
 ├── backend/                  # 部署到 Vercel / 本地 npm start
 │   ├── server.js             # Express：/api/agent /api/vision /api/health /api/canteen
@@ -85,7 +94,17 @@ sports-fuel-agent/
 
 5. **大模型 Key 只在后端 `.env`**：`GLM_API_KEY` / `DEEPSEEK_API_KEY` / `OLLAMA_BASE_URL`+`OLLAMA_VISION_MODEL`；前端不存 Key。未配置自动用本地规则引擎。
 
-6. **部署脚本 `deploy_github.js` 会跳过** `node_modules/.git/.pnpm-store/.vercel/.env`（`.env` 含密钥，必须跳过）。
+6. **部署脚本 `deploy_github.js` 会跳过** `node_modules/.git/.pnpm-store/.vercel/.env`（`.env` 含密钥，必须跳过）；文件按**二进制**读取上传（早期按 utf8 会把 pptx 传坏）。
+
+7. **场馆人流 = 两级兜底**（`frontend/js/venues.js` 的 `crowdOf`）：
+   - ① 近 2 小时本机上报：>60% 报「人多」→ 红；>60% 报「人少」→ 绿；否则黄；
+   - ② 无上报 → 按 `data/venues.js` 的 `peak/mid/free` 时段 + `closedDays` + `teachingBlock`，再退到 `CROWD_RULES`（20:40 下课、19:00–21:30 室内、工作日白天等）；
+   - ③ 都不命中 → 默认「适中，欢迎上报」。
+   - 页面必须标注「模拟数据，仅供参考」。
+
+8. **积分雷达无账号体系**：数据在 `data/credits.js`（13 条），用户行为（意向/讨论/评价/进度）存 `localStorage`。状态由 `realStatus()` 实时推导（`period_end < 今天` → 已结束）。
+
+9. **UI 色系**：融合「纸质票据 + 硬阴影」（`--cream/--paper/--brick/--green/--ink`），粗描边、硬阴影、票根章。旧类名（`.pill`/`.card`…）保留，靠 `:root` 变量映射兼容。
 
 ## 五、环境注意事项（重要）
 
@@ -110,8 +129,10 @@ sports-fuel-agent/
 # 1) 改完前端后，本地验证
 cd C:\Users\liao\Documents\deepseek-harness\default-workspace\sports-fuel-agent
 node scripts\_boot_test.js      # 引导 + 引擎 + 体测（含 0/10 分档）
+node scripts\_boot_campus.js    # 整站引导：积分雷达/场馆/约运动/装备/我的
 node scripts\_smoke_test.js     # 营养/热量/评分
 node scripts\_test_agent.js     # 后端 JSON 校验
+node scripts\_test_campus.js    # 积分雷达数据 + 场馆两级兜底判定
 node scripts\_check_ids.js      # 元素 ID 一致性
 node scripts\_check_refs.js     # 资源引用
 node scripts\_verify_live.js    # 线上站点（需联网）
@@ -139,6 +160,8 @@ npm start        # http://localhost:3000
 | `deploy_github.js` | 一键建仓 + 推代码 + 开 Pages（跳过 .env/.vercel） |
 | `make_pptx.py` | 生成 12 页答辩 PPT |
 | `_boot_test.js` | 前端 init + 引擎 + 体测诊断（含引体 0/10 分） |
+| `_boot_campus.js` | 整站引导：加载全部脚本跑 init，再渲染积分雷达/场馆/约运动/装备/我的 |
+| `_test_campus.js` | 积分雷达数据完整性 + 场馆两级兜底判定（高峰/空闲/闭馆/教学占用） |
 | `_smoke_test.js` | 营养/热量/评分核心逻辑 |
 | `_test_agent.js` | 后端 JSON Schema 校验 + 回退 |
 | `_check_ids.js` / `_check_refs.js` | 前端 ID / 资源引用一致性 |
@@ -147,11 +170,13 @@ npm start        # http://localhost:3000
 ## 九、测试状态（最后验证 2026-11-03）
 
 - `_boot_test.js`：全部 OK（init 无异常、推荐引擎出卡、体测全项目+专项计划、引体 0→0 / 10→60（大一/大二）/ 11→60（大三/大四）、50 米 7.0 → 85（大一）/ 80（大三））
-- `_smoke_test.js`：ALL PASS（含官方表关键分档 eq 断言：1000 米 4'32→60、引体 10→60、大三 引体 11→60、0→0）
+- `_boot_campus.js`：ALL PASS（整站 init；积分雷达列表/详情、场馆、约运动、装备、我的 均渲染成功）
+- `_smoke_test.js`：ALL PASS（含官方表关键分档 eq 断言）
 - `_test_agent.js`：ALL PASS
-- `_check_ids.js`：97 个 ID 一致（新增 `ftGrade`）
-- `_check_refs.js`：7 项资源有效
-- `_verify_live.js`：18 项线上检查 PASS（新增「大三/大四评分表」「年级自动切换提示」）
+- `_test_campus.js`：ALL PASS（13 条机会、五校区坐标、英东 20:45 高峰 / 07:00 空闲、珠海游泳馆周一闭馆、东校园篮球场教学占用）
+- `_check_ids.js`：104 个 ID 一致
+- `_check_refs.js`：12 项资源有效
+- `_verify_live.js`：23 项线上检查 PASS（新增积分雷达、场馆、菜品搜索、目标分段、场景切换）
 
 > ✅ **已于 2026-11-03 部署到线上并验证**：线上 `js/app.js` 已含 `FT_BMI`、「按年级自动切换」提示已上线，`_verify_live.js` **18 项全 PASS**。部署脚本已改为按二进制读文件，线上 PPT 的 SHA256 与本地一致（此前会把 pptx 传坏）。
 
