@@ -709,6 +709,112 @@ footer { color: var(--ink-3); }
 }
 @media (max-width: 520px) { .dish-group { grid-template-columns: 1fr; } }
 
+/* ============================================================
+ * UI 打磨 v2：统一语汇 + 点击反馈
+ * 目标：纸质票据的秩序感（他的色系）+ 明确的按压手感（我的交互密度）
+ * ============================================================ */
+
+/* ---------- 1. 节奏与字体 ---------- */
+:root {
+  --shadow-press: 1px 1px 0 rgba(36, 28, 22, .18);
+  --ease: cubic-bezier(.2, .8, .3, 1);
+}
+html { scroll-behavior: smooth; }
+body { -webkit-tap-highlight-color: transparent; }
+main { max-width: 1120px; padding: 22px 20px 40px; }
+.eat-grid { gap: 22px; }
+.eat-col { gap: 16px; }
+.card { padding: 18px; border-radius: 16px; }
+.card h2 { font-family: var(--serif); font-size: 18px; letter-spacing: .2px; }
+.card h3 { font-family: var(--serif); }
+.step-head { font-size: 13px; letter-spacing: 1.6px; }
+.sub-label { font-size: 12px; letter-spacing: .6px; }
+.hint { line-height: 1.65; }
+::selection { background: var(--brick-soft); color: var(--ink); }
+
+/* ---------- 2. 按钮：可按下 ---------- */
+.btn {
+  border: 1.5px solid var(--ink);
+  box-shadow: 3px 3px 0 rgba(36, 28, 22, .16);
+  transition: transform .1s var(--ease), box-shadow .1s var(--ease), background .15s, color .15s;
+  font-family: var(--sans); letter-spacing: .2px;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 4px 4px 0 rgba(36, 28, 22, .2); }
+.btn:active:not(:disabled) { transform: translate(2px, 2px); box-shadow: var(--shadow-press); }
+.btn:disabled { box-shadow: none; transform: none; opacity: .45; }
+.btn-primary { background: var(--brick); color: var(--paper); }
+.btn-primary:hover:not(:disabled) { background: #a0241e; }
+.btn-orange { background: var(--brick); color: var(--paper); }
+.btn-ghost { background: transparent; box-shadow: none; }
+.btn-ghost:hover:not(:disabled) { background: var(--paper-2); box-shadow: 3px 3px 0 rgba(36,28,22,.1); }
+.btn-ghost:active:not(:disabled) { box-shadow: none; }
+.btn-soft { background: var(--paper-2); }
+.btn-cta { font-size: 16.5px; padding: 14px 20px; }
+
+/* ---------- 3. 标签页：分段感 ---------- */
+.tabs { gap: 7px; padding: 9px 20px; background: var(--cream); }
+.tabs button {
+  border: 1.5px solid transparent; padding: 7px 15px; font-size: 14px;
+  transition: transform .1s var(--ease), background .15s, border-color .15s, color .15s;
+}
+.tabs button:hover { border-color: var(--ink); background: var(--paper-2); }
+.tabs button:active { transform: scale(.96); }
+.tabs button.active {
+  background: var(--ink); color: var(--paper); border-color: var(--ink);
+  box-shadow: 2px 2px 0 rgba(36, 28, 22, .22);
+}
+
+/* ---------- 4. 所有可点元素：统一按压 ---------- */
+.pill, .chip-btn, .seg-item, .dc, .rep, .intent-btn, .scenario, .branch-btn,
+.credit-card, .venue-card, .post-card, .gear-card, .dish-card, .star, .search-clear, .score-item {
+  transition: transform .1s var(--ease), box-shadow .12s var(--ease), background .15s, border-color .15s, color .15s;
+}
+.pill:active, .chip-btn:active, .dc:active, .rep:active, .intent-btn:active,
+.scenario:active, .branch-btn:active, .star:active, .search-clear:active { transform: scale(.95); }
+.credit-card:active, .venue-card:active, .post-card:active, .gear-card:active { transform: translate(1px, 1px); box-shadow: var(--shadow-press); }
+.dish-card:active { transform: translate(1px, 1px) scale(.99); box-shadow: none; }
+
+/* ---------- 5. 卡片：悬浮层次 ---------- */
+.credit-card:hover, .venue-card:hover, .post-card:hover, .gear-card:hover {
+  transform: translateY(-2px); box-shadow: var(--shadow);
+}
+.venue-card.hl { box-shadow: 4px 4px 0 rgba(31, 92, 58, .25); }
+
+/* ---------- 6. 推荐卡：首选角标 ---------- */
+.rec-card { position: relative; }
+.rec-card.best::after {
+  content: '首选'; position: absolute; top: -1px; right: -1px;
+  background: var(--green); color: var(--paper); font-size: 10px; font-weight: 800;
+  padding: 2px 9px; border: 1.5px solid var(--ink); border-radius: 0 14px 0 9px; letter-spacing: 1px;
+}
+
+/* ---------- 7. 表单与滑块 ---------- */
+input[type=text], input[type=number], input[type=search], select, textarea {
+  transition: border-color .15s, box-shadow .15s, background .15s;
+}
+input[type=range] { height: 22px; }
+input[type=range]::-webkit-slider-thumb { box-shadow: 1px 1px 0 rgba(36,28,22,.25); }
+
+/* ---------- 8. 焦点可见（键盘可达） ---------- */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, .dish-card:focus-visible {
+  outline: 3px solid rgba(31, 92, 58, .45); outline-offset: 2px;
+}
+
+/* ---------- 9. 空态与细节 ---------- */
+.empty { border: 2px dashed #d9cbb2; border-radius: 16px; background: var(--paper-2); }
+.empty .emoji { filter: saturate(.9); }
+.count-line { letter-spacing: .3px; }
+.badge, .stamp, .crowd-badge { letter-spacing: .3px; }
+.timer-big, .pacer-big, .rank-eff, .mg-val { font-variant-numeric: tabular-nums; }
+
+/* ---------- 10. 移动端更紧凑 ---------- */
+@media (max-width: 640px) {
+  main { padding: 14px 12px 32px; }
+  .card { padding: 14px; }
+  .card h2 { font-size: 17px; }
+  .btn { padding: 11px 16px; }
+}
+
 
 
 </style>
@@ -739,7 +845,17 @@ footer { color: var(--ink-3); }
   <main>
     <!-- ================= 吃 ================= -->
     <section class="tab active" id="tab-eat">
-      <p class="hint" id="dateTime" style="margin-bottom:10px"></p>
+      <div class="card paper-hero eat-hero">
+        <div class="hero-top">
+          <div>
+            <div class="eyebrow">EAT · 练完吃啥</div>
+            <h2 class="hero-title">练完这一顿，吃对才不白练。</h2>
+          </div>
+          <span class="season">南校园</span>
+        </div>
+        <p class="hint">选目标 → 挑菜 → 出 2–3 套搭配：热量、蛋白、价格、排队时间一次算清。</p>
+      </div>
+      <p class="hint" id="dateTime" style="margin: 2px 0 12px 2px"></p>
       <div class="eat-grid">
         <div class="eat-col">
           <div class="card">
@@ -2134,7 +2250,8 @@ var CROWD_RULES = [
       }).join('') : '') + '</div></div>';
 
     box.innerHTML = html;
-    box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (state._lastId !== a.id) { box.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    state._lastId = a.id;
 
     $('btnCreditBack').onclick = function () { state.currentId = null; renderList(); };
 
@@ -2390,6 +2507,8 @@ var CROWD_RULES = [
         (all[b.dataset.vid] = all[b.dataset.vid] || []).push({ level: b.dataset.rep, t: Date.now() });
         save(LS_REPORTS, all);
         render();
+        var card2 = $('venueBody').querySelector('.venue-card[data-vid="' + b.dataset.vid + '"]');
+        if (card2) card2.scrollIntoView({ behavior: 'smooth', block: 'center' });
       };
     });
     box.querySelectorAll('.map-dot').forEach(function (d) {
@@ -2998,9 +3117,11 @@ var CROWD_RULES = [
   }
 
   function toggleDish(name) {
+    var box = $('dishGrid');
+    var keepTop = box ? box.scrollTop : 0;
     var i = eat.selected.indexOf(name);
     if (i >= 0) eat.selected.splice(i, 1); else eat.selected.push(name);
-    save(LS.eat, eat); renderDishGrid(); updateStats();
+    save(LS.eat, eat); renderDishGrid(); if (box) box.scrollTop = keepTop; updateStats();
   }
   function updateSelectedCount() { $('selectedCount').textContent = eat.selected.length; }
 

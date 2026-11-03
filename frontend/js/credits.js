@@ -196,7 +196,8 @@
       }).join('') : '') + '</div></div>';
 
     box.innerHTML = html;
-    box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (state._lastId !== a.id) { box.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    state._lastId = a.id;
 
     $('btnCreditBack').onclick = function () { state.currentId = null; renderList(); };
 

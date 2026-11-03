@@ -155,6 +155,8 @@
         (all[b.dataset.vid] = all[b.dataset.vid] || []).push({ level: b.dataset.rep, t: Date.now() });
         save(LS_REPORTS, all);
         render();
+        var card2 = $('venueBody').querySelector('.venue-card[data-vid="' + b.dataset.vid + '"]');
+        if (card2) card2.scrollIntoView({ behavior: 'smooth', block: 'center' });
       };
     });
     box.querySelectorAll('.map-dot').forEach(function (d) {

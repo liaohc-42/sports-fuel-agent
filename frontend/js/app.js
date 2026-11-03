@@ -338,9 +338,11 @@
   }
 
   function toggleDish(name) {
+    var box = $('dishGrid');
+    var keepTop = box ? box.scrollTop : 0;
     var i = eat.selected.indexOf(name);
     if (i >= 0) eat.selected.splice(i, 1); else eat.selected.push(name);
-    save(LS.eat, eat); renderDishGrid(); updateStats();
+    save(LS.eat, eat); renderDishGrid(); if (box) box.scrollTop = keepTop; updateStats();
   }
   function updateSelectedCount() { $('selectedCount').textContent = eat.selected.length; }
 
