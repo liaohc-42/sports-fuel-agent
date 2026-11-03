@@ -901,9 +901,9 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
 (function () {
   'use strict';
 
-  // ★ 部署后端后把这里改成你的后端地址，例如 https://xxx.vercel.app
-  //   留空 = 永远使用本地引擎（也最稳妥）。
-  var API_BASE = '';
+  // ★ 后端地址（已部署到 Vercel）。留空 = 永远使用本地引擎。
+  //   注意：国内直连 *.vercel.app 可能被墙；前端有超时保护，连不上会自动降级本地引擎。
+  var API_BASE = 'https://sports-fuel-agent-backend.vercel.app';
 
   var state = {
     backendOnline: false,
@@ -916,7 +916,7 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
     return new Promise(function (resolve) {
       if (!API_BASE) { state.backendOnline = false; state.backendReason = '本地引擎'; resolve(false); return; }
       var t = setTimeout(function () { state.backendOnline = false; state.backendReason = '后端超时→本地引擎'; resolve(false); }, 3000);
-      fetch(API_BASE + '/api/health').then(function (r) { return r.json(); }).then(function (j) {
+      fetch(API_BASE + '/api/health', { signal: AbortSignal.timeout(3000) }).then(function (r) { return r.json(); }).then(function (j) {
         clearTimeout(t);
         state.backendOnline = !!(j && j.ok);
         state.backendReason = state.backendOnline ? (j.model || '已连接后端') : '本地引擎';
@@ -952,12 +952,13 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(8000),
         });
         var j = await r.json();
         if (j && j.ok && j.text) {
           return { text: j.text, engine: j.engine || 'GLM-4-Flash' };
         }
-      } catch (e) { /* 网络失败 → 本地 */ }
+      } catch (e) { /* 网络失败/超时 → 本地 */ }
     }
     return localDispatch(payload);
   }
@@ -1618,30 +1619,28 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
       dishes: selectedDishes.map(function (d) { return { name: d.name, nutrition: d.nutrition, price: d.price, estPrice: d.estPrice }; }),
     };
 
-    // 1) 本地结构引擎：永远给出可靠的搭配（离线可用）
+    // 1) 本地结构引擎：立即给出可靠搭配（离线可用，不等待后端）
     var plan = API.generatePlanLocal(payload);
     lastPlan = plan;
-
-    // 2) 调用 Agent 获得自然语言点评（后端可用时）
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spin"></span> 正在生成…';
-    var ai = null;
-    try {
-      var res = await API.callAgent(payload);
-      if (res.text) ai = res.text;
-    } catch (e) { ai = null; }
-    btn.disabled = false;
-    btn.innerHTML = '✨ 生成我的搭配';
-
-    renderMealResult(plan, ai);
+    renderMealResult(plan, null);
     $('mealResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // 2) 后台尝试获取 AI 点评（后端可用时；超时/失败静默降级，不影响已出的方案）
+    API.callAgent(payload).then(function (res) {
+      if (res && res.text) {
+        var el = $('aiComment');
+        if (el) el.innerHTML = '<div class="callout">🤖 AI 点评：' + esc(res.text) + '</div>';
+      }
+    }).catch(function () {});
   }
 
   function renderMealResult(plan, aiText) {
     var box = $('mealResult');
     var html = '<div class="card"><h2><span class="icon">🍱</span> 推荐搭配</h2>';
     html += '<div class="callout green">' + esc(plan.summary) + '</div>';
+    html += '<div id="aiComment">';
     if (aiText) html += '<div class="callout">🤖 AI 点评：' + esc(aiText) + '</div>';
+    html += '</div>';
 
     plan.combos.forEach(function (c, i) {
       var best = i === 0;

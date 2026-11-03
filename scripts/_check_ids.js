@@ -12,6 +12,7 @@ for (const m of html.matchAll(/id="([^"]+)"/g)) htmlIds.add(m[1]);
 const dynamicIds = new Set([
   'dishSearch', 'dishItems', 'addMealDish',
   'ftToday', 'ftPacer', 'ftCheckinMsg', 'ftTimer', 'pacerClock',
+  'aiComment',
 ]);
 
 const used = new Set();

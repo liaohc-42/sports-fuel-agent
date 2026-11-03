@@ -451,30 +451,28 @@
       dishes: selectedDishes.map(function (d) { return { name: d.name, nutrition: d.nutrition, price: d.price, estPrice: d.estPrice }; }),
     };
 
-    // 1) 本地结构引擎：永远给出可靠的搭配（离线可用）
+    // 1) 本地结构引擎：立即给出可靠搭配（离线可用，不等待后端）
     var plan = API.generatePlanLocal(payload);
     lastPlan = plan;
-
-    // 2) 调用 Agent 获得自然语言点评（后端可用时）
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spin"></span> 正在生成…';
-    var ai = null;
-    try {
-      var res = await API.callAgent(payload);
-      if (res.text) ai = res.text;
-    } catch (e) { ai = null; }
-    btn.disabled = false;
-    btn.innerHTML = '✨ 生成我的搭配';
-
-    renderMealResult(plan, ai);
+    renderMealResult(plan, null);
     $('mealResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // 2) 后台尝试获取 AI 点评（后端可用时；超时/失败静默降级，不影响已出的方案）
+    API.callAgent(payload).then(function (res) {
+      if (res && res.text) {
+        var el = $('aiComment');
+        if (el) el.innerHTML = '<div class="callout">🤖 AI 点评：' + esc(res.text) + '</div>';
+      }
+    }).catch(function () {});
   }
 
   function renderMealResult(plan, aiText) {
     var box = $('mealResult');
     var html = '<div class="card"><h2><span class="icon">🍱</span> 推荐搭配</h2>';
     html += '<div class="callout green">' + esc(plan.summary) + '</div>';
+    html += '<div id="aiComment">';
     if (aiText) html += '<div class="callout">🤖 AI 点评：' + esc(aiText) + '</div>';
+    html += '</div>';
 
     plan.combos.forEach(function (c, i) {
       var best = i === 0;

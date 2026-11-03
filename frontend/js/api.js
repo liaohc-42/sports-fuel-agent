@@ -11,9 +11,9 @@
 (function () {
   'use strict';
 
-  // ★ 部署后端后把这里改成你的后端地址，例如 https://xxx.vercel.app
-  //   留空 = 永远使用本地引擎（也最稳妥）。
-  var API_BASE = '';
+  // ★ 后端地址（已部署到 Vercel）。留空 = 永远使用本地引擎。
+  //   注意：国内直连 *.vercel.app 可能被墙；前端有超时保护，连不上会自动降级本地引擎。
+  var API_BASE = 'https://sports-fuel-agent-backend.vercel.app';
 
   var state = {
     backendOnline: false,
@@ -26,7 +26,7 @@
     return new Promise(function (resolve) {
       if (!API_BASE) { state.backendOnline = false; state.backendReason = '本地引擎'; resolve(false); return; }
       var t = setTimeout(function () { state.backendOnline = false; state.backendReason = '后端超时→本地引擎'; resolve(false); }, 3000);
-      fetch(API_BASE + '/api/health').then(function (r) { return r.json(); }).then(function (j) {
+      fetch(API_BASE + '/api/health', { signal: AbortSignal.timeout(3000) }).then(function (r) { return r.json(); }).then(function (j) {
         clearTimeout(t);
         state.backendOnline = !!(j && j.ok);
         state.backendReason = state.backendOnline ? (j.model || '已连接后端') : '本地引擎';
@@ -62,12 +62,13 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(8000),
         });
         var j = await r.json();
         if (j && j.ok && j.text) {
           return { text: j.text, engine: j.engine || 'GLM-4-Flash' };
         }
-      } catch (e) { /* 网络失败 → 本地 */ }
+      } catch (e) { /* 网络失败/超时 → 本地 */ }
     }
     return localDispatch(payload);
   }
