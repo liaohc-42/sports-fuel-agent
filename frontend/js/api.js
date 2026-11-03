@@ -11,33 +11,43 @@
 (function () {
   'use strict';
 
-  // ★ 后端地址：指向本地后端（先 cd 到 backend 目录运行 `npm start`）。
-  //   留空 = 永远使用本地引擎（纯离线）；改成本地/其他 URL = 调用该后端。
-  var API_BASE = 'http://localhost:3000';
+  // ★ 后端地址（按顺序尝试，谁通就用谁）：
+  //   1) 公网后端（别人也能用；国内可能被墙）
+  //   2) 本机后端（你自己 `npm start` 时用）
+  //   都不可达 → 本地规则引擎
+  var API_BASES = [
+    'https://sports-fuel-agent-backend.vercel.app',
+    'http://localhost:3000',
+  ];
+  var API_BASE = API_BASES[0];
 
   var state = {
     backendOnline: false,
     backendReason: '本地引擎',
+    backendBase: '',
   };
 
-  function setApiBase(url) { API_BASE = url; }
+  function setApiBase(url) { API_BASE = url; API_BASES = [url]; }
+  function getBases() { return API_BASES.slice(); }
 
-  function checkBackend() {
-    return new Promise(function (resolve) {
-      if (!API_BASE) { state.backendOnline = false; state.backendReason = '本地引擎'; resolve(false); return; }
-      var t = setTimeout(function () { state.backendOnline = false; state.backendReason = '后端超时→本地引擎'; resolve(false); }, 3000);
-      fetch(API_BASE + '/api/health', { signal: AbortSignal.timeout(3000) }).then(function (r) { return r.json(); }).then(function (j) {
-        clearTimeout(t);
-        state.backendOnline = !!(j && j.ok);
-        state.backendReason = state.backendOnline ? (j.model || '已连接后端') : '本地引擎';
-        resolve(state.backendOnline);
-      }).catch(function () {
-        clearTimeout(t);
-        state.backendOnline = false;
-        state.backendReason = '后端不可达→本地引擎';
-        resolve(false);
-      });
-    });
+  async function checkBackend() {
+    for (var i = 0; i < API_BASES.length; i++) {
+      var base = API_BASES[i];
+      try {
+        var r = await fetch(base + '/api/health', { signal: AbortSignal.timeout(3000) });
+        var j = await r.json();
+        if (j && j.ok) {
+          state.backendOnline = true;
+          state.backendBase = base;
+          state.backendReason = (j.provider ? j.provider + ' · ' : '') + (j.model || '已连接');
+          return true;
+        }
+      } catch (e) { /* 试下一个 */ }
+    }
+    state.backendOnline = false;
+    state.backendBase = '';
+    state.backendReason = '本地引擎';
+    return false;
   }
 
   // 填入即用：Agent Key 只存在本机浏览器 localStorage，随请求发给后端
@@ -50,15 +60,15 @@
   }
   function hasAgentKey() { return !!getAgentKey(); }
 
-  // 调用后端 Agent（失败自动回退本地）
+  // 调用后端 Agent（依次尝试各后端，失败自动回退本地）
   // payload: { type: 'meal'|'coach'|'adjust'|'budget'|'sport', ... }
   async function callAgent(payload) {
-    // 注入用户在页面里粘贴的 Key（若已填）
     var k = getAgentKey();
     if (k) payload.agentKey = k;
-    if (API_BASE) {
+    for (var i = 0; i < API_BASES.length; i++) {
+      var base = API_BASES[i];
       try {
-        var r = await fetch(API_BASE + '/api/agent', {
+        var r = await fetch(base + '/api/agent', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -66,9 +76,11 @@
         });
         var j = await r.json();
         if (j && j.ok && j.text) {
-          return { text: j.text, engine: j.engine || 'GLM-4-Flash' };
+          state.backendBase = base;
+          state.backendOnline = true;
+          return { text: j.text, engine: j.engine || '后端大模型' };
         }
-      } catch (e) { /* 网络失败/超时 → 本地 */ }
+      } catch (e) { /* 试下一个 */ }
     }
     return localDispatch(payload);
   }
@@ -262,6 +274,7 @@
 
   window.API = {
     API_BASE: API_BASE,
+    getBases: getBases,
     setApiBase: setApiBase,
     checkBackend: checkBackend,
     callAgent: callAgent,

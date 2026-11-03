@@ -98,6 +98,13 @@ Promise.resolve(p).then(() => {
       var ok = fr.indexOf('全项目评分') >= 0 && fr.indexOf('专项训练计划') >= 0;
       console.log('  [' + (ok ? 'OK' : 'FAIL') + '] 体测诊断：含全项目评分=' + (fr.indexOf('全项目评分') >= 0) + ' 含专项训练计划=' + (fr.indexOf('专项训练计划') >= 0) + ' 长度=' + fr.length);
       if (!ok) process.exit(2);
+      // 引体向上 0 个应为 0 分
+      documentStub.getElementById('ftPullup').value = '0';
+      dia._handlers.click();
+      var fr0 = (elCache['ftResult'] && elCache['ftResult'].innerHTML) || '';
+      var zeroOk = /引体向上<\/td><td[^>]*>0<\/td>/.test(fr0);
+      console.log('  [' + (zeroOk ? 'OK' : 'FAIL') + '] 引体向上 0 个 → 0 分（表格中匹配到 0）');
+      if (!zeroOk) process.exit(2);
     } catch (e) { console.log('  [FAIL] 体测诊断抛错:', e && e.message); process.exit(2); }
   } else {
     console.log('  [WARN] 未捕获体测诊断点击处理');

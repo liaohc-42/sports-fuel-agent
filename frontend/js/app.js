@@ -130,20 +130,22 @@
     updateStats();
   }
 
-  // 运动消耗 + 今日热量缺口
+  // 静息消耗 + 运动消耗 + 建议摄入 → 盈余/缺口
   function updateStats() {
     var box = $('exerciseStats'); if (!box) return;
-    var kcal = exerciseKcal();
-    var bmr = EXERCISE.calcBMR(profile.gender, eat.weight || 65, profile.height, profile.age);
-    var maintain = Math.round(bmr * 1.3 + kcal);
-    var target = eat.goal === '增肌' ? maintain + 300 : eat.goal === '减脂' ? Math.max(1200, maintain - 400) : maintain;
-    var intake = eat.selected.reduce(function (s, n) { return s + NUTRITION.lookup(n).kcal; }, 0);
-    var gap = target - intake;
+    var bmr = EXERCISE.calcBMR(profile.gender, eat.weight || 65, profile.height, profile.age); // 静息消耗（基础代谢）
+    var exercise = exerciseKcal(); // 运动消耗
+    var goalAdjust = eat.goal === '增肌' ? 300 : eat.goal === '减脂' ? -400 : 0;
+    var target = bmr + exercise + goalAdjust; // 建议摄入（按目标）
+    var gap = target - exercise - bmr; // 盈余/缺口 = 建议摄入 - 运动消耗 - 静息消耗
+    var intake = Math.round(eat.selected.reduce(function (s, n) { return s + NUTRITION.lookup(n).kcal; }, 0)); // 已选菜品参考
     box.innerHTML = '<div class="kpi-grid">' +
-      '<div class="kpi"><div class="v">' + kcal + '</div><div class="k">运动消耗 kcal</div></div>' +
+      '<div class="kpi"><div class="v">' + bmr + '</div><div class="k">静息消耗 kcal</div></div>' +
+      '<div class="kpi"><div class="v">' + exercise + '</div><div class="k">运动消耗 kcal</div></div>' +
       '<div class="kpi"><div class="v">' + target + '</div><div class="k">建议摄入 kcal</div></div>' +
-      '<div class="kpi"><div class="v" style="color:' + (gap >= 0 ? 'var(--green)' : 'var(--red)') + '">' + (gap >= 0 ? '+' : '') + gap + '</div><div class="k">今日热量缺口/盈余</div></div>' +
-      '</div>';
+      '<div class="kpi"><div class="v" style="color:' + (gap >= 0 ? 'var(--orange)' : 'var(--green)') + '">' + (gap >= 0 ? '+' : '') + gap + '</div><div class="k">盈余/缺口 kcal</div></div>' +
+      '</div>' +
+      '<p class="hint">盈余/缺口 = 建议摄入 − 运动消耗 − 静息消耗（负=缺口/减脂，正=盈余/增肌）。已选菜品约 ' + intake + ' kcal。</p>';
   }
 
   function exerciseKcal() {
@@ -580,13 +582,12 @@
 
   async function runOcr(file) {
     var ocrList = $('ocrList');
-    var base = API.API_BASE;
-    // 1) 优先后端视觉大模型
-    if (base) {
+    var bases = (API.getBases && API.getBases()) || [];
+    for (var i = 0; i < bases.length; i++) {
       try {
         ocrList.innerHTML = '<span class="muted">正在用视觉大模型识别菜品（约 3–10 秒）…</span>';
         var b64 = await fileToBase64(file);
-        var r = await fetch(base + '/api/vision', {
+        var r = await fetch(bases[i] + '/api/vision', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ image: b64, mime: file.type || 'image/jpeg' }),
@@ -599,9 +600,9 @@
           renderOcrChips(ocrList, dishes, '识别引擎：' + esc(j.engine || '视觉模型') + '。点「＋加入」加进已选。');
           return;
         }
-      } catch (e) { /* 后端不可用 → 回退 */ }
+      } catch (e) { /* 试下一个后端 */ }
     }
-    // 2) 回退：Tesseract 文字识别（只认文字）
+    // 回退：Tesseract 文字识别（只认文字）
     await runTesseract(file);
   }
 
@@ -804,7 +805,7 @@
       run50: { 100: 6.7, 95: 6.8, 90: 6.9, 85: 7.0, 80: 7.1, 78: 7.2, 76: 7.3, 74: 7.4, 72: 7.5, 70: 7.6, 68: 7.7, 66: 7.8, 64: 7.9, 62: 8.0, 60: 8.1, 50: 8.4, 40: 8.7, 30: 9.0, 20: 9.3, 10: 9.6 },
       reach: { 100: 24.9, 95: 23.1, 90: 21.3, 85: 19.5, 80: 17.7, 78: 16.5, 76: 15.3, 74: 14.1, 72: 12.9, 70: 11.7, 68: 10.5, 66: 9.3, 64: 8.1, 62: 6.9, 60: 3.7, 50: 1.0, 40: -1.7, 30: -4.4, 20: -7.1, 10: -9.8 },
       jump: { 100: 273, 95: 268, 90: 263, 85: 258, 80: 253, 78: 248, 76: 243, 74: 238, 72: 233, 70: 228, 68: 223, 66: 218, 64: 213, 62: 208, 60: 203, 50: 193, 40: 183, 30: 173, 20: 163, 10: 153 },
-      pullup: { 100: 19, 95: 18, 90: 17, 85: 16, 80: 15, 78: 14, 76: 13, 74: 12, 72: 11, 70: 10, 68: 9, 66: 8, 64: 7, 62: 6, 60: 5, 50: 4, 40: 3, 30: 2, 20: 1, 10: 0 },
+      pullup: { 100: 19, 95: 18, 90: 17, 85: 16, 80: 15, 78: 14, 76: 13, 74: 12, 72: 11, 70: 10, 68: 9, 66: 8, 64: 7, 62: 6, 60: 5, 50: 4, 40: 3, 30: 2, 20: 1, 0: 0 },
       run: { 100: 197, 95: 202, 90: 207, 85: 214, 80: 222, 78: 227, 76: 232, 74: 237, 72: 242, 70: 247, 68: 252, 66: 257, 64: 262, 62: 267, 60: 272, 50: 292, 40: 312, 30: 332, 20: 352, 10: 372 },
     },
     female: {
@@ -822,8 +823,9 @@
   function parseTime(s) { var m = /^(\d+)[:：分](\d{1,2})/.exec((s || '').trim()); if (!m) return null; return (+m[1]) * 60 + (+m[2]); }
   function scoreFromTable(val, table, lowerBetter) {
     var pts = Object.keys(table).map(Number).sort(function (a, b) { return b - a; });
-    if (lowerBetter ? val <= table[100] : val >= table[100]) return 100;
-    if (lowerBetter ? val >= table[10] : val <= table[10]) return 10;
+    var maxS = pts[0], minS = pts[pts.length - 1];
+    if (lowerBetter ? val <= table[maxS] : val >= table[maxS]) return maxS;
+    if (lowerBetter ? val >= table[minS] : val <= table[minS]) return minS;
     for (var i = 0; i < pts.length - 1; i++) {
       var hi = pts[i], lo = pts[i + 1], hiV = table[hi], loV = table[lo];
       if (lowerBetter ? (val >= hiV && val <= loV) : (val <= hiV && val >= loV)) {
@@ -831,7 +833,7 @@
         return Math.round(hi + (lo - hi) * ratio);
       }
     }
-    return 10;
+    return minS;
   }
   function fmtSec(s) { var m = Math.floor(s / 60), r = s % 60; return m + ':' + String(r).padStart(2, '0'); }
   function syncFtGender() {
