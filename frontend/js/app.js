@@ -856,7 +856,7 @@
     var strengthGain = Math.max(0, scoreFromTable(count + 2, gender === 'male' ? table.pullup : table.situp, false) - strengthScore);
     var focusRun = runGain >= strengthGain;
     var runItem = gender === 'male' ? '1000米' : '800米', strengthItem = gender === 'male' ? '引体向上' : '仰卧起坐';
-    var plan = buildFtPlan({ daysLeft: daysLeft, runItem: runItem, strengthItem: strengthItem });
+    var plan = buildFtPlan({ daysLeft: daysLeft, runItem: runItem, strengthItem: strengthItem, injury: injury });
 
     var box = $('ftResult');
     var html = '<div class="card"><h2><span class="icon">📋</span> 全项目评分</h2>';
@@ -886,15 +886,41 @@
     html += '</div></div>';
 
     html += renderStrengthPlan(gender);
+
+    // 打卡调载（必做项）
+    html += '<div class="card"><h2><span class="icon">✅</span> 今日打卡与调载</h2><div class="seg" id="ftCheckinSeg">' +
+      '<button class="pill" data-checkin="done">✅ 完成</button>' +
+      '<button class="pill" data-checkin="tired">😮‍💨 太累</button>' +
+      '<button class="pill" data-checkin="pain">🩹 疼痛</button>' +
+      '<button class="pill" data-checkin="busy">⏰ 没时间</button>' +
+      '</div><div id="ftCheckinMsg" style="margin-top:8px"></div></div>';
+
     box.innerHTML = html;
+    box.querySelectorAll('[data-checkin]').forEach(function (b) {
+      b.onclick = function () {
+        var map = {
+          done: '✅ 打卡成功！明天继续保持节奏，记得喝水、睡够。',
+          tired: '😮‍💨 已降载：今天训练强度减半、时长砍半；明天恢复正常。疲劳是信号，休息也是训练。',
+          pain: '🩹 已换项：疼痛部位相关动作换成臀桥/死虫等无冲击动作；疼痛 >3/10 或持续请就医。',
+          busy: '⏰ 已压缩：今天只做 8 分钟核心微训练（平板 3 组 × 40 秒），明天补耐力。'
+        };
+        $('ftCheckinMsg').innerHTML = '<div class="callout green">' + map[b.dataset.checkin] + '</div>';
+      };
+    });
   }
   function buildFtPlan(o) {
+    var inj = o.injury || '';
+    var knee = /膝|腿|脚|踝/.test(inj);
+    var waist = /腰|背|脊/.test(inj);
     var plan = [];
     for (var i = 1; i <= o.daysLeft; i++) {
       var taper = i > o.daysLeft - 3;
       if (taper) plan.push({ day: i, focus: '减量恢复', detail: '轻松慢跑 10 分钟 + 拉伸' });
-      else if (i % 2 === 1) plan.push({ day: i, focus: o.runItem + ' 间歇', detail: '400m×4 组，组间走 200m' });
-      else plan.push({ day: i, focus: o.strengthItem + ' 专项', detail: o.strengthItem + '退让/辅助训练 3 组' });
+      else if (i % 2 === 1) {
+        plan.push({ day: i, focus: o.runItem + ' 间歇', detail: knee ? '快走 15 分钟（护膝，替代跑步）' : waist ? '椭圆机/快走 15 分钟（护腰）' : '400m×4 组，组间走 200m' });
+      } else {
+        plan.push({ day: i, focus: o.strengthItem + ' 专项', detail: knee ? '臀桥 3 组×15 + 死虫 3 组×10（替代深蹲）' : waist ? '平板 3 组×30 秒 + 鸟狗 3 组×10（护腰）' : o.strengthItem + '退让/辅助训练 3 组' });
+      }
     }
     return plan;
   }

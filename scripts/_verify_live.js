@@ -24,6 +24,14 @@ function get(url) {
     ['pacerTarget', t.indexOf('pacerTarget') >= 0],
     ['exerciseCatSeg', t.indexOf('exerciseCatSeg') >= 0],
     ['dishes.js', t.indexOf('dishes.js') >= 0],
+    ['时长数轴', t.indexOf('durationRange') >= 0],
+    ['预算数轴', t.indexOf('budgetRange') >= 0],
+    ['时间数轴', t.indexOf('timeRange') >= 0],
+    ['热量缺口', t.indexOf('exerciseStats') >= 0],
+    ['食堂三级-canteen', t.indexOf('canteenSelect') >= 0],
+    ['食堂三级-window', t.indexOf('windowSelect') >= 0],
+    ['日期时间', t.indexOf('dateTime') >= 0],
+    ['手动添加', t.indexOf('btnAddManual') >= 0],
   ];
   let ok = true;
   for (const [name, pass] of checks) {
