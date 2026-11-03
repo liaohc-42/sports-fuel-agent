@@ -84,6 +84,24 @@ Promise.resolve(p).then(() => {
   } else {
     console.log('  [WARN] 未捕获 generatePlan 点击处理');
   }
+  // 触发体测诊断（全项目 + 专项训练计划）
+  documentStub.getElementById('ftGender').value = 'male';
+  documentStub.getElementById('ftRunScore').value = '4:35';
+  documentStub.getElementById('ftPullup').value = '3';
+  documentStub.getElementById('ftVital').value = '4000';
+  documentStub.getElementById('ft50').value = '7.5';
+  var dia = elCache['btnFtDiagnose'];
+  if (dia && dia._handlers && dia._handlers.click) {
+    try {
+      dia._handlers.click();
+      var fr = (elCache['ftResult'] && elCache['ftResult'].innerHTML) || '';
+      var ok = fr.indexOf('全项目评分') >= 0 && fr.indexOf('专项训练计划') >= 0;
+      console.log('  [' + (ok ? 'OK' : 'FAIL') + '] 体测诊断：含全项目评分=' + (fr.indexOf('全项目评分') >= 0) + ' 含专项训练计划=' + (fr.indexOf('专项训练计划') >= 0) + ' 长度=' + fr.length);
+      if (!ok) process.exit(2);
+    } catch (e) { console.log('  [FAIL] 体测诊断抛错:', e && e.message); process.exit(2); }
+  } else {
+    console.log('  [WARN] 未捕获体测诊断点击处理');
+  }
   process.exit(0);
 }).catch(e => {
   console.log('FAIL: init() 抛错 →', e && e.stack ? e.stack : e);

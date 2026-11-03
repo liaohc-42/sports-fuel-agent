@@ -39,11 +39,13 @@
   11. 列出 AI 参考**文献**（《中国居民膳食指南(2022)》等）
   12. **智能健身教练**（Agent），API Key 只配置在**后端环境变量**
 
-### 方案 B：体测急救站（14 天体测提分教练）—— 加分副项目
+### 方案 B：体测急救站（《国家学生体质健康标准》全项目）—— 加分副项目
 
-- 必做：**评分计算**、1000/800 米、引体向上/仰卧起坐**专项训练计划**、**7 天计划**、**打卡调载**、**配速器**（每 200 米报时，不依赖 GPS）
-- 按《国家学生体质健康标准(2014 修订)》算分，标注**提分性价比**（如"引体 3→5 比 1000 米提 10 秒划算"）
-- 伤病自动**降载/换项**（如膝盖疼 → 深蹲换成臀桥/死虫）
+- **全项目评分**：BMI、肺活量、50米跑、坐位体前屈、立定跳远、引体向上/仰卧起坐、1000/800 米，逐项算分 + 加权总分（评分表内置、透明可查）
+- **提分性价比**：如"引体 3→5 比 1000 米提 10 秒划算"
+- **引体向上 / 仰卧起坐 专项训练计划**：4 周递进动作库（退让引体、弹力带辅助、澳洲引体、悬垂；卷腹、平板、俄罗斯转体等），含组数次数
+- **7 天计划** + **打卡调载**（太累/疼痛/没时间自动降载换项，膝盖疼 → 深蹲换臀桥）
+- **配速器**：目标成绩 → 每 200/400 米分段 → Web Audio 叮声报时，不依赖 GPS，操场跑步机都能用
 
 ---
 
@@ -134,36 +136,52 @@ var API_BASE = 'http://localhost:3000';
 
 ---
 
-## 🔑 Agent API Key 配置 ⚠️ 醒目入口（只配置在后端）
+## 🔑 大模型配置 ⚠️ 醒目入口（三种后端任选其一，Key 只在后端）
 
-> **安全原则：Key 只放后端环境变量，前端不保存任何密钥。** 未配置 Key 时自动使用本地规则引擎（离线、免费、稳定）。
+> **安全原则：Key 只放后端环境变量，前端不保存任何密钥。** 都未配置时自动使用本地规则引擎（离线、免费、稳定）。
+>
+> 支持三种后端：**GLM（智谱）** / **DeepSeek** / **Ollama（本地）**。大模型只做「解释、鼓励、问答」，输出经过 **JSON Schema + 规则校验**，失败自动回退模板。
 
-**第 1 步：获取 Key（免费）**
+**第 1 步：在 `backend/.env` 里填（复制 `.env.example` 为 `.env`）**
 
-1. 打开 [智谱 AI 开放平台](https://open.bigmodel.cn/)
-2. 注册/登录 → 控制台 → **API Keys** → 创建
-3. 复制形如 `xxxxxxxx.xxxxxxxx` 的 Key（**GLM-4-Flash 有免费额度**）
+```env
+# 方案一：智谱 GLM-4-Flash（免费）
+GLM_API_KEY=你的智谱Key
+GLM_MODEL=glm-4-flash
 
-**第 2 步：填入后端（二选一）**
+# 方案二：DeepSeek（Key 形如 sk-xxx）
+DEEPSEEK_API_KEY=你的DeepSeekKey
+DEEPSEEK_MODEL=deepseek-chat
 
-- **本地**：把 `backend/.env.example` 复制为 `backend/.env`，填入：
-  ```env
-  GLM_API_KEY=粘贴你的Key
-  ```
-- **Vercel**：在 Vercel 项目 → Settings → Environment Variables 添加同名变量 `GLM_API_KEY`（已部署的项目：`sports-fuel-agent-backend`）。
+# 方案三：Ollama 本地大模型（不联网、不花钱）
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=qwen2.5
+```
+
+> 三种都填时，用 `PROVIDER=glm|deepseek|ollama` 指定用哪个。
+
+**第 2 步：启动后端**
+
+```bash
+cd backend
+npm install
+npm start        # http://localhost:3000   （会打印 provider = deepseek / glm / ollama）
+```
 
 **第 3 步：让前端指向后端**
 
-编辑 `frontend/js/api.js` 第 1 段：
+编辑 `frontend/js/api.js` 第 1 段，改成后端地址（本地就填 `http://localhost:3000`）：
 ```js
-var API_BASE = 'https://sports-fuel-agent-backend.vercel.app';
+var API_BASE = 'http://localhost:3000';
 ```
 
-**未配置 Key 时**：后端 `/api/health` 返回 `agent:false`，前端自动降级为**本地规则引擎**——免费、无需联网、答辩现场最稳妥。
+**如何确认生效**：浏览器打开 `http://localhost:3000/api/health`，`provider` 显示 `deepseek`/`glm`/`ollama` 即成功；页面右上角会显示「已连接 Agent」。
 
-**🔒 安全提醒**：`.env` 已被 `.gitignore` 忽略，不会上传。答辩结束请立刻到智谱平台删除该 Key（用完即删，本项目的降级机制保证删了也不影响演示）。
+**未配置任何 Key 时**：后端 `/api/health` 返回 `agent:false`，前端自动降级为**本地规则引擎**——免费、无需联网、答辩现场最稳妥。
 
-> 💡 想用**本地大模型（Ollama 等）**：在 `frontend/js/api.js` 里把 `API_BASE` 指向你的本地服务（需允许 CORS），后端按 OpenAI 兼容协议接即可；或直接保留本地规则引擎，不依赖任何外部服务。
+**🔒 安全提醒**：`.env` 已被 `.gitignore` 忽略，不会上传。答辩结束请立刻到对应平台删除 Key（用完即删，本项目的降级机制保证删了也不影响演示）。
+
+> ⚠️ 国内网络提示：`*.vercel.app` 可能被墙。**最稳的是本地跑后端 + Ollama**，完全不走公网。
 
 ---
 

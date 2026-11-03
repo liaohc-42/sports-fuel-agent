@@ -1,13 +1,11 @@
 /* ============================================================
- * server.js —— 练完吃啥 后端
+ * server.js —— 练完吃啥 后端（支持 GLM / DeepSeek / Ollama）
  * 功能：
- *   1. 代理调用 GLM-4-Flash（隐藏真实 API Key）
- *   2. 提供 /api/health 健康检查（前端据此判断后端是否在线）
- *   3. 提供 /api/admin/set-key 运行态设置 Key（可选，需 ADMIN_TOKEN）
- *   4. 提供 /api/canteen 食堂数据（供后台手动更新菜品）
- * 部署：
- *   本地：  npm install && npm start   → http://localhost:3000
- *   Vercel：把 backend 目录作为根部署，或用仓库根 vercel.json（见 README）
+ *   1. 代理调用大模型（Key 只放后端环境变量，前端不保存）
+ *   2. /api/health 健康检查
+ *   3. /api/admin/set-key 运行态设置 Key（可选，需 ADMIN_TOKEN）
+ *   4. /api/canteen 食堂数据（手动更新）
+ * 部署：本地 npm install && npm start → http://localhost:3000
  * ============================================================ */
 'use strict';
 
@@ -16,14 +14,14 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-const { callGLM } = require('./api/agent');
+const { runAgent } = require('./api/agent');
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 
 // 运行态 Key（优先环境变量，其次 /api/admin/set-key 设置）
-let runtimeKey = process.env.GLM_API_KEY || '';
+let runtimeKey = process.env.GLM_API_KEY || process.env.DEEPSEEK_API_KEY || '';
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
 
 // 食堂数据（手动更新用）
@@ -33,57 +31,53 @@ try {
   if (fs.existsSync(p)) canteenData = JSON.parse(fs.readFileSync(p, 'utf-8'));
 } catch (e) { canteenData = null; }
 
+function currentProvider() {
+  if (process.env.PROVIDER) return process.env.PROVIDER;
+  if (process.env.OLLAMA_BASE_URL) return 'ollama';
+  if (process.env.DEEPSEEK_API_KEY || (runtimeKey && runtimeKey.indexOf('sk-') === 0)) return 'deepseek';
+  if (process.env.GLM_API_KEY || runtimeKey) return 'glm';
+  return 'local';
+}
+
 // 健康检查
 app.get('/api/health', (req, res) => {
-  const key = runtimeKey || process.env.GLM_API_KEY;
+  const prov = currentProvider();
   res.json({
     ok: true,
-    agent: !!key,
-    model: process.env.GLM_MODEL || 'glm-4-flash',
-    engine: key ? 'GLM-4-Flash' : 'local',
+    agent: prov !== 'local',
+    provider: prov,
+    model: prov === 'ollama' ? (process.env.OLLAMA_MODEL || 'qwen2.5')
+      : prov === 'deepseek' ? (process.env.DEEPSEEK_MODEL || 'deepseek-chat')
+        : (process.env.GLM_MODEL || 'glm-4-flash'),
+    engine: prov === 'local' ? 'local' : prov,
   });
 });
 
-// Agent 入口（前端 callAgent 调用）
-// 「填入即用」：前端把用户在页面里粘贴的 Key 放在 agentKey 字段随请求传来，
-// 后端优先用它；其次用运行态 Key / 环境变量；都没有则明确告知前端走本地引擎。
+// Agent 入口
 app.post('/api/agent', async (req, res) => {
-  const { type, agentKey, ...payload } = req.body || {};
-  const key = agentKey || runtimeKey || process.env.GLM_API_KEY;
-
-  if (!key) {
-    // 未配置 Key → 明确告知前端走本地引擎
-    return res.json({ ok: false, engine: 'local', reason: 'GLM_API_KEY 未配置' });
+  const { type, agentKey, provider, ...payload } = req.body || {};
+  const override = { key: agentKey || runtimeKey || undefined, provider: provider || undefined };
+  const result = await runAgent(type, payload, override);
+  if (!result) {
+    return res.json({ ok: false, engine: 'local', reason: '未配置任何后端大模型（GLM_API_KEY / DEEPSEEK_API_KEY / OLLAMA_BASE_URL）' });
   }
-  try {
-    const text = await callGLM(key, process.env.GLM_MODEL || 'glm-4-flash', type, payload);
-    res.json({ ok: true, text, engine: 'GLM-4-Flash' });
-  } catch (e) {
-    res.status(500).json({ ok: false, engine: 'error', reason: e.message });
-  }
+  res.json({ ok: true, text: result.text, engine: result.engine });
 });
 
-// 运行态设置 Key（可选；本地调试用，生产建议只用环境变量）
+// 运行态设置 Key（可选）
 app.post('/api/admin/set-key', (req, res) => {
   if (ADMIN_TOKEN && req.body && req.body.token !== ADMIN_TOKEN) {
     return res.status(401).json({ ok: false, reason: 'token 错误' });
   }
-  if (!req.body || !req.body.key) {
-    return res.status(400).json({ ok: false, reason: '缺少 key' });
-  }
+  if (!req.body || !req.body.key) return res.status(400).json({ ok: false, reason: '缺少 key' });
   runtimeKey = String(req.body.key).trim();
   res.json({ ok: true, msg: 'Key 已设置（仅本次进程有效，重启后失效）' });
 });
 
-// 食堂数据：读取 + 手动更新（开发者后台补全价格）
-app.get('/api/canteen', (req, res) => {
-  res.json(canteenData || { campuses: [] });
-});
-
+// 食堂数据
+app.get('/api/canteen', (req, res) => { res.json(canteenData || { campuses: [] }); });
 app.post('/api/canteen', (req, res) => {
-  if (!req.body || !Array.isArray(req.body.campuses)) {
-    return res.status(400).json({ ok: false, reason: '格式应为 {campuses:[...]}' });
-  }
+  if (!req.body || !Array.isArray(req.body.campuses)) return res.status(400).json({ ok: false, reason: '格式应为 {campuses:[...]}' });
   canteenData = req.body;
   res.json({ ok: true, msg: '食堂数据已更新（本次进程有效）' });
 });
@@ -94,19 +88,23 @@ app.get('/', (req, res) => {
     '练完吃啥后端已运行。\n' +
     '接口：\n' +
     '  GET  /api/health        健康检查\n' +
-    '  POST /api/agent         代理 GLM-4-Flash\n' +
+    '  POST /api/agent         代理大模型（GLM/DeepSeek/Ollama）\n' +
     '  GET  /api/canteen       食堂数据\n' +
     '  POST /api/canteen       手动更新食堂数据\n' +
-    '  POST /api/admin/set-key 运行态设置 Key(需 ADMIN_TOKEN)\n'
+    '  POST /api/admin/set-key 运行态设置 Key(需 ADMIN_TOKEN)\n' +
+    '\n配置（环境变量）：\n' +
+    '  GLM_API_KEY        智谱 GLM-4-Flash\n' +
+    '  DEEPSEEK_API_KEY   DeepSeek（deepseek-chat）\n' +
+    '  OLLAMA_BASE_URL    Ollama 本地服务，如 http://localhost:11434\n' +
+    '  OLLAMA_MODEL       Ollama 模型名，如 qwen2.5\n'
   );
 });
 
-// 本地直接运行时监听端口
 if (require.main === module) {
   const port = process.env.PORT || 3000;
   app.listen(port, () => {
     console.log(`[练完吃啥后端] http://localhost:${port}`);
-    console.log(`[Agent] ${runtimeKey ? '已配置 GLM_API_KEY' : '未配置 Key → 前端将使用本地引擎'}`);
+    console.log(`[Agent] provider = ${currentProvider()}`);
   });
 }
 

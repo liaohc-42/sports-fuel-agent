@@ -43,8 +43,9 @@
               <button class="goal-card" data-goal="增肌">💪 增肌<small>补足蛋白·吃到热量</small></button>
               <button class="goal-card active" data-goal="维持">⚖️ 维持<small>不增不减·吃得舒服</small></button>
             </div>
-            <div class="sub-label">今天练了什么</div>
-            <div class="seg" id="exerciseTypeSeg"></div>
+            <div class="sub-label">今天练了什么（30+ 主流项目）</div>
+            <div class="seg" id="exerciseCatSeg"></div>
+            <div class="seg" id="exerciseTypeSeg" style="margin-top:8px"></div>
             <div class="sub-label">时长</div>
             <div class="seg" id="durationSeg"></div>
             <div class="sub-label">强度</div>
@@ -175,27 +176,57 @@
     <!-- ================= 体测急救站 ================= -->
     <section class="tab" id="tab-fitness">
       <div class="card">
-        <h2><span class="icon">🚑</span> 体测急救站 <span class="badge orange">14 天提分教练</span></h2>
-        <p class="hint">30 秒输入成绩与剩余天数，算出当前分、告诉你“先练哪项、每天练什么、什么时候减量”。</p>
+        <h2><span class="icon">🚑</span> 体测急救站 <span class="badge orange">《国家学生体质健康标准》全项目</span></h2>
+        <p class="hint">录入成绩 → 逐项算分 → 提分诊断 → 专项训练计划 + 配速器。评分表内置、透明可查，以学校执行版本为准。</p>
         <div class="grid2">
           <div><label class="fld">性别</label><select id="ftGender"><option value="male">男</option><option value="female">女</option></select></div>
           <div><label class="fld">年级</label><select id="ftGrade"><option>大一</option><option>大二</option><option>大三</option><option>大四</option></select></div>
         </div>
-        <div class="grid2">
-          <div><label class="fld">耐力跑项目</label><select id="ftEvent"><option value="1000">1000 米（男）</option><option value="800">800 米（女）</option></select></div>
-          <div><label class="fld">成绩（分:秒）</label><input type="text" id="ftRunScore" placeholder="例如 4:35" /></div>
-        </div>
-        <div class="grid2">
-          <div id="ftPullupWrap"><label class="fld">引体向上（男，个）</label><input type="number" id="ftPullup" placeholder="例如 3" min="0" /></div>
-          <div id="ftSitupWrap"><label class="fld">仰卧起坐（女，个/分钟）</label><input type="number" id="ftSitup" placeholder="例如 30" min="0" /></div>
+        <div class="grid3">
+          <div><label class="fld">身高(cm)</label><input type="number" id="ftHeight" value="175" min="130" max="210" /></div>
+          <div><label class="fld">体重(kg)</label><input type="number" id="ftWeight" value="65" min="35" max="150" /></div>
+          <div><label class="fld">BMI（自动）</label><div class="pill" id="ftBmi" style="width:100%;text-align:center">—</div></div>
         </div>
         <div class="grid3">
+          <div><label class="fld">肺活量(ml)</label><input type="number" id="ftVital" placeholder="如 4000" min="0" /></div>
+          <div><label class="fld">50米(秒)</label><input type="text" id="ft50" placeholder="如 7.5" /></div>
+          <div><label class="fld">坐位体前屈(cm)</label><input type="text" id="ftReach" placeholder="如 10" /></div>
+        </div>
+        <div class="grid3">
+          <div><label class="fld">立定跳远(cm)</label><input type="number" id="ftJump" placeholder="如 230" min="0" /></div>
+          <div id="ftPullupWrap"><label class="fld">引体向上(个)</label><input type="number" id="ftPullup" placeholder="如 3" min="0" /></div>
+          <div id="ftSitupWrap"><label class="fld">仰卧起坐(个/分)</label><input type="number" id="ftSitup" placeholder="如 30" min="0" /></div>
+        </div>
+        <div class="grid3">
+          <div><label class="fld">耐力跑</label><select id="ftEvent"><option value="1000">1000 米（男）</option><option value="800">800 米（女）</option></select></div>
+          <div><label class="fld">耐力跑成绩(分:秒)</label><input type="text" id="ftRunScore" placeholder="如 4:35" /></div>
           <div><label class="fld">距体测天数</label><input type="number" id="ftDaysLeft" value="12" min="1" max="30" /></div>
+        </div>
+        <div class="grid2">
           <div><label class="fld">每周可练天数</label><input type="number" id="ftDaysPerWeek" value="5" min="1" max="7" /></div>
           <div><label class="fld">伤病/场地限制</label><input type="text" id="ftInjury" placeholder="例如：膝盖有点疼" /></div>
         </div>
-        <button class="btn btn-primary btn-block" id="btnFtDiagnose" style="margin-top:14px">🔍 生成诊断与 7 天计划</button>
+        <button class="btn btn-primary btn-block" id="btnFtDiagnose" style="margin-top:14px">🔍 算分 + 提分诊断</button>
       </div>
+
+      <!-- 配速器：独立、显眼 -->
+      <div class="card">
+        <h2><span class="icon">⏱️</span> 配速器（目标成绩 → 分段 → 报时）</h2>
+        <p class="hint">输入目标成绩，自动生成每 200/400 米分段，按分段用 Web Audio 叮声报时。不依赖 GPS，操场和跑步机都能用。</p>
+        <div class="grid3">
+          <div><label class="fld">距离(米)</label><input type="number" id="pacerDist" value="1000" min="200" /></div>
+          <div><label class="fld">目标成绩(分:秒)</label><input type="text" id="pacerTarget" value="4:30" /></div>
+          <div><label class="fld">分段</label><select id="pacerSeg"><option value="200">每 200 米</option><option value="400">每 400 米</option></select></div>
+        </div>
+        <button class="btn btn-soft btn-sm" id="btnPacerPlan" style="margin-top:8px">生成分段</button>
+        <div id="pacerResult" style="margin-top:8px"></div>
+        <div class="timer-big" id="pacerClock" style="margin-top:8px">—</div>
+        <div class="grid2" style="margin-top:8px">
+          <button class="btn btn-primary" id="btnPacerStart">▶ 开始报时</button>
+          <button class="btn btn-ghost" id="btnPacerStop">⏹ 停止</button>
+        </div>
+      </div>
+
       <div id="ftResult"></div>
     </section>
   </main>
