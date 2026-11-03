@@ -30,7 +30,7 @@ console.log('  targetMacros(减脂,60) =', JSON.stringify(NUTRITION.targetMacros
 // 运动热量
 eq('calcKcal(10,65,30)', EXERCISE.calcKcal(10, 65, 30), 341);
 eq('calcBMR(male,65,175,19)', EXERCISE.calcBMR('male', 65, 175, 19), Math.round(10*65+6.25*175-5*19+5));
-console.log('  targetIntake(增肌) =', JSON.stringify(EXERCISE.targetIntake('增肌', 1600, 340)));
+eq('find(run).met', EXERCISE.find('run').met, 9);
 
 // 食堂数据
 console.log('  校区数 =', window.SYSU_CANTEENS.length);

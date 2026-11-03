@@ -5,7 +5,7 @@ const ROOT = 'C:\\Users\\liao\\Documents\\deepseek-harness\\default-workspace\\s
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 
 const refs = [];
-for (const m of html.matchAll(/(?:src|href)="([^"]+)"/g)) {
+for (const m of html.matchAll(/\s(?:src|href)="([^"]+)"/g)) {
   const u = m[1];
   if (/^(https?:|#|javascript:)/.test(u)) continue;
   refs.push(u);
