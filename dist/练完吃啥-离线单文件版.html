@@ -1791,6 +1791,8 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
   }
 
   /* ================= 配餐 · 菜单图片上传（OCR） ================= */
+  var OCR_LANG_PATH = 'https://cdn.jsdelivr.net/npm/@tesseract.js-data/chi_sim@1.0.0/4.0.0_best_int/';
+
   function initUpload() {
     var box = $('uploadBox'), file = $('menuFile'), preview = $('menuPreview'), ocrList = $('ocrList');
     box.onclick = function () { file.click(); };
@@ -1798,7 +1800,7 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
       var f = file.files[0]; if (!f) return;
       var url = URL.createObjectURL(f);
       preview.src = url; preview.style.display = 'block';
-      ocrList.innerHTML = '<span class="muted">正在识别中…（首次需下载中文识别模型，约 10-20 秒）</span>';
+      ocrList.innerHTML = '<span class="muted">正在加载识别引擎…</span>';
       runOcr(f);
     });
   }
@@ -1806,11 +1808,22 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
   function loadTesseract() {
     return new Promise(function (resolve, reject) {
       if (window.Tesseract) return resolve(window.Tesseract);
-      var s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-      s.onload = function () { resolve(window.Tesseract); };
-      s.onerror = function () { reject(new Error('OCR 库加载失败')); };
-      document.head.appendChild(s);
+      var urls = [
+        'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js',
+        'https://unpkg.com/tesseract.js@5/dist/tesseract.min.js',
+        'https://cdn.staticfile.org/tesseract.js/5.1.1/tesseract.min.js',
+        'https://fastly.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js',
+      ];
+      var i = 0;
+      function tryNext() {
+        if (i >= urls.length) { reject(new Error('识别引擎加载失败')); return; }
+        var s = document.createElement('script');
+        s.src = urls[i++];
+        s.onload = function () { if (window.Tesseract) resolve(window.Tesseract); else tryNext(); };
+        s.onerror = function () { tryNext(); };
+        document.head.appendChild(s);
+      }
+      tryNext();
     });
   }
 
@@ -1818,34 +1831,46 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
     var ocrList = $('ocrList');
     try {
       var T = await loadTesseract();
-      var res = await T.recognize(file, 'chi_sim', { logger: function () {} });
+      ocrList.innerHTML = '<span class="muted">正在下载中文识别模型（首次约 10–30 秒，之后会快很多）…</span>';
+      var res = await T.recognize(file, 'chi_sim', {
+        langPath: OCR_LANG_PATH,
+        logger: function (m) {
+          if (m && m.status === 'recognizing text' && m.progress != null) {
+            ocrList.innerHTML = '<span class="muted">识别中 ' + Math.round(m.progress * 100) + '%…</span>';
+          }
+        }
+      });
       var text = (res && res.data && res.data.text) || '';
+      // 按行匹配菜品（避免整段误匹配）
+      var lines = String(text).split(/\n+/).map(function (l) { return l.trim(); }).filter(Boolean);
       var pool = getPool();
       var found = [];
-      pool.forEach(function (d) { if (text.indexOf(d.name) >= 0) found.push(d.name); });
-      // 也尝试从文本里匹配常见菜名（不要求完全包含）
-      if (!found.length) {
-        pool.forEach(function (d) { if (d.name.length >= 2 && text.indexOf(d.name.slice(0, 2)) >= 0) found.push(d.name); });
-      }
+      pool.forEach(function (d) {
+        var nm = d.name;
+        var hit = lines.some(function (line) {
+          if (line.indexOf(nm) >= 0) return true;
+          return nm.length >= 3 && line.indexOf(nm.slice(0, 2)) >= 0;
+        });
+        if (hit) found.push(nm);
+      });
       found = Array.from(new Set(found));
       if (!found.length) {
-        ocrList.innerHTML = '<span class="muted">没识别出菜品名，可手动勾选。</span>';
+        ocrList.innerHTML = '<span class="muted">识别完成但没匹配到菜品名。可看下方预览，手动勾选或在「手动添加菜品」输入。</span>';
         return;
       }
       ocrList.innerHTML = found.map(function (nm) {
         return '<span class="chip">' + esc(nm) + ' <a href="javascript:void(0)" style="color:var(--green)" data-ocr="' + esc(nm) + '">＋加入</a></span>';
-      }).join('');
+      }).join('') + '<p class="hint">点「＋加入」把这道菜加进已选。</p>';
       ocrList.querySelectorAll('[data-ocr]').forEach(function (a) {
         a.onclick = function () {
           var nm = a.dataset.ocr;
           if (eat.selected.indexOf(nm) < 0) eat.selected.push(nm);
-          save(LS.eat, eat); renderDishGrid();
-          a.textContent = '已加入';
-          a.style.color = 'var(--ink-3)';
+          save(LS.eat, eat); renderDishGrid(); updateStats();
+          a.textContent = '已加入'; a.style.color = 'var(--ink-3)';
         };
       });
     } catch (e) {
-      ocrList.innerHTML = '<span class="muted">OCR 不可用（离线/网络问题），请手动勾选菜品。</span>';
+      ocrList.innerHTML = '<span class="muted">OCR 失败（' + esc(e.message || '网络/离线') + '）。可看预览手动勾选，或在「手动添加菜品」输入。</span>';
     }
   }
 
