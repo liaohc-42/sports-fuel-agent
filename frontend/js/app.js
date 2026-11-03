@@ -17,7 +17,7 @@
 
   var eat = load(LS.eat, {
     goal: profile.goal, exerciseType: 'run', exerciseCat: '有氧', duration: 45, intensity: '正常',
-    source: 'generic', campus: '广州校区南校园',
+    source: 'generic', campus: '广州校区南校园', canteen: '', window: '',
     selected: [], budget: 15, timeLimit: 15, mealType: '午餐',
     dealbreakers: [], weight: profile.weight, trainEnd: ''
   });
@@ -111,14 +111,13 @@
       b.onclick = function () { eat.exerciseType = o.id; save(LS.eat, eat); renderExercise(); };
       t.appendChild(b);
     });
-    var d = $('durationSeg'); d.innerHTML = '';
-    EX_DURATIONS.forEach(function (x) {
-      var b = document.createElement('button');
-      b.className = 'pill' + (x === eat.duration ? ' active' : '');
-      b.textContent = x + ' 分钟';
-      b.onclick = function () { eat.duration = x; save(LS.eat, eat); renderExercise(); };
-      d.appendChild(b);
-    });
+    // 时长：数轴（分度 5 分钟）
+    var dr = $('durationRange');
+    if (dr) {
+      dr.value = eat.duration;
+      $('durationVal').textContent = eat.duration + ' 分钟';
+      dr.oninput = function () { eat.duration = +dr.value; $('durationVal').textContent = eat.duration + ' 分钟'; save(LS.eat, eat); updateStats(); };
+    }
     var i = $('intensitySeg'); i.innerHTML = '';
     Object.keys(EX_INTENSITY).forEach(function (x) {
       var b = document.createElement('button');
@@ -128,6 +127,23 @@
       i.appendChild(b);
     });
     $('intensityNote').textContent = (EX_INTENSITY[eat.intensity] ? EX_INTENSITY[eat.intensity].note : '');
+    updateStats();
+  }
+
+  // 运动消耗 + 今日热量缺口
+  function updateStats() {
+    var box = $('exerciseStats'); if (!box) return;
+    var kcal = exerciseKcal();
+    var bmr = EXERCISE.calcBMR(profile.gender, eat.weight || 65, profile.height, profile.age);
+    var maintain = Math.round(bmr * 1.3 + kcal);
+    var target = eat.goal === '增肌' ? maintain + 300 : eat.goal === '减脂' ? Math.max(1200, maintain - 400) : maintain;
+    var intake = eat.selected.reduce(function (s, n) { return s + NUTRITION.lookup(n).kcal; }, 0);
+    var gap = target - intake;
+    box.innerHTML = '<div class="kpi-grid">' +
+      '<div class="kpi"><div class="v">' + kcal + '</div><div class="k">运动消耗 kcal</div></div>' +
+      '<div class="kpi"><div class="v">' + target + '</div><div class="k">建议摄入 kcal</div></div>' +
+      '<div class="kpi"><div class="v" style="color:' + (gap >= 0 ? 'var(--green)' : 'var(--red)') + '">' + (gap >= 0 ? '+' : '') + gap + '</div><div class="k">今日热量缺口/盈余</div></div>' +
+      '</div>';
   }
 
   function exerciseKcal() {
@@ -149,16 +165,53 @@
 
   function renderCanteenTabs() {
     var box = $('canteenTabs');
-    if (eat.source === 'generic') { box.innerHTML = ''; return; }
+    var levels = $('sysuLevels');
+    if (eat.source === 'generic') { box.innerHTML = ''; if (levels) levels.style.display = 'none'; return; }
+    if (levels) levels.style.display = '';
     box.innerHTML = '';
     var campuses = SYSU_CANTEENS.filter(function (c) { return c.campus !== '全校区同步'; });
     campuses.forEach(function (c) {
       var b = document.createElement('button');
       b.className = 'ct' + (c.campus === eat.campus ? ' active' : '');
       b.textContent = c.campus;
-      b.onclick = function () { eat.campus = c.campus; save(LS.eat, eat); renderCanteenTabs(); renderDishGrid(); };
+      b.onclick = function () { eat.campus = c.campus; eat.canteen = ''; eat.window = ''; save(LS.eat, eat); renderCanteenTabs(); renderDishGrid(); };
       box.appendChild(b);
     });
+    renderCanteenSelect();
+    renderWindowSelect();
+  }
+
+  function renderCanteenSelect() {
+    var campus = SYSU_CANTEENS.find(function (x) { return x.campus === eat.campus; });
+    var cs = $('canteenSelect'); if (!cs) return;
+    cs.innerHTML = '';
+    if (!campus) { return; }
+    campus.canteens.forEach(function (ct) {
+      var o = document.createElement('option');
+      o.value = ct.name; o.textContent = ct.name;
+      cs.appendChild(o);
+    });
+    if (!eat.canteen || !campus.canteens.some(function (ct) { return ct.name === eat.canteen; })) {
+      eat.canteen = campus.canteens[0] ? campus.canteens[0].name : '';
+    }
+    cs.value = eat.canteen;
+    cs.onchange = function () { eat.canteen = cs.value; eat.window = ''; save(LS.eat, eat); renderWindowSelect(); renderDishGrid(); };
+  }
+
+  function renderWindowSelect() {
+    var campus = SYSU_CANTEENS.find(function (x) { return x.campus === eat.campus; });
+    var canteen = campus && campus.canteens.find(function (ct) { return ct.name === eat.canteen; });
+    var ws = $('windowSelect'); if (!ws) return;
+    ws.innerHTML = '<option value="">全部窗口</option>';
+    if (canteen) {
+      canteen.windows.forEach(function (w) {
+        var o = document.createElement('option');
+        o.value = w.name; o.textContent = w.name + ' (' + w.dishes.length + ')';
+        ws.appendChild(o);
+      });
+    }
+    ws.value = eat.window || '';
+    ws.onchange = function () { eat.window = ws.value; save(LS.eat, eat); renderDishGrid(); };
   }
 
   // 统一菜品对象
@@ -187,7 +240,9 @@
     if (!c) return [];
     var out = [];
     c.canteens.forEach(function (ct) {
+      if (eat.canteen && ct.name !== eat.canteen) return;
       ct.windows.forEach(function (w) {
+        if (eat.window && w.name !== eat.window) return;
         w.dishes.forEach(function (d) {
           if (!d.name) return;
           out.push({
@@ -237,28 +292,28 @@
   function toggleDish(name) {
     var i = eat.selected.indexOf(name);
     if (i >= 0) eat.selected.splice(i, 1); else eat.selected.push(name);
-    save(LS.eat, eat); renderDishGrid();
+    save(LS.eat, eat); renderDishGrid(); updateStats();
   }
   function updateSelectedCount() { $('selectedCount').textContent = eat.selected.length; }
 
   /* ================= 配餐 · 约束 ================= */
   function renderConstraints() {
-    var bs = $('budgetSeg'); bs.innerHTML = '';
-    [10, 15, 20, '不限'].forEach(function (v) {
-      var b = document.createElement('button');
-      b.className = 'pill' + ((v === '不限' && eat.budget == null) || v === eat.budget ? ' active' : '');
-      b.textContent = v === '不限' ? '不限' : v + ' 元';
-      b.onclick = function () { eat.budget = v === '不限' ? null : v; save(LS.eat, eat); renderConstraints(); };
-      bs.appendChild(b);
-    });
-    var ts = $('timeSeg'); ts.innerHTML = '';
-    [10, 15, 25, '不赶时间'].forEach(function (v) {
-      var b = document.createElement('button');
-      b.className = 'pill' + ((v === '不赶时间' && eat.timeLimit == null) || v === eat.timeLimit ? ' active' : '');
-      b.textContent = v;
-      b.onclick = function () { eat.timeLimit = v === '不赶时间' ? null : v; save(LS.eat, eat); renderConstraints(); };
-      ts.appendChild(b);
-    });
+    // 预算（数轴，分度 1 元）
+    var br = $('budgetRange');
+    br.value = eat.budget == null ? 0 : eat.budget;
+    $('budgetVal').textContent = eat.budget == null ? '不限' : eat.budget + ' 元';
+    br.oninput = function () { eat.budget = +br.value; $('budgetVal').textContent = eat.budget + ' 元'; save(LS.eat, eat); };
+    $('btnBudgetUnlimited').onclick = function () { eat.budget = null; br.value = 0; $('budgetVal').textContent = '不限'; save(LS.eat, eat); };
+    $('budgetCustom').oninput = function () { var v = +this.value; if (v > 0) { eat.budget = v; br.value = Math.min(30, v); $('budgetVal').textContent = v + ' 元'; save(LS.eat, eat); } };
+
+    // 路上时间（数轴，分度 1 分钟）
+    var tr = $('timeRange');
+    tr.value = eat.timeLimit == null ? 30 : eat.timeLimit;
+    $('timeVal').textContent = eat.timeLimit == null ? '不赶时间' : eat.timeLimit + ' 分钟';
+    tr.oninput = function () { eat.timeLimit = +tr.value; $('timeVal').textContent = eat.timeLimit + ' 分钟'; save(LS.eat, eat); };
+    $('btnTimeNoRush').onclick = function () { eat.timeLimit = null; tr.value = 30; $('timeVal').textContent = '不赶时间'; save(LS.eat, eat); };
+    $('timeCustom').oninput = function () { var v = +this.value; if (v > 0) { eat.timeLimit = v; tr.value = Math.min(30, v); $('timeVal').textContent = v + ' 分钟'; save(LS.eat, eat); } };
+
     var ms = $('mealTypeSeg'); ms.innerHTML = '';
     MEAL_TYPES.forEach(function (v) {
       var b = document.createElement('button');
@@ -889,9 +944,29 @@
   }
 
   /* ================= 初始化 ================= */
+  function renderDateTime() {
+    var el = $('dateTime'); if (!el) return;
+    var now = new Date();
+    var w = ['日', '一', '二', '三', '四', '五', '六'][now.getDay()];
+    el.textContent = now.toLocaleDateString('zh-CN') + ' 周' + w + ' ' + now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function initManualAdd() {
+    var btn = $('btnAddManual'); if (!btn) return;
+    btn.onclick = function () {
+      var inp = $('manualDish'); var nm = (inp.value || '').trim();
+      if (!nm) { toast('请输入菜品名'); return; }
+      if (eat.selected.indexOf(nm) < 0) eat.selected.push(nm);
+      inp.value = '';
+      save(LS.eat, eat); renderDishGrid(); updateStats();
+      toast('已添加「' + nm + '」');
+    };
+  }
+
   async function init() {
+    renderDateTime();
     initTabs(); initDrawer(); renderGoal(); renderExercise(); renderSource();
-    renderCanteenTabs(); renderDishGrid(); renderConstraints(); initWeightInputs(); initUpload(); initPaceCalc();
+    renderCanteenTabs(); renderDishGrid(); renderConstraints(); initWeightInputs(); initUpload(); initPaceCalc(); initManualAdd();
     initRecords(); initCoach(); initFitness();
     $('btnGenerate').addEventListener('click', generatePlan);
 

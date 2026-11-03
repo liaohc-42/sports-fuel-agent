@@ -32,6 +32,7 @@
   <main>
     <!-- ================= 配餐 ================= -->
     <section class="tab active" id="tab-eat">
+      <p class="hint" id="dateTime" style="margin-bottom:10px"></p>
       <div class="eat-grid">
         <!-- 左栏：配置 -->
         <div class="eat-col">
@@ -46,11 +47,16 @@
             <div class="sub-label">今天练了什么（30+ 主流项目）</div>
             <div class="seg" id="exerciseCatSeg"></div>
             <div class="seg" id="exerciseTypeSeg" style="margin-top:8px"></div>
-            <div class="sub-label">时长</div>
-            <div class="seg" id="durationSeg"></div>
+            <div class="sub-label">时长（数轴，分度 5 分钟）</div>
+            <div class="slider-row">
+              <input type="range" id="durationRange" min="5" max="180" step="5" value="45" />
+              <output id="durationVal">45 分钟</output>
+            </div>
+            <div class="range-marks"><span>5</span><span>45</span><span>90</span><span>135</span><span>180分钟</span></div>
             <div class="sub-label">强度</div>
             <div class="seg" id="intensitySeg"></div>
             <p class="hint" id="intensityNote"></p>
+            <div id="exerciseStats" style="margin-top:8px"></div>
           </div>
 
           <!-- Step 2 -->
@@ -61,21 +67,45 @@
               <button data-src="sysu">🏫 中山大学食堂</button>
             </div>
             <div class="canteen-tabs" id="canteenTabs"></div>
+            <div class="grid2" id="sysuLevels" style="display:none">
+              <div><label class="fld">食堂</label><select id="canteenSelect"></select></div>
+              <div><label class="fld">窗口/楼层</label><select id="windowSelect"></select></div>
+            </div>
             <div class="dish-grid" id="dishGrid"></div>
             <div class="upload-box" id="uploadBox">📷 上传菜单图片，一键识别菜品</div>
             <input type="file" id="menuFile" accept="image/*" style="display:none" />
             <img id="menuPreview" class="upload-preview" style="display:none" alt="菜单预览" />
             <div class="ocr-list" id="ocrList"></div>
+            <div class="grid2" style="margin-top:8px">
+              <div><label class="fld">手动添加菜品（列表没有时）</label><input type="text" id="manualDish" placeholder="如 白切鸡" /></div>
+              <div style="display:flex;align-items:flex-end"><button class="btn btn-soft btn-sm" id="btnAddManual" style="width:100%">＋ 添加</button></div>
+            </div>
             <p class="hint">已选 <b id="selectedCount">0</b> 道 · 点菜品卡片勾选/取消</p>
           </div>
 
           <!-- Step 3 -->
           <div class="card">
             <div class="step-head">STEP 3 · 这顿的约束</div>
-            <div class="sub-label">预算</div>
-            <div class="seg" id="budgetSeg"></div>
-            <div class="sub-label">最多花在路上的时间</div>
-            <div class="seg" id="timeSeg"></div>
+            <div class="sub-label">预算（数轴，分度 1 元）</div>
+            <div class="slider-row">
+              <input type="range" id="budgetRange" min="0" max="30" step="1" value="15" />
+              <output id="budgetVal">15 元</output>
+            </div>
+            <div class="range-marks"><span>0元</span><span>10</span><span>20</span><span>30元</span></div>
+            <div class="seg" style="margin-top:6px">
+              <button class="pill" id="btnBudgetUnlimited">不限</button>
+              <input type="number" id="budgetCustom" placeholder="自定义金额" style="width:110px" />
+            </div>
+            <div class="sub-label">最多花在路上的时间（数轴，分度 1 分钟）</div>
+            <div class="slider-row">
+              <input type="range" id="timeRange" min="0" max="30" step="1" value="15" />
+              <output id="timeVal">15 分钟</output>
+            </div>
+            <div class="range-marks"><span>0分钟</span><span>10</span><span>20</span><span>30分钟</span></div>
+            <div class="seg" style="margin-top:6px">
+              <button class="pill" id="btnTimeNoRush">不赶时间</button>
+              <input type="number" id="timeCustom" placeholder="自定义分钟" style="width:110px" />
+            </div>
             <div class="sub-label">这一餐是</div>
             <div class="seg" id="mealTypeSeg"></div>
             <div class="sub-label">不吃的东西（点一下排除）</div>
