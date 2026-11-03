@@ -12,10 +12,11 @@ function makeEl(id) {
     style: {}, dataset: {}, children: [],
     disabled: false, checked: false, scrollTop: 0, scrollHeight: 0,
     innerHTML: '', textContent: '', className: '', label: '',
+    _handlers: {},
     classList: {
       add() {}, remove() {}, toggle() {}, contains() { return false; },
     },
-    addEventListener() {}, removeEventListener() {},
+    addEventListener(ev, cb) { this._handlers[ev] = cb; }, removeEventListener() {},
     appendChild() {}, removeChild() {}, setAttribute() {},
     querySelector() { return makeEl(); },
     querySelectorAll() { return []; },
@@ -69,6 +70,20 @@ const p = documentStub._readyCb(); // init() 是 async，返回 Promise
 Promise.resolve(p).then(() => {
   console.log('OK: init() 完整执行，无异常');
   console.log('  校验 NUTRITION=', typeof NUTRITION, ' EXERCISE=', typeof EXERCISE, ' API=', typeof API, ' SYSU_CANTEENS=', Array.isArray(SYSU_CANTEENS) ? SYSU_CANTEENS.length : '?');
+  // 触发「让 Agent 配这一餐」，检查引擎输出
+  var gen = elCache['btnGenerate'];
+  if (gen && gen._handlers && gen._handlers.click) {
+    try {
+      gen._handlers.click();
+      var rec = elCache['recommendCards'];
+      var html = (rec && rec.innerHTML) || '';
+      var ok = html.indexOf('蛋白优先') >= 0 && html.indexOf('rec-card') >= 0;
+      console.log('  [' + (ok ? 'OK' : 'FAIL') + '] 推荐引擎输出：含蛋白优先=' + (html.indexOf('蛋白优先') >= 0) + ' 含rec-card=' + (html.indexOf('rec-card') >= 0) + ' 长度=' + html.length);
+      if (!ok) process.exit(2);
+    } catch (e) { console.log('  [FAIL] 引擎抛错:', e && e.message); process.exit(2); }
+  } else {
+    console.log('  [WARN] 未捕获 generatePlan 点击处理');
+  }
   process.exit(0);
 }).catch(e => {
   console.log('FAIL: init() 抛错 →', e && e.stack ? e.stack : e);
