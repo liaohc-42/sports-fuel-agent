@@ -150,9 +150,9 @@ npm start        # http://localhost:3000
 - `_test_agent.js`：ALL PASS
 - `_check_ids.js`：97 个 ID 一致（新增 `ftGrade`）
 - `_check_refs.js`：7 项资源有效
-- `_verify_live.js`：16 项线上检查 PASS
+- `_verify_live.js`：18 项线上检查 PASS（新增「大三/大四评分表」「年级自动切换提示」）
 
-> ⚠️ 本次改动（大三/大四评分表）**尚未部署到线上**：线上仍是旧版（只有大一/大二表）。需在有 `GITHUB_TOKEN` 的环境执行 `node scripts\deploy_github.js`，之后 `_verify_live.js` 才能验证到新功能。
+> ✅ **已于 2026-11-03 部署到线上并验证**：线上 `js/app.js` 已含 `FT_BMI`、「按年级自动切换」提示已上线，`_verify_live.js` **18 项全 PASS**。部署脚本已改为按二进制读文件，线上 PPT 的 SHA256 与本地一致（此前会把 pptx 传坏）。
 
 ---
 

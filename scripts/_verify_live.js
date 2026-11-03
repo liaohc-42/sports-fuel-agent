@@ -32,6 +32,8 @@ function get(url) {
     ['食堂三级-window', t.indexOf('windowSelect') >= 0],
     ['日期时间', t.indexOf('dateTime') >= 0],
     ['手动添加', t.indexOf('btnAddManual') >= 0],
+    ['大三/大四评分表', t.indexOf('大三/大四') >= 0],
+    ['年级自动切换提示', t.indexOf('按年级自动切换') >= 0],
   ];
   let ok = true;
   for (const [name, pass] of checks) {
