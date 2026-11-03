@@ -11,7 +11,7 @@
 
 | 痛点 | 现状 | 我们的方案 |
 |---|---|---|
-| 想增肌/减脂，食堂菜品固定，不知怎么搭 | 微信只能问朋友，闹钟只能提醒吃饭 | 选目标 + 勾菜品 → 秒出 2 套搭配 + 三大营养素占比 + 替代建议 |
+| 想增肌/减脂，食堂菜品固定，不知怎么搭 | 微信只能问朋友，闹钟只能提醒吃饭 | 选目标 + 勾菜品 → 秒出 2–3 套搭配 + 三大营养素占比 + 替代建议 |
 | 不知道今天运动消耗了多少 | 手环太贵、估不准 | 选运动/时长/强度 → 秒算消耗 + 今日热量缺口 |
 | 体测前两周想提分，不知道先练哪项 | 网上的计划不是给体育生就是让你每天跑 5 公里 | 30 秒输入成绩 → 算当前分 → 告诉你"先练哪项、每天练什么" |
 
@@ -29,7 +29,7 @@
   3. **数据源可切换**：默认「🌐 通用菜品库」（网上常见菜品数据），可切「🏫 中山大学食堂」用真实五校区菜单
   4. **菜单图片上传**：拍照/上传菜单 → OCR 自动识别菜品 → 一键加入
   5. **这顿的约束**：预算（10/15/20/不限）、路上时间（10/15/25/不赶时间）、餐次（午餐/晚餐/加餐）、**不吃的东西**（辣/花生/海鲜/蛋/奶/豆制品/麸质 + 猪/牛/羊/鸡肉）、体重、训练结束时间
-  6. **一键出 3 套**：蛋白优先 / 性价比 / 赶时间 / 均衡，每套给出菜品、蛋白·碳水·千卡·价格、排队/全程时间、**蛋白覆盖率**、**为什么这么配**，支持「换一换」「就吃这个」
+  6. **一键出 2–3 套**：按蛋白优先 / 性价比 / 赶时间 / 均衡 4 条策略生成并去重，每套给出菜品、蛋白·碳水·千卡·价格、排队/全程时间、**蛋白覆盖率**、**为什么这么配**，支持「换一换」「就吃这个」
   7. **跑步测速**：输入距离+用时 → 配速 / 速度 / 消耗
 - **记录**
   8. 按实际就餐**增删菜品**，给出未来 1–2 餐建议
@@ -131,7 +131,10 @@ npm start              # http://localhost:3000
 然后把 `frontend/js/api.js` 顶部改成：
 
 ```js
-var API_BASE = 'http://localhost:3000';
+var API_BASES = [
+  'http://localhost:3000',                          // 本机后端优先
+  'https://sports-fuel-agent-backend.vercel.app',   // 公网兜底
+];
 ```
 
 ---
@@ -172,7 +175,10 @@ npm start        # http://localhost:3000   （会打印 provider = deepseek / gl
 
 编辑 `frontend/js/api.js` 第 1 段，改成后端地址（本地就填 `http://localhost:3000`）：
 ```js
-var API_BASE = 'http://localhost:3000';
+var API_BASES = [
+  'http://localhost:3000',                          // 本机后端优先
+  'https://sports-fuel-agent-backend.vercel.app',   // 公网兜底
+];
 ```
 
 **如何确认生效**：浏览器打开 `http://localhost:3000/api/health`，`provider` 显示 `deepseek`/`glm`/`ollama` 即成功；页面右上角会显示「已连接 Agent」。
@@ -230,7 +236,7 @@ node scripts/deploy_github.js
 
 1. 把仓库导入 Vercel（或单独导入 `backend/` 目录作为 Root Directory）。
 2. 环境变量加 `GLM_API_KEY`。
-3. 部署完成得到 `https://xxx.vercel.app`，填回 `frontend/js/api.js` 的 `API_BASE`。
+3. 部署完成得到 `https://xxx.vercel.app`，把它加到 `frontend/js/api.js` 的 `API_BASES` 数组里（放第一位最优先）。
 
 > 也支持 Cloudflare Worker：`api/agent.js` 里的 `callGLM` 是标准 fetch，可平移到 Worker 的 `fetch` handler（见 `docs/完善路线.md`）。
 

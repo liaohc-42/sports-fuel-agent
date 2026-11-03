@@ -103,11 +103,10 @@ function collectFiles(dir, base) {
   const files = collectFiles(ROOT, ROOT);
   console.log('📄 共', files.length, '个文件');
 
-  // 4) 逐个建 blob
+  // 4) 逐个建 blob（按二进制读，文本/图片/pptx 都不会被破坏）
   const tree = [];
   for (const rel of files) {
-    const content = fs.readFileSync(path.join(ROOT, rel), 'utf8');
-    const b64 = Buffer.from(content, 'utf8').toString('base64');
+    const b64 = fs.readFileSync(path.join(ROOT, rel)).toString('base64');
     const blob = (await api('POST', base + '/git/blobs', { content: b64, encoding: 'base64' })).json;
     tree.push({ path: rel, mode: '100644', type: 'blob', sha: blob.sha });
     console.log('   ✓', rel);
