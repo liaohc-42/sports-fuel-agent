@@ -271,5 +271,9 @@
     getAgentKey: getAgentKey,
     setAgentKey: setAgentKey,
     hasAgentKey: hasAgentKey,
+    localAdjustAnswer: localAdjustAnswer,
+    localBudgetAnswer: localBudgetAnswer,
+    localSportAnswer: localSportAnswer,
+    localCoachAnswer: localCoachAnswer,
   };
 })();

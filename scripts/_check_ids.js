@@ -10,9 +10,9 @@ for (const m of html.matchAll(/id="([^"]+)"/g)) htmlIds.add(m[1]);
 
 // 动态注入的 id（app.js 通过 innerHTML 创建的）
 const dynamicIds = new Set([
-  'dishSearch', 'dishItems', 'addMealDish',
+  'dishSearch', 'dishItems', 'addMealDish', 'btnAddMealDish',
   'ftToday', 'ftPacer', 'ftCheckinMsg', 'ftTimer', 'pacerClock',
-  'aiComment',
+  'btnPacerStart', 'btnPacerStop', 'aiComment',
 ]);
 
 const used = new Set();

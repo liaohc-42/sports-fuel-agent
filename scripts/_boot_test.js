@@ -58,7 +58,7 @@ function loadScript(p) {
 }
 
 // 按顺序加载
-['data/nutrition.js', 'data/exercise.js', 'data/canteen.js', 'js/api.js', 'js/app.js'].forEach(f => loadScript(path.join(FRONT, f)));
+['data/nutrition.js', 'data/exercise.js', 'data/canteen.js', 'data/dishes.js', 'js/api.js', 'js/app.js'].forEach(f => loadScript(path.join(FRONT, f)));
 
 if (typeof documentStub._readyCb !== 'function') {
   console.log('FAIL: 未捕获 DOMContentLoaded 回调');
