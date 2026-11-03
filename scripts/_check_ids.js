@@ -29,7 +29,7 @@ for (const id of sorted) {
   else console.log('ok    $(\'' + id + '\')' + (dynamicIds.has(id) ? ' (动态)' : ''));
 }
 // tab-x 拼接目标检查
-for (const t of ['eat','records','science','fitness']) {
+for (const t of ['eat','records','practice','venue','me','pickup','gear','science']) {
   if (!htmlIds.has('tab-' + t)) { console.log('MISS  tab-' + t); fail++; }
 }
 console.log(fail ? '\n*** ' + fail + ' 个 id 缺失 ***' : '\n所有 id 引用一致，共 ' + sorted.length + ' 个');

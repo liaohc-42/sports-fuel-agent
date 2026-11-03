@@ -13,7 +13,7 @@ const css = fs.readFileSync(path.join(FRONT, 'css', 'style.css'), 'utf8');
 html = html.replace(/<link rel="stylesheet" href="css\/style\.css" \/>/, '<style>\n' + css + '\n</style>');
 
 // 内联 JS（保持加载顺序）
-const scripts = ['data/nutrition.js', 'data/exercise.js', 'data/canteen.js', 'data/dishes.js', 'js/api.js', 'js/app.js'];
+const scripts = ['data/nutrition.js', 'data/exercise.js', 'data/canteen.js', 'data/dishes.js', 'data/credits.js', 'data/venues.js', 'js/api.js', 'js/credits.js', 'js/venues.js', 'js/campus.js', 'js/app.js'];
 for (const s of scripts) {
   const code = fs.readFileSync(path.join(FRONT, s), 'utf8');
   const tag = '<script src="' + s + '"></script>';

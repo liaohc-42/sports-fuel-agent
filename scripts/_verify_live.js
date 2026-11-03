@@ -34,6 +34,11 @@ function get(url) {
     ['手动添加', t.indexOf('btnAddManual') >= 0],
     ['大三/大四评分表', t.indexOf('大三/大四') >= 0],
     ['年级自动切换提示', t.indexOf('按年级自动切换') >= 0],
+    ['积分雷达', t.indexOf('creditsBody') >= 0],
+    ['场馆与人流', t.indexOf('venueBody') >= 0],
+    ['菜品搜索', t.indexOf('dishSearch') >= 0],
+    ['目标分段控件', t.indexOf('segmented') >= 0],
+    ['场景切换', t.indexOf('scenarioRow') >= 0],
   ];
   let ok = true;
   for (const [name, pass] of checks) {

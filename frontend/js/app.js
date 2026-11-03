@@ -31,20 +31,29 @@
   function fmtMin(v) { return v == null ? '—' : (v + ' 分钟'); }
 
   /* ================= 标签路由 ================= */
-  function initTabs() {
-    var btns = document.querySelectorAll('#tabs button[data-tab]');
-    btns.forEach(function (b) {
-      b.addEventListener('click', function () {
-        if (b.dataset.tab === 'profile') { openDrawer(); return; }
-        btns.forEach(function (x) { x.classList.remove('active'); });
-        b.classList.add('active');
-        document.querySelectorAll('.tab').forEach(function (s) { s.classList.remove('active'); });
-        var sec = $('tab-' + b.dataset.tab); if (sec) sec.classList.add('active');
-        if (b.dataset.tab === 'records') renderRecords();
-        if (b.dataset.tab === 'science') renderScience();
-        window.scrollTo({ top: 0 });
-      });
+  var TAB_PARENT = { pickup: 'me', gear: 'me', science: 'me' };
+  function showTab(name) {
+    var navTarget = TAB_PARENT[name] || name;
+    document.querySelectorAll('#tabs button[data-tab]').forEach(function (x) {
+      x.classList.toggle('active', x.dataset.tab === navTarget);
     });
+    document.querySelectorAll('.tab').forEach(function (s) { s.classList.remove('active'); });
+    var sec = $('tab-' + name); if (sec) sec.classList.add('active');
+    if (name === 'records') renderRecords();
+    if (name === 'science') renderScience();
+    if (name === 'me' && window.CampusUI) CampusUI.renderMe();
+    if (name === 'practice' && window.CreditsUI) CreditsUI.render();
+    if (name === 'venue' && window.VenuesUI) VenuesUI.render();
+    window.scrollTo({ top: 0 });
+  }
+  function initTabs() {
+    document.querySelectorAll('#tabs button[data-tab]').forEach(function (b) {
+      b.addEventListener('click', function () { showTab(b.dataset.tab); });
+    });
+    document.querySelectorAll('[data-back]').forEach(function (b) {
+      b.onclick = function () { showTab(b.dataset.back); };
+    });
+    window.AppTabs = { show: showTab };
   }
 
   /* ================= 档案 ================= */
@@ -73,13 +82,15 @@
 
   /* ================= 配餐 · 目标 ================= */
   function renderGoal() {
-    document.querySelectorAll('#goalRow .goal-card').forEach(function (c) {
+    var hints = { '减脂': '缺口约 300–500 kcal，优先保蛋白。', '增肌': '盈余约 300 kcal，蛋白拉到 1.8g/kg。', '维持': '热量持平，蛋白质 1.4g/kg 左右。' };
+    document.querySelectorAll('#goalRow .seg-item').forEach(function (c) {
       c.classList.toggle('active', c.dataset.goal === eat.goal);
       c.onclick = function () {
         eat.goal = c.dataset.goal; profile.goal = eat.goal;
         save(LS.eat, eat); save(LS.profile, profile); renderGoal();
       };
     });
+    var h = $('goalHint'); if (h) h.textContent = hints[eat.goal] || '';
   }
 
   /* ================= 配餐 · 运动（30+ 项目） ================= */
@@ -274,21 +285,56 @@
     return out;
   }
 
+  var dishQ = '';
+  var DISH_CAT_ORDER = ['主食', '蛋白', '蔬菜', '汤', '饮品', '热菜'];
   function renderDishGrid() {
     var box = $('dishGrid');
     var pool = getPool();
-    if (!pool.length) { box.innerHTML = '<p class="muted" style="padding:12px">当前条件下没有可选菜品，试试换个餐次或取消“不吃的东西”。</p>'; return; }
-    box.innerHTML = pool.map(function (d) {
-      var on = eat.selected.indexOf(d.name) >= 0;
-      return '<div class="dish-card' + (on ? ' active' : '') + '" data-name="' + esc(d.name) + '">' +
-        '<div class="row"><span class="nm">' + esc(d.name) + '<span class="check"> ✓</span></span><span class="pr">' + fmtPrice(d.price) + '</span></div>' +
-        '<div class="mt">' + esc(d.cat) + ' · 排队约' + d.queue + '分钟</div>' +
-        '</div>';
+    if (dishQ) pool = pool.filter(function (d) { return d.name.indexOf(dishQ) >= 0; });
+    if (!pool.length) {
+      box.innerHTML = '<p class="muted" style="padding:12px">没有匹配的菜品，换个关键词或取消「不吃的东西」。</p>';
+      renderDishCatBar([]);
+      return;
+    }
+    var groups = {};
+    pool.forEach(function (d) { (groups[d.cat] = groups[d.cat] || []).push(d); });
+    var order = DISH_CAT_ORDER.filter(function (c) { return groups[c]; })
+      .concat(Object.keys(groups).filter(function (c) { return DISH_CAT_ORDER.indexOf(c) < 0; }));
+    box.innerHTML = order.map(function (cat) {
+      return '<div class="dish-group" data-dcat="' + esc(cat) + '"><div class="dg-title">' + esc(cat) + '</div>' +
+        groups[cat].map(function (d) {
+          var on = eat.selected.indexOf(d.name) >= 0;
+          return '<div class="dish-card' + (on ? ' active' : '') + '" data-name="' + esc(d.name) + '">' +
+            '<div class="row"><span class="nm">' + esc(d.name) + '<span class="check"> ✓</span></span><span class="pr">' + fmtPrice(d.price) + '</span></div>' +
+            '<div class="mt">' + esc(d.cat) + ' · 排队约' + d.queue + '分钟</div>' +
+            '</div>';
+        }).join('') + '</div>';
     }).join('');
     box.querySelectorAll('.dish-card').forEach(function (c) {
       c.onclick = function () { toggleDish(c.dataset.name); };
     });
+    renderDishCatBar(order);
     updateSelectedCount();
+  }
+
+  function renderDishCatBar(order) {
+    var bar = $('dishCatBar'); if (!bar) return;
+    var counts = {};
+    eat.selected.forEach(function (n) {
+      var pool = getPool();
+      for (var i = 0; i < pool.length; i++) { if (pool[i].name === n) { counts[pool[i].cat] = (counts[pool[i].cat] || 0) + 1; break; } }
+    });
+    var cats = (order && order.length) ? order : DISH_CAT_ORDER;
+    bar.innerHTML = cats.map(function (c) {
+      var n = counts[c] || 0;
+      return '<button class="dc" data-cat="' + esc(c) + '">' + esc(c) + (n ? '<span class="badge-n">' + n + '</span>' : '') + '</button>';
+    }).join('');
+    bar.querySelectorAll('.dc').forEach(function (b) {
+      b.onclick = function () {
+        var g = $('dishGrid').querySelector('.dish-group[data-dcat="' + b.dataset.cat + '"]');
+        if (g) g.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+    });
   }
 
   function toggleDish(name) {
@@ -327,7 +373,8 @@
     var ds = $('dealbreakerSeg'); ds.innerHTML = '';
     DEALBREAKERS.forEach(function (x) {
       var b = document.createElement('button');
-      b.className = 'pill' + (eat.dealbreakers.indexOf(x.id) >= 0 ? ' active' : '');
+      var on = eat.dealbreakers.indexOf(x.id) >= 0;
+      b.className = 'pill deal' + (on ? ' on' : '');
       b.textContent = x.label;
       b.onclick = function () {
         var i = eat.dealbreakers.indexOf(x.id);
@@ -435,9 +482,14 @@
         (state.goal === '减脂' ? '减脂要控油控糖、保住蛋白' : state.goal === '增肌' ? '增肌要补足蛋白、吃到热量' : '维持要均衡') + '。' +
         '这 ' + r.picked.length + ' 道共 ' + totals.protein + 'g 蛋白（目标 ' + targetP + 'g 的 ' + coverage + '%），' +
         Math.round(totals.kcal) + ' 千卡，' + price + ' 元，排队约 ' + queue + ' 分钟。';
+      var tip = state.goal === '减脂'
+        ? '练后 1 小时内补蛋白、控油控糖，热量缺口才守得住。'
+        : state.goal === '增肌'
+          ? '练后 1 小时内补快碳 + 蛋白，帮你恢复体力、长肌肉。'
+          : '按正常三餐节奏，优先保证蛋白和蔬菜。';
       return {
         key: st.key, title: st.title, sub: st.sub, dishes: dishes, totals: totals,
-        price: price, queue: queue, walk: walk, totalMin: totalMin, coverage: coverage, why: why,
+        price: price, queue: queue, walk: walk, totalMin: totalMin, coverage: coverage, why: why, tip: tip,
       };
     });
     // 去重：如果两套完全一样，保留第一套
@@ -456,7 +508,8 @@
       return;
     }
     $('resultMeta').textContent = '（' + eat.mealType + ' · ' + eat.goal + ' · ' + (eat.budget == null ? '不限预算' : eat.budget + '元') + '）';
-    box.innerHTML = combos.map(function (c, i) {
+    var tgt = NUTRITION.targetMacros(eat.goal, eat.weight || 60);
+    box.innerHTML = '<div class="rec-cards">' + combos.map(function (c, i) {
       var best = i === 0;
       var dishes = c.dishes.map(function (d) {
         var t = d.label === 'good' ? '推荐' : d.label === 'warn' ? '适量' : '少吃';
@@ -473,11 +526,13 @@
         '<div class="macro"><div class="v">' + c.price + '</div><div class="k">合计¥</div></div>' +
         '</div>' +
         '<div class="macro-bar"><span class="p" style="width:' + ratio.p + '%"></span><span class="c" style="width:' + ratio.c + '%"></span><span class="f" style="width:' + Math.max(0, 100 - ratio.p - ratio.c) + '%"></span></div>' +
+        macroGoalHtml(c, tgt) +
+        (c.tip ? '<div class="tip-line">💡 ' + esc(c.tip) + '</div>' : '') +
         '<div class="rec-meta"><span>排队约 <b>' + c.queue + '</b> 分钟</span><span>全程约 <b>' + c.totalMin + '</b> 分钟</span><span>蛋白覆盖 <b>' + c.coverage + '%</b></span></div>' +
         '<div class="why">💡 <b>为什么这么配：</b>' + esc(c.why) + '</div>' +
         '<div class="rec-actions"><button class="btn btn-ghost" data-shuffle="' + i + '">换一换</button><button class="btn btn-primary" data-eat="' + i + '">就吃这个</button></div>' +
         '</div>';
-    }).join('');
+    }).join('') + '</div>';
     // 换一换 / 就吃这个
     box.querySelectorAll('[data-shuffle]').forEach(function (b) {
       b.onclick = function () { var idx = +b.dataset.shuffle; rotateCombo(idx); };
@@ -486,6 +541,21 @@
       b.onclick = function () { var idx = +b.dataset.eat; saveMeal(combos[idx]); };
     });
     window.__lastCombos = combos;
+  }
+
+  // 宏量营养条：本餐 / 今日目标（《膳食指南》口径）
+  function macroGoalHtml(c, tgt) {
+    function row(label, got, need, cls) {
+      var pct = Math.min(100, Math.round(got / Math.max(1, need) * 100));
+      return '<div class="mg-row"><span class="mg-label">' + label + '</span>' +
+        '<span class="mg-bar"><i class="' + cls + '" style="width:' + pct + '%"></i></span>' +
+        '<span class="mg-val"><b>' + Math.round(got) + '</b> / ' + Math.round(need) + 'g</span></div>';
+    }
+    return '<div class="macro-goal">' +
+      row('蛋白', c.totals.protein, tgt.protein / 3, 'p') +
+      row('碳水', c.totals.carbs, tgt.carbs / 3, 'c') +
+      row('脂肪', c.totals.fat, tgt.fat / 3, 'f') +
+      '</div><div class="muted" style="font-size:10px">本餐 / 每餐目标（今日目标的三分之一）</div>';
   }
 
   var combosCache = [];
@@ -789,6 +859,26 @@
     }
     $('btnCoachSend').addEventListener('click', send);
     $('coachInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
+
+    // 场景切换：三组预设，现场可当场换
+    var scenes = {
+      cut: ['减脂日怎么吃？', '减脂日：以 300–500 kcal 缺口为目标，蛋白按体重 2g/kg 保底；主食选杂粮，避开油炸和含糖饮料。练后先补蛋白，再补少量碳水。'],
+      bulk: ['增肌日怎么吃？', '增肌日：在 TDEE 上做约 300 kcal 盈余，蛋白 1.6–1.8g/kg，全天分 3–4 餐；练后 1 小时内补快碳 + 蛋白，恢复更快。'],
+      pre: ['体测前 3 天怎么准备？', '体测前 3 天：主食不降，每餐一拳半碳水；每天补水 1.5–2L；考前 2 小时吃易消化碳水，别试新食物；睡眠优先，考前只做轻量激活。']
+    };
+    document.querySelectorAll('#scenarioRow [data-scene]').forEach(function (b) {
+      b.onclick = function () {
+        var s = scenes[b.dataset.scene]; if (!s) return;
+        document.querySelectorAll('#scenarioRow [data-scene]').forEach(function (x) { x.classList.toggle('on', x === b); });
+        appendMsg('user', s[0]);
+        var t = appendMsg('ai', '…');
+        if (!API.getState().backendOnline) { t.textContent = s[1]; return; }
+        API.callAgent({ type: 'coach', question: s[0] }).then(function (res) {
+          var txt = (res && res.text || '').trim();
+          t.textContent = (txt && txt.length > 8) ? txt : s[1];
+        }).catch(function () { t.textContent = s[1]; });
+      };
+    });
   }
   function appendMsg(role, text) {
     var box = $('coachChat'), d = document.createElement('div');
@@ -949,6 +1039,29 @@
     items.forEach(function (x) { total += x.score * x.weight; wsum += x.weight; });
     total = wsum ? Math.round(total / wsum) : 0;
 
+    // ---- 提分性价比榜：每提升 1 个单位能加多少分 ----
+    var rank = [];
+    function rankPush(label, val, tbl, lowerBetter, unit, unitName) {
+      if (val == null || !tbl) return;
+      var cur = scoreFromTable(val, tbl, lowerBetter);
+      var best = null;
+      Object.keys(tbl).map(Number).forEach(function (tier) {
+        if (tier <= cur) return;
+        var need = Math.abs(tbl[tier] - val) / unit;
+        if (need <= 0) return;
+        var eff = (tier - cur) / need;
+        if (!best || eff > best.eff) best = { eff: eff, need: need, gain: tier - cur };
+      });
+      if (best) rank.push({ label: label, unitName: unitName, need: Math.max(1, Math.round(best.need)), gain: Math.round(best.gain), eff: best.eff });
+    }
+    if (+$('ftVital').value > 0) rankPush('肺活量', +$('ftVital').value, table.vital, false, 100, '100ml');
+    if ($('ft50').value.trim()) rankPush('50米跑', parseFloat($('ft50').value), table.run50, true, 0.1, '0.1秒');
+    if ($('ftReach').value.trim()) rankPush('坐位体前屈', parseFloat($('ftReach').value), table.reach, false, 0.5, '0.5cm');
+    if (+$('ftJump').value > 0) rankPush('立定跳远', +$('ftJump').value, table.jump, false, 1, '1cm');
+    rankPush(gender === 'male' ? '引体向上' : '仰卧起坐', count, gender === 'male' ? table.pullup : table.situp, false, 1, '1个');
+    rankPush(gender === 'male' ? '1000米' : '800米', runSec, table.run, true, 1, '1秒');
+    rank.sort(function (a, b) { return b.eff - a.eff; });
+
     var runScore = scoreFromTable(runSec, table.run, true);
     var strengthScore = scoreFromTable(count, gender === 'male' ? table.pullup : table.situp, false);
     var runGain = Math.max(0, scoreFromTable(Math.max(1, runSec - 10), table.run, true) - runScore);
@@ -970,6 +1083,18 @@
       html += '<tr><td>' + esc(x.label) + '</td><td ' + cls + '>' + x.score + '</td><td>' + Math.round(x.weight * 100) + '%</td></tr>';
     });
     html += '</tbody></table></div>';
+
+    if (rank.length) {
+      html += '<div class="card"><h2><span class="icon">🎯</span> 提分性价比榜</h2>' +
+        '<p class="hint">按「每提升 1 个单位能加多少分」排序；现场改成绩，榜会立刻重排。</p><div class="rank-list">' +
+        rank.slice(0, 5).map(function (r, i) {
+          return '<div class="rank-item' + (i === 0 ? ' top' : '') + '">' +
+            '<span class="rank-no">' + (i + 1) + '</span>' +
+            '<div class="rank-main"><b>' + esc(r.label) + '</b><span>再 ' + r.need + ' ' + esc(r.unitName) + ' ≈ +' + r.gain + ' 分</span></div>' +
+            '<span class="rank-eff">' + (Math.round(r.eff * 100) / 100) + ' 分/' + esc(r.unitName.replace(/^\d+(\.\d+)?/, '')) + '</span>' +
+            (i === 0 ? '<span class="rank-badge">性价比最高</span>' : '') + '</div>';
+        }).join('') + '</div></div>';
+    }
 
     html += '<div class="card"><h2><span class="icon">🎯</span> 提分诊断</h2>';
     html += '<div class="callout green">🎯 <b>先练这项：' + (focusRun ? runItem : strengthItem) + '</b>（短板优先）<br>';
@@ -1089,12 +1214,42 @@
     };
   }
 
+  function initPracticeSeg() {
+    var seg = $('practiceSeg'); if (!seg) return;
+    seg.querySelectorAll('[data-ptab]').forEach(function (b) {
+      b.onclick = function () {
+        seg.querySelectorAll('[data-ptab]').forEach(function (x) { x.classList.toggle('active', x === b); });
+        $('practice-credits').style.display = b.dataset.ptab === 'credits' ? '' : 'none';
+        $('practice-fitness').style.display = b.dataset.ptab === 'fitness' ? '' : 'none';
+        if (b.dataset.ptab === 'fitness') updateBmi();
+      };
+    });
+  }
+
+  function initDishSearch() {
+    var s = $('dishSearch'); if (!s) return;
+    var composing = false;
+    s.addEventListener('compositionstart', function () { composing = true; });
+    s.addEventListener('compositionend', function () { composing = false; dishQ = s.value.trim(); $('btnDishClear').classList.toggle('hide', !dishQ); renderDishGrid(); });
+    s.oninput = function () {
+      if (composing) return;
+      dishQ = s.value.trim();
+      $('btnDishClear').classList.toggle('hide', !dishQ);
+      renderDishGrid();
+    };
+    $('btnDishClear').onclick = function () { dishQ = ''; s.value = ''; this.classList.add('hide'); renderDishGrid(); };
+  }
+
   async function init() {
     renderDateTime();
     initTabs(); initDrawer(); renderGoal(); renderExercise(); renderSource();
     renderCanteenTabs(); renderDishGrid(); renderConstraints(); initWeightInputs(); initUpload(); initPaceCalc(); initManualAdd();
-    initRecords(); initCoach(); initFitness();
+    initRecords(); initCoach(); initFitness(); initPracticeSeg(); initDishSearch();
     $('btnGenerate').addEventListener('click', generatePlan);
+
+    if (window.CreditsUI) CreditsUI.init();
+    if (window.VenuesUI) VenuesUI.init();
+    if (window.CampusUI) CampusUI.init();
 
     $('weightInput').value = eat.weight || profile.weight;
     $('trainEndInput').value = eat.trainEnd || '';

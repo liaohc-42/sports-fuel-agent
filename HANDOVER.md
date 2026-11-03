@@ -22,9 +22,10 @@
 |---|---|
 | 项目名 | **练完吃啥** · 运动 × 饮食智能体（软工菁英杯参赛作品，主题词「运动」） |
 | 本地目录 | `C:\Users\liao\Documents\deepseek-harness\default-workspace\sports-fuel-agent` |
-| 线上地址 | https://liaohc-42.github.io/sports-fuel-agent/ （GitHub Pages，已上线） |
+| 线上地址 | https://liaohc-42.github.io/sports-fuel-agent/ （GitHub Pages，静态版；无后端时走本地引擎） |
 | 仓库 | https://github.com/liaohc-42/sports-fuel-agent |
-| 后端 | https://sports-fuel-agent-backend.vercel.app （Vercel 已部署，状态 READY；**国内直连被墙**） |
+| **公网站点（前端+后端）** | **http://120.78.120.161/** （阿里云 ECS：Nginx 托管 `frontend/` + `/api` 反代 Node；**国内可直连、可真模型**，见 `docs/服务器运维.md`） |
+| 后端（旧/海外） | https://sports-fuel-agent-backend.vercel.app （Vercel，**国内直连被墙**，仅作备选） |
 | 技术栈 | 原生 HTML/CSS/JS 前端 + Node.js/Express 后端；大模型走 GLM / DeepSeek / Ollama 三选一 |
 
 ## 二、完成度
@@ -96,7 +97,7 @@ sports-fuel-agent/
 
 | 优先级 | 事项 | 说明 |
 |---|---|---|
-| P0 | Vercel 后端配 `DEEPSEEK_API_KEY` | 否则别人打开只有本地引擎，没有 DeepSeek 点评 |
+| P0 | 阿里云 ECS 填 `GLM_API_KEY` | 站点已部署在 `http://120.78.120.161/`，但 `.env` 里 Key 为空 → `/api/health` 仍是 `provider:"local"`。填一行即生效，命令见 `docs/服务器运维.md` |
 | P2 | 真·联网营养检索 | 当前是本地库 + 估算；需接搜索 API（Brave/SerpAPI 或 GLM web-search） |
 | P2 | 答辩稿个别旧描述 | 已同步关键数字，但 UI 细节以实际页面为准 |
 | P3 | 体测附加分 | 2014 标准对男生引体/1000 米、女生仰卧/800 米有最高 +10 附加分（总分上限 120），当前未实现 |

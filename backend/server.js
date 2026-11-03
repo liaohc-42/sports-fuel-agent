@@ -17,8 +17,32 @@ const path = require('path');
 const { runAgent, recognizeFood } = require('./api/agent');
 
 const app = express();
-app.use(cors());
+
+// CORS 白名单（同源请求不带 Origin，直接放行）
+const ALLOWED_ORIGINS = new Set([
+  'https://liaohc-42.github.io',
+  'http://120.78.120.161',
+  'http://localhost:3000',
+  'http://localhost:8080',
+  'http://127.0.0.1:8080',
+]);
+app.use(cors({
+  origin: (origin, cb) => cb(null, !origin || ALLOWED_ORIGINS.has(origin)),
+}));
 app.use(express.json({ limit: '1mb' }));
+
+// 极简限流：每 IP 每分钟 60 次（进程内计数，够用；多实例各自计数）
+const rlHits = new Map();
+app.use('/api/', (req, res, next) => {
+  const ip = String(req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown').split(',')[0].trim();
+  const now = Date.now();
+  const rec = rlHits.get(ip) || { n: 0, t: now };
+  if (now - rec.t > 60000) { rec.n = 0; rec.t = now; }
+  rec.n += 1;
+  rlHits.set(ip, rec);
+  if (rec.n > 60) return res.status(429).json({ ok: false, reason: '请求过于频繁，请稍后再试' });
+  next();
+});
 
 // 运行态 Key（优先环境变量，其次 /api/admin/set-key 设置）
 let runtimeKey = process.env.GLM_API_KEY || process.env.DEEPSEEK_API_KEY || '';

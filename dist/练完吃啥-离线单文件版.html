@@ -3,39 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>练完吃啥 · 运动×饮食智能体</title>
-  <meta name="description" content="练完吃啥：运动×饮食智能体。选目标、勾菜品、出搭配；附体测急救站。" />
+  <title>练完吃啥 × 南校运动地图</title>
+  <meta name="description" content="练完吃啥：运动×饮食智能体 + 积分雷达 + 场馆人流。选目标、勾菜品、出搭配；体测提分；校园运动机会聚合。" />
   <style>
 /* ============================================================
  * 练完吃啥 · 运动×饮食智能体 —— 深绿主题（参考概念图）
  * ============================================================ */
 :root {
-  --bg: #0a1f13;
-  --bg-deep: #07160d;
-  --card: #12291b;
-  --card-2: #16341f;
-  --line: #23482e;
-  --green: #4ade80;
-  --green-2: #22c55e;
-  --green-soft: rgba(74, 222, 128, .12);
-  --ink: #eaf7ee;
-  --ink-2: #a7c4b2;
-  --ink-3: #6b8f7a;
-  --orange: #fb923c;
-  --orange-soft: rgba(251, 146, 60, .14);
-  --red: #f87171;
-  --red-soft: rgba(248, 113, 113, .14);
-  --blue: #60a5fa;
-  --blue-soft: rgba(96, 165, 250, .14);
+  /* 纸质票据 × 校园海报（与「中大通关」色系融合） */
+  --cream: #f7f1e3;
+  --cream-deep: #efe5d1;
+  --paper: #fffcf2;
+  --paper-2: #fbf4e4;
+  --ink: #241c16;
+  --ink-soft: #4a3f36;
+  --brick: #8c1d18;
+  --brick-soft: #f3dcd6;
+
+  /* 语义映射（保持旧类名可用） */
+  --bg: #f7f1e3;
+  --bg-deep: #efe5d1;
+  --card: #fffcf2;
+  --card-2: #fbf4e4;
+  --line: #241c16;
+  --green: #1f5c3a;
+  --green-2: #2f7d50;
+  --green-soft: #dfe9dd;
+  --ink-2: #4a3f36;
+  --ink-3: #8a7f73;
+  --orange: #8c1d18;
+  --orange-soft: #f3dcd6;
+  --red: #8c1d18;
+  --red-soft: #f3dcd6;
+  --blue: #3f6f7a;
+  --blue-soft: #e3ecee;
   --radius: 16px;
-  --shadow: 0 8px 30px -12px rgba(0, 0, 0, .55);
+  --shadow: 5px 5px 0 rgba(36, 28, 22, .14);
+  --shadow-sm: 3px 3px 0 rgba(36, 28, 22, .14);
+  --serif: "Songti SC", "Noto Serif CJK SC", Georgia, serif;
+  --sans: "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-  background: radial-gradient(1200px 600px at 50% -10%, #12351f 0%, var(--bg) 45%, var(--bg-deep) 100%);
+  font-family: var(--sans);
+  background: var(--cream);
   color: var(--ink);
   line-height: 1.6;
   font-size: 15px;
@@ -47,10 +60,9 @@ body {
 .app-header {
   position: sticky; top: 0; z-index: 40;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 20px;
-  background: rgba(7, 22, 13, .85);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--line);
+  padding: 12px 20px;
+  background: var(--paper);
+  border-bottom: 2px solid var(--ink);
 }
 .brand { display: flex; align-items: center; gap: 10px; }
 .brand .logo {
@@ -71,9 +83,8 @@ body {
 /* ---------- Tabs ---------- */
 .tabs {
   display: flex; gap: 6px; padding: 10px 20px;
-  position: sticky; top: 67px; z-index: 30;
-  background: rgba(7, 22, 13, .85); backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--line);
+  position: sticky; top: 63px; z-index: 30;
+  background: var(--cream); border-bottom: 2px solid var(--ink);
   overflow-x: auto;
 }
 .tabs button {
@@ -312,6 +323,394 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; margin-top: 2
 .upload-preview { max-width: 100%; max-height: 160px; border-radius: 10px; margin-top: 8px; }
 .ocr-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 
+/* ============================================================
+ * 主题融合层：纸质票据 + 硬阴影（与「中大通关」色系对齐）
+ * ============================================================ */
+.card { border: 2px solid var(--ink); box-shadow: var(--shadow); }
+.brand .logo {
+  background: var(--brick); border: 2px solid var(--ink); border-radius: 12px;
+  box-shadow: 2px 2px 0 rgba(36,28,22,.2);
+}
+.brand .name { font-family: var(--serif); }
+.header-status { background: var(--paper-2); border: 1.5px solid var(--ink); }
+.header-status .dot { background: var(--green); }
+
+.tabs button { border-radius: 999px; color: var(--ink-soft); }
+.tabs button:hover { background: var(--paper-2); }
+.tabs button.active { background: var(--green); color: var(--paper); border: 1.5px solid var(--ink); }
+
+.btn { color: var(--paper); }
+.btn-primary { color: var(--paper); }
+.btn-primary:hover:not(:disabled) { background: var(--green-2); }
+.btn-orange { background: var(--brick); color: var(--paper); }
+.btn-ghost { color: var(--ink-soft); border: 1.5px solid var(--ink); }
+.btn-ghost:hover { border-color: var(--green); color: var(--green); }
+.btn-soft { background: var(--paper-2); color: var(--ink); border: 1.5px solid var(--ink); }
+.btn-cta { border: 2px solid var(--ink); box-shadow: var(--shadow); font-size: 16px; }
+
+.pill { background: var(--paper-2); border: 1.5px solid var(--ink); color: var(--ink-soft); }
+.pill:hover { border-color: var(--green); color: var(--green); }
+.pill.active { background: var(--green); border-color: var(--ink); color: var(--paper); }
+
+input[type=text], input[type=number], input[type=search], input[type=password], select, textarea {
+  background: var(--paper); border: 1.5px solid var(--ink); color: var(--ink);
+}
+input:focus, select:focus, textarea:focus { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
+select option { background: var(--paper); color: var(--ink); }
+
+.step-head { color: var(--brick); font-family: var(--serif); font-size: 14px; }
+.slider-row output { background: var(--green-soft); color: var(--green); border: 1.5px solid var(--green); }
+input[type=range] { accent-color: var(--green); }
+
+/* 目标：三段式 segmented control */
+.segmented {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border: 2px solid var(--ink); border-radius: 14px; overflow: hidden; background: var(--paper);
+  box-shadow: var(--shadow-sm);
+}
+.seg-item {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 12px 6px; background: transparent; border: 0; border-right: 1.5px dashed #d9cbb2;
+  cursor: pointer; font-family: var(--sans); color: var(--ink-soft); transition: background .15s;
+}
+.seg-item:last-child { border-right: 0; }
+.seg-item b { font-size: 15px; font-weight: 800; }
+.seg-item small { font-size: 10.5px; color: var(--ink-3); }
+.seg-item .si-icon { font-size: 19px; }
+.seg-item:hover { background: var(--paper-2); }
+.seg-item.active { background: var(--green); color: var(--paper); }
+.seg-item.active small { color: #dfe9dd; }
+.goal-hint { margin-top: 8px; }
+
+/* 搜索框 */
+.search-wrap { position: relative; margin: 10px 0; }
+.search-wrap input { padding-right: 38px; }
+.search-clear {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--ink);
+  background: var(--paper-2); color: var(--ink); cursor: pointer; line-height: 1; font-size: 15px;
+}
+.search-clear.hide { display: none; }
+
+/* 横向滚动 chips */
+.chips-scroll { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+.chip-btn {
+  flex: 0 0 auto; border: 1.5px solid var(--ink); background: var(--paper-2);
+  color: var(--ink-soft); border-radius: 999px; padding: 6px 13px; font-size: 12.5px;
+  font-weight: 600; cursor: pointer; font-family: var(--sans); white-space: nowrap;
+}
+.chip-btn.on { background: var(--brick); color: var(--paper); border-color: var(--ink); }
+
+/* 菜品：分类吸顶栏 + 搜索 + hover */
+.dish-search { margin: 10px 0 8px; }
+.dish-catbar {
+  position: sticky; top: 118px; z-index: 12;
+  display: flex; gap: 6px; overflow-x: auto; padding: 7px 2px;
+  background: var(--paper); border-bottom: 1.5px dashed #d9cbb2; margin-bottom: 8px;
+}
+.dish-catbar .dc {
+  flex: 0 0 auto; border: 1.5px solid var(--ink); background: var(--paper-2); color: var(--ink-soft);
+  border-radius: 9px; padding: 5px 10px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans);
+}
+.dish-catbar .dc.on { background: var(--green); color: var(--paper); }
+.dish-catbar .dc .badge-n {
+  display: inline-block; min-width: 16px; margin-left: 5px; padding: 0 4px;
+  background: var(--brick); color: var(--paper); border-radius: 999px; font-size: 10px; line-height: 15px;
+}
+.dish-card { background: var(--paper); border: 1.5px solid var(--ink); }
+.dish-card:hover, .dish-card:focus-visible {
+  transform: translateY(-2px); border-color: var(--green);
+  box-shadow: 0 2px 0 rgba(36,28,22,.12); outline: none;
+}
+.dish-card.active { border-color: var(--green); background: var(--green-soft); }
+.dish-card .pr { color: var(--brick); }
+.dish-card .check { color: var(--green); }
+.dish-grid { max-height: 360px; }
+
+/* 不吃的东西：chip 删除线 */
+.seg .pill.deal { text-decoration: none; }
+.seg .pill.deal.on {
+  text-decoration: line-through; background: #e8e2d6; border-color: #b9ae9d;
+  color: #8a7f73; box-shadow: none;
+}
+
+/* 推荐卡：横向对比 */
+.rec-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(235px, 1fr)); gap: 12px; }
+@media (max-width: 700px) { .rec-cards { grid-template-columns: 1fr; } }
+.rec-card { background: var(--paper); border: 2px solid var(--ink); box-shadow: var(--shadow-sm); margin-bottom: 0; }
+.rec-card.best { border-color: var(--green); box-shadow: 4px 4px 0 rgba(31,92,58,.2); }
+.rec-tag .title { font-family: var(--serif); }
+.rec-dish { border-bottom: 1px dashed #d9cbb2; }
+.badge-lite.good { background: var(--green-soft); color: var(--green); }
+.badge-lite.warn { background: var(--brick-soft); color: var(--brick); }
+.badge-lite.bad { background: #efe1de; color: #8c1d18; }
+.macro { background: var(--paper-2); border: 1px solid #e0d3bc; }
+.macro .v { color: var(--green); }
+.macro-bar { background: var(--cream-deep); }
+.why { background: var(--paper-2); border: 1px dashed #d9cbb2; }
+.why b { color: var(--brick); }
+
+/* 宏量营养条（本餐 / 今日目标） */
+.macro-goal { margin: 10px 0 8px; display: flex; flex-direction: column; gap: 6px; }
+.mg-row { display: flex; align-items: center; gap: 8px; font-size: 11.5px; }
+.mg-label { width: 34px; color: var(--ink-3); font-weight: 700; }
+.mg-bar { flex: 1; height: 8px; background: var(--cream-deep); border-radius: 999px; overflow: hidden; border: 1px solid #e0d3bc; }
+.mg-bar > i { display: block; height: 100%; }
+.mg-bar .p { background: var(--blue); }
+.mg-bar .c { background: var(--green); }
+.mg-bar .f { background: var(--brick); }
+.mg-val { min-width: 84px; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+.mg-val b { color: var(--ink); }
+.tip-line { margin-top: 8px; font-size: 12px; color: var(--ink-soft); background: var(--green-soft); border-left: 3px solid var(--green); padding: 6px 9px; border-radius: 0 8px 8px 0; }
+
+/* 状态徽章 / 票根章 */
+.stamp {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 800;
+  padding: 3px 9px; border-radius: 999px; border: 1.5px solid var(--ink);
+}
+.stamp i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.stamp.ok { background: var(--green-soft); color: var(--green); }
+.stamp.hot { background: var(--brick-soft); color: var(--brick); }
+.stamp.done { background: #ece6da; color: var(--gray, #8a7f73); }
+.stamp.ghost { background: transparent; color: var(--ink-3); border-style: dashed; font-weight: 700; }
+.credit-arm {
+  margin-left: auto; font-family: var(--serif); font-weight: 800; color: var(--brick);
+  border: 2px solid var(--brick); border-radius: 8px; padding: 3px 8px; font-size: 12.5px;
+  background: #fff7f4; white-space: nowrap;
+}
+.credit-arm.big { font-size: 15px; padding: 5px 11px; }
+.src-tag { font-size: 10.5px; color: var(--ink-3); border: 1px dashed #b9ae9d; border-radius: 6px; padding: 1px 6px; }
+
+/* 积分雷达 */
+.paper-hero { background: var(--paper-2); }
+.hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.eyebrow { font-size: 10.5px; letter-spacing: 1.6px; color: var(--brick); font-weight: 800; }
+.hero-title { font-family: var(--serif); font-size: 22px; line-height: 1.35; margin-top: 4px; }
+.hero-title.sm { font-size: 19px; }
+.season { font-size: 11px; border: 1.5px solid var(--ink); border-radius: 999px; padding: 3px 10px; background: var(--paper); white-space: nowrap; }
+.progress-card { margin-top: 12px; border: 2px solid var(--ink); border-radius: 12px; background: var(--paper); padding: 10px 12px; }
+.pg-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; }
+.pg-row { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin: 9px 0 7px; }
+.pg-block { height: 14px; border-radius: 3px; background: #e8e2d6; border: 1px solid #d9cbb2; }
+.pg-block.on { background: var(--green); border-color: var(--green); }
+.pg-foot { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--ink-3); }
+.toolbar { margin: 14px 0 10px; }
+.count-line { font-size: 12.5px; color: var(--ink-3); margin: 6px 0 10px; }
+.count-line b { color: var(--ink); }
+.credit-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.credit-card {
+  background: var(--paper); border: 2px solid var(--ink); border-radius: 14px; padding: 13px;
+  box-shadow: var(--shadow-sm); cursor: pointer; transition: .15s;
+}
+.credit-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.cc-top { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; }
+.credit-card h3 { font-size: 16px; font-family: var(--serif); line-height: 1.35; }
+.cc-cond { font-size: 12px; color: var(--ink-soft); margin-top: 5px; }
+.cc-meta { font-size: 11.5px; color: var(--ink-3); margin-top: 3px; }
+
+/* 详情 */
+.back-btn { margin-bottom: 10px; }
+.detail-title { font-family: var(--serif); font-size: 24px; margin: 10px 0 8px; }
+.detail-desc { font-size: 13.5px; color: var(--ink-soft); margin-bottom: 10px; }
+.warning-dash { border: 1.5px dashed var(--brick); background: #fff7f4; color: var(--brick); font-size: 12px; padding: 8px 10px; border-radius: 8px; margin-bottom: 10px; }
+.info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 10px 0; }
+.info-cell { background: var(--paper-2); border: 1px solid #e0d3bc; border-radius: 9px; padding: 7px 9px; }
+.info-cell .ik { font-size: 10.5px; color: var(--ink-3); }
+.info-cell .iv { font-size: 13px; font-weight: 700; }
+.credit-box { border: 2px dashed var(--brick); border-radius: 12px; padding: 10px 12px; background: #fff7f4; margin: 12px 0; }
+.cb-val { font-family: var(--serif); font-size: 22px; color: var(--brick); font-weight: 800; }
+.cb-cond { font-size: 13px; color: var(--ink-soft); }
+.cb-hint { font-size: 10.5px; color: var(--ink-3); margin-top: 4px; }
+
+/* AI 摘要 */
+.ai-card { background: var(--paper-2); }
+.ai-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.ai-tag { font-size: 10.5px; border: 1px solid #b9ae9d; border-radius: 999px; padding: 1px 8px; color: var(--ink-3); }
+.ai-tag.model { border-color: var(--green); color: var(--green); background: var(--green-soft); }
+.ai-line { font-size: 13.5px; margin-bottom: 8px; }
+.tag-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 5px 0; }
+.tag-label { font-size: 10.5px; color: var(--ink-3); }
+.tag { font-size: 11px; background: var(--green-soft); color: var(--green); border-radius: 6px; padding: 2px 7px; }
+.tag.bad { background: var(--brick-soft); color: var(--brick); }
+.ai-note { font-size: 11px; color: var(--ink-3); margin-top: 8px; border-top: 1px dashed #d9cbb2; padding-top: 7px; }
+.ai-actions { margin-top: 8px; }
+
+/* 意向 / 评论 / 评价 */
+.intent-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.intent-btn {
+  flex: 1; min-width: 92px; border: 1.5px solid var(--ink); background: var(--paper-2);
+  border-radius: 999px; padding: 8px 10px; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--ink-soft);
+}
+.intent-btn.on { background: var(--green); color: var(--paper); }
+.intent-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.anon { font-size: 11.5px; background: var(--paper-2); border: 1px dashed #b9ae9d; border-radius: 999px; padding: 2px 9px; color: var(--ink-soft); }
+.comment-list { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.comment { background: var(--paper-2); border: 1px solid #e0d3bc; border-radius: 10px; padding: 8px 10px; }
+.cm-head { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-3); margin-bottom: 3px; }
+.comment p { font-size: 13px; }
+.stars { display: flex; gap: 4px; margin-bottom: 8px; }
+.star { background: none; border: 0; font-size: 22px; color: #d9cbb2; cursor: pointer; line-height: 1; }
+.star.on { color: var(--brick); }
+.stars-inline { color: var(--brick); letter-spacing: 1px; }
+.empty { text-align: center; padding: 30px 10px; color: var(--ink-3); }
+.empty .emoji { font-size: 34px; margin-bottom: 6px; }
+
+/* 场馆 */
+.venue-head { background: var(--paper-2); }
+.map-card { margin-top: 12px; padding: 12px; }
+.map-label { font-size: 11px; font-weight: 800; color: var(--brick); letter-spacing: 1px; margin-bottom: 6px; }
+.campus-map { width: 100%; height: auto; display: block; border: 2px solid var(--ink); border-radius: 12px; background: var(--paper-2); }
+.map-name { font-size: 4px; fill: var(--ink-3); font-weight: 700; }
+.map-dot { cursor: pointer; }
+.dot-ring { stroke: var(--ink); stroke-width: .9; }
+.dot-ring.busy { fill: var(--brick); }
+.dot-ring.normal { fill: #d9a441; }
+.dot-ring.free { fill: var(--green); }
+.dot-ring.closed { fill: #b9ae9d; }
+.dot-core { fill: var(--paper); }
+.dot-label { font-size: 3.1px; fill: var(--ink); paint-order: stroke; stroke: var(--paper); stroke-width: .7; text-anchor: middle; }
+.map-note { font-size: 10.5px; color: var(--ink-3); margin-top: 6px; }
+.venue-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; margin-top: 12px; }
+.venue-card { background: var(--paper); border: 2px solid var(--ink); border-radius: 14px; padding: 13px; box-shadow: var(--shadow-sm); }
+.venue-card.hl { border-color: var(--green); box-shadow: 4px 4px 0 rgba(31,92,58,.22); }
+.vc-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.vc-head h3 { font-size: 15.5px; font-family: var(--serif); }
+.crowd-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 800; border: 1.5px solid var(--ink); border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
+.crowd-badge i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.crowd-badge.busy { background: var(--brick-soft); color: var(--brick); }
+.crowd-badge.normal { background: #f6e7c6; color: #8a5a12; }
+.crowd-badge.free { background: var(--green-soft); color: var(--green); }
+.crowd-badge.closed { background: #ece6da; color: var(--ink-3); }
+.vc-type { font-size: 11.5px; color: var(--ink-3); margin-top: 4px; }
+.vc-note { font-size: 12.5px; color: var(--ink-soft); margin-top: 5px; }
+.vc-why { font-size: 11px; color: var(--green); margin-top: 5px; }
+.vc-hist { font-size: 10.5px; color: var(--ink-3); margin-top: 3px; }
+.agent-tip { margin-top: 8px; font-size: 12px; background: var(--green-soft); border-left: 3px solid var(--green); padding: 6px 9px; border-radius: 0 8px 8px 0; }
+.vc-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.report-row { display: flex; gap: 5px; }
+.rep { border: 1.5px solid var(--ink); background: var(--paper-2); border-radius: 999px; padding: 4px 9px; font-size: 11.5px; cursor: pointer; font-family: var(--sans); color: var(--ink-soft); }
+.rep:hover { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+.search-mode { font-size: 11.5px; color: var(--brick); margin-bottom: 8px; }
+
+/* 约运动 / 装备 / 我的 */
+.practice-seg { margin-bottom: 12px; }
+.notice-pill { display: inline-block; margin-top: 8px; font-size: 11px; color: var(--ink-3); border: 1px dashed #b9ae9d; border-radius: 999px; padding: 2px 10px; }
+.post-panel { margin: 12px 0; padding: 0; }
+.post-panel summary, .reply-panel summary {
+  list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px; font-size: 13.5px; font-weight: 700; color: var(--ink);
+}
+.post-panel summary::-webkit-details-marker, .reply-panel summary::-webkit-details-marker { display: none; }
+.chev { transition: transform .2s; font-style: normal; font-size: 11px; color: var(--ink-3); }
+details[open] > summary .chev { transform: rotate(180deg); }
+.pp-body { padding: 0 14px 14px; }
+.post-list, .gear-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.post-card, .gear-card { background: var(--paper); border: 2px solid var(--ink); border-radius: 14px; padding: 13px; box-shadow: var(--shadow-sm); }
+.pc-top, .gc-top { display: flex; align-items: center; gap: 7px; margin-bottom: 7px; flex-wrap: wrap; }
+.post-card h3, .gear-card h3 { font-size: 15px; font-family: var(--serif); }
+.pc-detail { font-size: 12.5px; color: var(--ink-soft); margin-top: 5px; }
+.pc-meta { font-size: 11.5px; color: var(--ink-3); margin-top: 4px; }
+.mini-badge { font-size: 10.5px; font-weight: 800; border-radius: 6px; padding: 2px 7px; border: 1px solid currentColor; }
+.mini-badge.ok { color: var(--green); background: var(--green-soft); }
+.mini-badge.warn { color: var(--brick); background: var(--brick-soft); }
+.sport-tag { font-size: 10.5px; background: var(--paper-2); border: 1px solid #d9cbb2; border-radius: 6px; padding: 1px 7px; color: var(--ink-soft); }
+.reply-panel { margin-top: 9px; border-top: 1px dashed #d9cbb2; }
+.reply-panel summary { padding: 8px 0 0; font-weight: 600; font-size: 12px; color: var(--ink-3); }
+.reply-body { padding-top: 8px; }
+.reply { font-size: 12px; margin-bottom: 6px; }
+.reply b { font-size: 11px; color: var(--ink-3); }
+.price { font-family: var(--serif); font-size: 20px; color: var(--brick); font-weight: 800; margin-top: 4px; }
+.me-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.me-cell { background: var(--paper-2); border: 1px solid #e0d3bc; border-radius: 10px; padding: 8px; text-align: center; }
+.me-cell span { display: block; font-size: 10.5px; color: var(--ink-3); }
+.me-cell b { font-size: 15px; }
+@media (max-width: 520px) { .me-grid { grid-template-columns: repeat(2, 1fr); } }
+.branch-row { display: flex; flex-direction: column; gap: 8px; }
+.branch-btn {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  border: 1.5px solid var(--ink); background: var(--paper-2); border-radius: 12px;
+  padding: 10px 12px; cursor: pointer; font-family: var(--sans); text-align: left; color: var(--ink);
+}
+.branch-btn:hover { background: var(--green-soft); border-color: var(--green); }
+.branch-btn b { font-size: 14px; }
+.branch-btn span { font-size: 11px; color: var(--ink-3); }
+
+/* 场景切换 */
+.scenario-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.scenario {
+  border: 1.5px solid var(--ink); background: var(--paper-2); border-radius: 999px;
+  padding: 7px 13px; font-size: 12.5px; font-weight: 700; cursor: pointer; color: var(--ink-soft);
+  font-family: var(--sans);
+}
+.scenario:hover { background: var(--brick-soft); border-color: var(--brick); color: var(--brick); }
+.scenario.on { background: var(--brick); color: var(--paper); }
+
+/* 滚动条 & 移动端 */
+.chips-scroll::-webkit-scrollbar, .dish-catbar::-webkit-scrollbar { height: 4px; }
+.chips-scroll::-webkit-scrollbar-thumb, .dish-catbar::-webkit-scrollbar-thumb { background: #d9cbb2; border-radius: 999px; }
+@media (max-width: 640px) {
+  main { padding: 12px; }
+  .hero-title { font-size: 19px; }
+  .credit-list, .venue-list, .post-list, .gear-list { grid-template-columns: 1fr; }
+  .dish-catbar { top: 108px; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .tabs { padding: 8px 12px; }
+}
+.toast { background: var(--ink); color: var(--paper); }
+.msg.user { background: var(--green); color: var(--paper); }
+.msg.ai { background: var(--paper-2); border: 1px solid var(--ink); }
+.chat-box { background: var(--paper-2); border: 1px solid var(--ink); }
+.macro-bar { background: var(--cream-deep); }
+.spin { border-top-color: var(--paper); }
+.drawer { box-shadow: -8px 0 30px rgba(36,28,22,.2); }
+.callout { color: var(--ink-soft); }
+.badge.gray { background: #ece6da; color: var(--ink-3); }
+.chip.good { border-color: var(--green); background: var(--green-soft); color: var(--green); }
+.chip.warn { border-color: #b9863c; background: #f6e7c6; color: #8a5a12; }
+.chip.bad { border-color: var(--brick); background: var(--brick-soft); color: var(--brick); }
+.kpi { background: var(--paper-2); border: 1px solid #e0d3bc; }
+.kpi .v { color: var(--green); }
+.dish-item { border-bottom: 1px solid #e0d3bc; }
+.dish-item:hover { background: var(--green-soft); }
+.combo { border: 2px solid var(--ink); }
+.combo.best { border-color: var(--green); background: var(--green-soft); }
+.combo-tag { color: var(--paper); }
+.rec-dish { border-bottom: 1px dashed #d9cbb2; }
+.bar .col { background: linear-gradient(180deg, var(--green), var(--brick)); }
+.progress { background: var(--cream-deep); }
+th, td { border-bottom: 1px solid #e0d3bc; }
+footer { color: var(--ink-3); }
+
+/* 提分性价比榜 */
+.rank-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.rank-item {
+  display: flex; align-items: center; gap: 10px;
+  border: 1.5px solid var(--ink); border-radius: 12px; padding: 9px 11px; background: var(--paper-2);
+}
+.rank-item.top { background: var(--green-soft); border-color: var(--green); box-shadow: 3px 3px 0 rgba(31,92,58,.18); }
+.rank-no {
+  width: 24px; height: 24px; flex: 0 0 24px; border-radius: 50%;
+  border: 1.5px solid var(--ink); background: var(--paper); display: flex;
+  align-items: center; justify-content: center; font-size: 12px; font-weight: 800;
+}
+.rank-item.top .rank-no { background: var(--green); color: var(--paper); border-color: var(--green); }
+.rank-main { flex: 1; display: flex; flex-direction: column; }
+.rank-main b { font-size: 13.5px; }
+.rank-main span { font-size: 11.5px; color: var(--ink-3); }
+.rank-eff { font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rank-badge { font-size: 10px; font-weight: 800; color: var(--paper); background: var(--brick); border-radius: 999px; padding: 2px 7px; }
+
+/* 菜品分组 */
+.dish-grid { display: block; }
+.dish-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+.dg-title {
+  grid-column: 1 / -1; font-size: 11px; font-weight: 800; color: var(--brick);
+  letter-spacing: 1px; border-bottom: 1.5px dashed #d9cbb2; padding-bottom: 3px; margin-bottom: 2px;
+}
+@media (max-width: 520px) { .dish-group { grid-template-columns: 1fr; } }
+
+
+
 </style>
   <!-- 本文件由 scripts/build_single_file.js 自动生成，改动请回 frontend/ 源文件 -->
 </head>
@@ -321,7 +720,7 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; margin-top: 2
       <div class="logo">🥗</div>
       <div>
         <div class="name">练完吃啥</div>
-        <div class="sub">饮食食堂 · 运动餐推荐 Agent</div>
+        <div class="sub">运动 × 饮食 × 校园运动地图</div>
       </div>
     </div>
     <div class="header-status off" id="backendStatus">
@@ -330,28 +729,27 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; margin-top: 2
   </header>
 
   <nav class="tabs" id="tabs">
-    <button data-tab="eat" class="active">配餐</button>
-    <button data-tab="records">记录</button>
-    <button data-tab="science">原理与数据</button>
-    <button data-tab="fitness">体测急救站</button>
-    <button data-tab="profile" id="btnProfile" style="margin-left:auto">👤 我的档案</button>
+    <button data-tab="eat" class="active">🍚 吃</button>
+    <button data-tab="records">📊 记录</button>
+    <button data-tab="practice">🎯 练</button>
+    <button data-tab="venue">🏟️ 场馆</button>
+    <button data-tab="me" id="btnProfile">👤 我的</button>
   </nav>
 
   <main>
-    <!-- ================= 配餐 ================= -->
+    <!-- ================= 吃 ================= -->
     <section class="tab active" id="tab-eat">
       <p class="hint" id="dateTime" style="margin-bottom:10px"></p>
       <div class="eat-grid">
-        <!-- 左栏：配置 -->
         <div class="eat-col">
-          <!-- Step 1 -->
           <div class="card">
             <div class="step-head">STEP 1 · 先定目标</div>
-            <div class="goal-row" id="goalRow">
-              <button class="goal-card" data-goal="减脂">🔥 减脂<small>热量缺口·保住肌肉</small></button>
-              <button class="goal-card" data-goal="增肌">💪 增肌<small>补足蛋白·吃到热量</small></button>
-              <button class="goal-card active" data-goal="维持">⚖️ 维持<small>不增不减·吃得舒服</small></button>
+            <div class="segmented" id="goalRow">
+              <button class="seg-item" data-goal="减脂"><span class="si-icon">🔥</span><b>减脂</b><small>热量缺口</small></button>
+              <button class="seg-item" data-goal="增肌"><span class="si-icon">💪</span><b>增肌</b><small>补足蛋白</small></button>
+              <button class="seg-item active" data-goal="维持"><span class="si-icon">⚖️</span><b>维持</b><small>不增不减</small></button>
             </div>
+            <p class="hint goal-hint" id="goalHint">缺口约 300–500 kcal，优先保蛋白。</p>
             <div class="sub-label">今天练了什么（30+ 主流项目）</div>
             <div class="seg" id="exerciseCatSeg"></div>
             <div class="seg" id="exerciseTypeSeg" style="margin-top:8px"></div>
@@ -367,7 +765,6 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; margin-top: 2
             <div id="exerciseStats" style="margin-top:8px"></div>
           </div>
 
-          <!-- Step 2 -->
           <div class="card">
             <div class="step-head">STEP 2 · 今天吃什么</div>
             <div class="source-toggle" id="sourceToggle">
@@ -379,6 +776,8 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; margin-top: 2
               <div><label class="fld">食堂</label><select id="canteenSelect"></select></div>
               <div><label class="fld">窗口/楼层</label><select id="windowSelect"></select></div>
             </div>
+            <div class="search-wrap dish-search"><input type="search" id="dishSearch" placeholder="搜菜品：鸡胸 / 青菜 / 豆腐" /><button class="search-clear hide" id="btnDishClear">×</button></div>
+            <div class="dish-catbar" id="dishCatBar"></div>
             <div class="dish-grid" id="dishGrid"></div>
             <div class="upload-box" id="uploadBox">📷 上传菜单/菜品图片，一键识别</div>
             <input type="file" id="menuFile" accept="image/*" style="display:none" />
@@ -391,7 +790,6 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; margin-top: 2
             <p class="hint">已选 <b id="selectedCount">0</b> 道 · 点菜品卡片勾选/取消</p>
           </div>
 
-          <!-- Step 3 -->
           <div class="card">
             <div class="step-head">STEP 3 · 这顿的约束</div>
             <div class="sub-label">预算（数轴，分度 1 元）</div>
@@ -424,7 +822,6 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; margin-top: 2
             </div>
           </div>
 
-          <!-- 跑步测速 -->
           <div class="card">
             <div class="step-head">跑步测速 / 配速计算</div>
             <div class="grid2">
@@ -435,14 +832,13 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; margin-top: 2
             <div id="paceResult" style="margin-top:8px"></div>
           </div>
 
-          <button class="btn btn-primary btn-block" id="btnGenerate">🍽️ 让 Agent 配这一餐（1秒3套）</button>
+          <button class="btn btn-primary btn-block btn-cta" id="btnGenerate">🍽️ 让 Agent 配这一餐（1 秒出 3 套）</button>
         </div>
 
-        <!-- 右栏：推荐 -->
         <div class="eat-col">
           <div class="result-head">这顿吃什么 <span class="muted" id="resultMeta"></span></div>
           <div id="recommendCards">
-            <div class="card"><p class="muted">左边选好目标和菜品，点下方按钮，这里会给出 3 套搭配 + 为什么这么配。</p></div>
+            <div class="card"><p class="muted">左边选好目标和菜品，点下方按钮，这里会给出 2–3 套搭配 + 为什么这么配。</p></div>
           </div>
         </div>
       </div>
@@ -482,11 +878,106 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; margin-top: 2
       </div>
     </section>
 
-    <!-- ================= 原理与数据 ================= -->
+    <!-- ================= 练（积分雷达 + 体测） ================= -->
+    <section class="tab" id="tab-practice">
+      <div class="seg practice-seg" id="practiceSeg">
+        <button class="pill active" data-ptab="credits">🎯 积分雷达</button>
+        <button class="pill" data-ptab="fitness">🚑 体测急救站</button>
+      </div>
+
+      <div id="practice-credits">
+        <div id="creditsBody"></div>
+      </div>
+
+      <div id="practice-fitness" style="display:none">
+        <div class="card">
+          <h2><span class="icon">🚑</span> 体测急救站 <span class="badge orange">《国家学生体质健康标准》全项目</span></h2>
+          <p class="hint">录入成绩 → 逐项算分 → 提分性价比 → 专项训练计划 + 配速器。评分表内置（按年级自动切换「大一/大二」「大三/大四」）、透明可查，以学校执行版本为准。</p>
+          <div class="grid2">
+            <div><label class="fld">性别</label><select id="ftGender"><option value="male">男</option><option value="female">女</option></select></div>
+            <div><label class="fld">年级</label><select id="ftGrade"><option>大一</option><option>大二</option><option>大三</option><option>大四</option></select></div>
+          </div>
+          <div class="grid3">
+            <div><label class="fld">身高(cm)</label><input type="number" id="ftHeight" value="175" min="130" max="210" /></div>
+            <div><label class="fld">体重(kg)</label><input type="number" id="ftWeight" value="65" min="35" max="150" /></div>
+            <div><label class="fld">BMI（自动）</label><div class="pill" id="ftBmi" style="width:100%;text-align:center">—</div></div>
+          </div>
+          <div class="grid3">
+            <div><label class="fld">肺活量(ml)</label><input type="number" id="ftVital" placeholder="如 4000" min="0" /></div>
+            <div><label class="fld">50米(秒)</label><input type="text" id="ft50" placeholder="如 7.5" /></div>
+            <div><label class="fld">坐位体前屈(cm)</label><input type="text" id="ftReach" placeholder="如 10" /></div>
+          </div>
+          <div class="grid3">
+            <div><label class="fld">立定跳远(cm)</label><input type="number" id="ftJump" placeholder="如 230" min="0" /></div>
+            <div id="ftPullupWrap"><label class="fld">引体向上(个)</label><input type="number" id="ftPullup" placeholder="如 3" min="0" /></div>
+            <div id="ftSitupWrap"><label class="fld">仰卧起坐(个/分)</label><input type="number" id="ftSitup" placeholder="如 30" min="0" /></div>
+          </div>
+          <div class="grid3">
+            <div><label class="fld">耐力跑</label><select id="ftEvent"><option value="1000">1000 米（男）</option><option value="800">800 米（女）</option></select></div>
+            <div><label class="fld">耐力跑成绩(分:秒)</label><input type="text" id="ftRunScore" placeholder="如 4:35" /></div>
+            <div><label class="fld">距体测天数</label><input type="number" id="ftDaysLeft" value="12" min="1" max="30" /></div>
+          </div>
+          <div class="grid2">
+            <div><label class="fld">每周可练天数</label><input type="number" id="ftDaysPerWeek" value="5" min="1" max="7" /></div>
+            <div><label class="fld">伤病/场地限制</label><input type="text" id="ftInjury" placeholder="例如：膝盖有点疼" /></div>
+          </div>
+          <button class="btn btn-primary btn-block" id="btnFtDiagnose" style="margin-top:14px">🔍 算分 + 提分诊断</button>
+        </div>
+
+        <div class="card">
+          <h2><span class="icon">⏱️</span> 配速器（目标成绩 → 分段 → 报时）</h2>
+          <p class="hint">输入目标成绩，自动生成每 200/400 米分段，按分段用 Web Audio 叮声报时。不依赖 GPS，操场和跑步机都能用。</p>
+          <div class="grid3">
+            <div><label class="fld">距离(米)</label><input type="number" id="pacerDist" value="1000" min="200" /></div>
+            <div><label class="fld">目标成绩(分:秒)</label><input type="text" id="pacerTarget" value="4:30" /></div>
+            <div><label class="fld">分段</label><select id="pacerSeg"><option value="200">每 200 米</option><option value="400">每 400 米</option></select></div>
+          </div>
+          <button class="btn btn-soft btn-sm" id="btnPacerPlan" style="margin-top:8px">生成分段</button>
+          <div id="pacerResult" style="margin-top:8px"></div>
+          <div class="timer-big" id="pacerClock" style="margin-top:8px">—</div>
+          <div class="grid2" style="margin-top:8px">
+            <button class="btn btn-primary" id="btnPacerStart">▶ 开始报时</button>
+            <button class="btn btn-ghost" id="btnPacerStop">⏹ 停止</button>
+          </div>
+        </div>
+
+        <div id="ftResult"></div>
+      </div>
+    </section>
+
+    <!-- ================= 场馆 ================= -->
+    <section class="tab" id="tab-venue">
+      <div id="venueBody"></div>
+    </section>
+
+    <!-- ================= 我的 ================= -->
+    <section class="tab" id="tab-me">
+      <div id="meBody"></div>
+    </section>
+
+    <!-- ================= 约运动（我的分支） ================= -->
+    <section class="tab" id="tab-pickup">
+      <button class="btn btn-ghost btn-sm back-btn" data-back="me">← 返回我的</button>
+      <div id="pickupBody"></div>
+    </section>
+
+    <!-- ================= 装备（我的分支） ================= -->
+    <section class="tab" id="tab-gear">
+      <button class="btn btn-ghost btn-sm back-btn" data-back="me">← 返回我的</button>
+      <div id="gearBody"></div>
+    </section>
+
+    <!-- ================= 原理与数据（我的分支） ================= -->
     <section class="tab" id="tab-science">
+      <button class="btn btn-ghost btn-sm back-btn" data-back="me">← 返回我的</button>
       <div class="card">
         <h2><span class="icon">🤖</span> 智能健身教练</h2>
         <p class="hint">运动、饮食、体测相关问题都能问。默认走「本地规则引擎」，后端配置 Key 后回答更自然。</p>
+        <div class="scenario-row" id="scenarioRow">
+          <button class="scenario" data-scene="cut">🔥 减脂日</button>
+          <button class="scenario" data-scene="bulk">💪 增肌日</button>
+          <button class="scenario" data-scene="pre">🎯 体测前 3 天</button>
+        </div>
         <div class="chat-box" id="coachChat"></div>
         <div class="chat-input">
           <input type="text" id="coachInput" placeholder="例如：今晚练完腿很酸，该吃点什么？" />
@@ -510,71 +1001,13 @@ footer { text-align: center; color: var(--ink-3); font-size: 12px; margin-top: 2
         <div class="callout green" id="devConfigNote"></div>
       </div>
     </section>
-
-    <!-- ================= 体测急救站 ================= -->
-    <section class="tab" id="tab-fitness">
-      <div class="card">
-        <h2><span class="icon">🚑</span> 体测急救站 <span class="badge orange">《国家学生体质健康标准》全项目</span></h2>
-        <p class="hint">录入成绩 → 逐项算分 → 提分诊断 → 专项训练计划 + 配速器。评分表内置（按年级自动切换「大一/大二」「大三/大四」）、透明可查，以学校执行版本为准。</p>
-        <div class="grid2">
-          <div><label class="fld">性别</label><select id="ftGender"><option value="male">男</option><option value="female">女</option></select></div>
-          <div><label class="fld">年级</label><select id="ftGrade"><option>大一</option><option>大二</option><option>大三</option><option>大四</option></select></div>
-        </div>
-        <div class="grid3">
-          <div><label class="fld">身高(cm)</label><input type="number" id="ftHeight" value="175" min="130" max="210" /></div>
-          <div><label class="fld">体重(kg)</label><input type="number" id="ftWeight" value="65" min="35" max="150" /></div>
-          <div><label class="fld">BMI（自动）</label><div class="pill" id="ftBmi" style="width:100%;text-align:center">—</div></div>
-        </div>
-        <div class="grid3">
-          <div><label class="fld">肺活量(ml)</label><input type="number" id="ftVital" placeholder="如 4000" min="0" /></div>
-          <div><label class="fld">50米(秒)</label><input type="text" id="ft50" placeholder="如 7.5" /></div>
-          <div><label class="fld">坐位体前屈(cm)</label><input type="text" id="ftReach" placeholder="如 10" /></div>
-        </div>
-        <div class="grid3">
-          <div><label class="fld">立定跳远(cm)</label><input type="number" id="ftJump" placeholder="如 230" min="0" /></div>
-          <div id="ftPullupWrap"><label class="fld">引体向上(个)</label><input type="number" id="ftPullup" placeholder="如 3" min="0" /></div>
-          <div id="ftSitupWrap"><label class="fld">仰卧起坐(个/分)</label><input type="number" id="ftSitup" placeholder="如 30" min="0" /></div>
-        </div>
-        <div class="grid3">
-          <div><label class="fld">耐力跑</label><select id="ftEvent"><option value="1000">1000 米（男）</option><option value="800">800 米（女）</option></select></div>
-          <div><label class="fld">耐力跑成绩(分:秒)</label><input type="text" id="ftRunScore" placeholder="如 4:35" /></div>
-          <div><label class="fld">距体测天数</label><input type="number" id="ftDaysLeft" value="12" min="1" max="30" /></div>
-        </div>
-        <div class="grid2">
-          <div><label class="fld">每周可练天数</label><input type="number" id="ftDaysPerWeek" value="5" min="1" max="7" /></div>
-          <div><label class="fld">伤病/场地限制</label><input type="text" id="ftInjury" placeholder="例如：膝盖有点疼" /></div>
-        </div>
-        <button class="btn btn-primary btn-block" id="btnFtDiagnose" style="margin-top:14px">🔍 算分 + 提分诊断</button>
-      </div>
-
-      <!-- 配速器：独立、显眼 -->
-      <div class="card">
-        <h2><span class="icon">⏱️</span> 配速器（目标成绩 → 分段 → 报时）</h2>
-        <p class="hint">输入目标成绩，自动生成每 200/400 米分段，按分段用 Web Audio 叮声报时。不依赖 GPS，操场和跑步机都能用。</p>
-        <div class="grid3">
-          <div><label class="fld">距离(米)</label><input type="number" id="pacerDist" value="1000" min="200" /></div>
-          <div><label class="fld">目标成绩(分:秒)</label><input type="text" id="pacerTarget" value="4:30" /></div>
-          <div><label class="fld">分段</label><select id="pacerSeg"><option value="200">每 200 米</option><option value="400">每 400 米</option></select></div>
-        </div>
-        <button class="btn btn-soft btn-sm" id="btnPacerPlan" style="margin-top:8px">生成分段</button>
-        <div id="pacerResult" style="margin-top:8px"></div>
-        <div class="timer-big" id="pacerClock" style="margin-top:8px">—</div>
-        <div class="grid2" style="margin-top:8px">
-          <button class="btn btn-primary" id="btnPacerStart">▶ 开始报时</button>
-          <button class="btn btn-ghost" id="btnPacerStop">⏹ 停止</button>
-        </div>
-      </div>
-
-      <div id="ftResult"></div>
-    </section>
   </main>
 
   <footer>
-    <p>练完吃啥 · 运动×饮食智能体（软件工程学院「软工菁英杯」参赛作品）</p>
-    <p style="margin-top:4px">健康建议仅供参考，不构成医疗意见；体测评分请以学校执行版本为准。</p>
+    <p>练完吃啥 × 中大通关 · 南校运动地图（软件工程学院「软工菁英杯」参赛作品）</p>
+    <p style="margin-top:4px">本产品为校园运动探索与积分信息聚合工具，不构成医疗建议；积分进度仅为产品内个人记录，非学校官方认定；活动分值以官方通知为准；运动中出现疼痛、胸闷、眩晕等不适请立即停止并就医。</p>
   </footer>
 
-  <!-- 档案抽屉 -->
   <div class="drawer-mask" id="drawerMask"></div>
   <aside class="drawer" id="drawer">
     <h2>👤 我的档案</h2>
@@ -970,6 +1403,243 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
 </script>
   <script>
 /* ============================================================
+ * credits.js —— 积分雷达数据（预置，前端本地库）
+ * 说明：分值/条件仅作示例，以官方通知为准。
+ * ============================================================ */
+var CREDIT_ACTIVITIES = [
+  {
+    id: 1, slug: 'freshman-orienteering', title: '新生定向越野赛', category: '参赛即得',
+    credit_value: '3 分', credit_condition: '参赛即得', period_label: '9 月',
+    period_start: '2026-09-10', period_end: '2026-11-16', location: '英东体育场',
+    campus: '广州南校园', registration_url: 'https://example.com/sports/orienteering',
+    status: '报名中', source: 'official', is_recurring: false, sort_hint: 10,
+    description: '面向大一新生的校园定向越野，全程约 3km，途经怀士堂、逸仙大道等标志点。示例信息：具体集合时间以官方通知为准。',
+    suitable: ['想认识校园的新生', '喜欢轻量跑步的同学'], not_suitable: ['近期有膝踝伤病的同学', '当天有课程冲突无法到场']
+  },
+  {
+    id: 2, slug: 'fitness-class', title: '体能提高班', category: '课程训练',
+    credit_value: '8 分', credit_condition: '6 次全勤', period_label: '每学期第 2–3 月',
+    period_start: '2026-10-01', period_end: '2026-12-13', location: '体育馆',
+    campus: '广州南校园', registration_url: 'https://example.com/sports/fitness-class',
+    status: '报名中', source: 'official', is_recurring: true, sort_hint: 8,
+    description: '每周一次、共 6 次的体能训练课，含热身、力量与拉伸，适合想建立运动习惯的同学。待确认：本学期具体排课时间。',
+    suitable: ['想系统建立训练习惯的同学', '准备体测的同学'], not_suitable: ['已能完成高强度训练的同学', '无法保证 6 次出勤的同学']
+  },
+  {
+    id: 3, slug: 'long-run-month', title: '长跑月', category: '打卡累积',
+    credit_value: '每次 1 分', credit_condition: '3km 或 30min 以上', period_label: '每学期第 2–3 月',
+    period_start: '2026-10-01', period_end: '2026-11-30', location: '全校',
+    campus: '广州南校园', registration_url: 'https://example.com/sports/long-run',
+    status: '报名中', source: 'official', is_recurring: true, sort_hint: 9,
+    description: '每天 3km 或 30 分钟以上跑步即可打卡，累计达标次数兑换积分。示例：单日上限与认定方式以官方通知为准。',
+    suitable: ['已有跑步习惯的同学', '想用碎片时间累计积分的同学'], not_suitable: ['近期有下肢伤病的同学']
+  },
+  {
+    id: 4, slug: 'rope-skipping', title: '天天跳绳打卡', category: '打卡累积',
+    credit_value: '每 4 天 3000 个得 1 分', credit_condition: '每 4 天完成 3000 个', period_label: '每学期',
+    period_start: '2026-09-01', period_end: '2026-12-31', location: '线上',
+    campus: '广州南校园', registration_url: 'https://example.com/sports/rope',
+    status: '报名中', source: 'official', is_recurring: true, sort_hint: 6,
+    description: '线上跳绳打卡，按 4 天为一个周期累计 3000 个。提示：需开启蓝牙且不要锁屏，否则容易断连。',
+    suitable: ['想在宿舍完成运动的同学', '时间碎片化的同学'], not_suitable: ['膝盖不适的同学', '没有跳绳器材的同学']
+  },
+  {
+    id: 5, slug: 'road-race', title: '路跑联赛', category: '参赛即得',
+    credit_value: '每次 1 分', credit_condition: '参赛即得', period_label: '每学期多次',
+    period_start: '2026-10-01', period_end: '2026-11-06', location: '校外/校内',
+    campus: '广州南校园', registration_url: 'https://example.com/sports/road-race',
+    status: '即将截止', source: 'official', is_recurring: true, sort_hint: 10,
+    description: '校内外多站路跑联赛，单站报名参赛即可获得相应积分。示例信息：各站距离与集合点以官方通知为准。',
+    suitable: ['有跑步基础的同学', '想体验比赛氛围的同学'], not_suitable: ['赛前一周有伤病的同学']
+  },
+  {
+    id: 6, slug: 'fitness-test-volunteer', title: '体测志愿者', category: '服务组织',
+    credit_value: '2 分', credit_condition: '按次', period_label: '体测周',
+    period_start: '2026-11-10', period_end: '2026-11-16', location: '体育馆',
+    campus: '广州南校园', registration_url: 'https://example.com/sports/volunteer',
+    status: '报名中', source: 'official', is_recurring: false, sort_hint: 7,
+    description: '协助体测现场组织、引导与记录，按服务次数认定。适合不擅长比赛但想参与体育活动的同学。',
+    suitable: ['想参与体育活动但不擅长比赛的同学', '时间灵活的志愿者'], not_suitable: ['体测周有考试冲突的同学']
+  },
+  {
+    id: 7, slug: 'department-games', title: '院系运动会', category: '院系日常',
+    credit_value: '3 分', credit_condition: '参赛即得', period_label: '10 月',
+    period_start: '2026-10-01', period_end: '2026-10-18', location: '各校区',
+    campus: '广州南校园', registration_url: 'https://example.com/sports/department',
+    status: '已结束', source: 'official', is_recurring: true, sort_hint: 0,
+    description: '各院系自行组织的秋季运动会，项目含短跑、接力、趣味项目等。示例：各院系项目设置不同。',
+    suitable: ['想为院系出力的同学', '喜欢团队项目的同学'], not_suitable: ['已错过报名时间的同学']
+  },
+  {
+    id: 8, slug: 'yixian-cup', title: '逸仙杯系列赛事', category: '参赛即得',
+    credit_value: '5 分', credit_condition: '参赛未获奖也有鼓励积分', period_label: '每学期',
+    period_start: '2026-10-01', period_end: '2026-12-20', location: '各校区',
+    campus: '广州南校园', registration_url: 'https://example.com/sports/yixian',
+    status: '报名中', source: 'official', is_recurring: true, sort_hint: 9,
+    description: '校级综合赛事系列，覆盖篮球、羽毛球、排球等项目，参赛即有鼓励积分。待确认：各项目报名截止时间。',
+    suitable: ['有球类基础的同学', '想和同学组队的同学'], not_suitable: ['近期有伤病的同学']
+  },
+  {
+    id: 9, slug: 'taekwondo-club', title: '跆拳道社·招新体验课', category: '社团活动',
+    credit_value: '不计分（社团活动）', credit_condition: '到场体验即可', period_label: '每周五晚',
+    period_start: '2026-09-01', period_end: '2026-12-25', location: '体育馆武术房',
+    campus: '广州南校园', registration_url: 'https://example.com/sports/taekwondo',
+    status: '报名中', source: 'community', is_recurring: true, sort_hint: 5,
+    description: '零基础可参加的体验课，教练带练基础步法与踢腿。来源：学生社团，非官方积分活动。',
+    suitable: ['想尝试格斗类运动的同学', '零基础想入门的新生'], not_suitable: ['有膝踝旧伤的同学']
+  },
+  {
+    id: 10, slug: 'skate-club', title: '轮滑协会·周末刷街训练', category: '社团活动',
+    credit_value: '不计分（社团活动）', credit_condition: '自备轮滑鞋', period_label: '每周六下午',
+    period_start: '2026-09-01', period_end: '2026-12-26', location: '逸仙大道及校道',
+    campus: '广州南校园', registration_url: 'https://example.com/sports/skate',
+    status: '报名中', source: 'community', is_recurring: true, sort_hint: 4,
+    description: '周六下午沿逸仙大道刷街，新手可跟着慢速组。来源：学生社团，非官方积分活动。',
+    suitable: ['有轮滑基础的同学', '想认识同好的同学'], not_suitable: ['完全零基础且无护具的同学']
+  },
+  {
+    id: 11, slug: 'dragon-boat', title: '龙舟队·晨训招募', category: '社团活动',
+    credit_value: '不计分（社团活动）', credit_condition: '通过体能测试', period_label: '每学期',
+    period_start: '2026-09-01', period_end: '2026-12-31', location: '北门珠江边训练点',
+    campus: '广州南校园', registration_url: 'https://example.com/sports/dragon-boat',
+    status: '报名中', source: 'community', is_recurring: true, sort_hint: 3,
+    description: '清晨在珠江边进行龙舟训练，需通过基础体能与游泳测试。来源：学生社团，非官方积分活动。',
+    suitable: ['体能较好、会游泳的同学', '想体验团队项目的同学'], not_suitable: ['不会游泳的同学']
+  },
+  {
+    id: 12, slug: 'badminton-monthly', title: '羽毛球民间月赛', category: '民间赛事',
+    credit_value: '不计分（民间赛事）', credit_condition: '现场报名', period_label: '每月最后一个周日',
+    period_start: '2026-09-01', period_end: '2026-11-29', location: '体育馆',
+    campus: '广州南校园', registration_url: 'https://example.com/sports/badminton',
+    status: '报名中', source: 'community', is_recurring: true, sort_hint: 6,
+    description: '同学自发组织的羽毛球月赛，分新手组与进阶组，现场抽签配对。来源：民间组织，不计入学校体育积分。',
+    suitable: ['想打比赛但不想太正式的同学', '想练双打配合的同学'], not_suitable: ['没有球拍的同学']
+  },
+  {
+    id: 13, slug: 'night-run-club', title: '夜跑团·环校夜跑', category: '民间活动',
+    credit_value: '不计分（民间活动）', credit_condition: '直接来跑', period_label: '每晚 21:00',
+    period_start: '2026-09-01', period_end: '2026-12-31', location: '英东体育场',
+    campus: '广州南校园', registration_url: 'https://example.com/sports/night-run',
+    status: '报名中', source: 'community', is_recurring: true, sort_hint: 7,
+    description: '每晚九点英东集合，配速分 6' + "'" + '00 与 7' + "'" + '00 两档，跑完自愿拉伸。来源：民间组织，不计入学校体育积分。',
+    suitable: ['想找人一起跑的同学', '晚上才有空的同学'], not_suitable: ['住得较远、回程不便的同学']
+  }
+];
+
+</script>
+  <script>
+/* ============================================================
+ * venues.js —— 场馆与拥挤度数据
+ * 数据来源：《中山大学场馆拥挤度规律表》（三校区五校园）
+ * 判定：① 近 2 小时实时上报聚合 → ② 历史规律（校区+场馆+星期+小时）→ ③ 默认中等
+ * ============================================================ */
+var CAMPUS_LIST = ['广州南校园', '广州东校园', '广州北校园', '珠海校区', '深圳校区'];
+
+/* 每个场馆：peak / mid / free 为时间段数组（HH:MM-HH:MM），closedDays 为闭馆星期（0=周日） */
+var CAMPUS_VENUES = [
+  /* ---------------- 南校园 ---------------- */
+  { id: 'syd-track', campus: '广州南校园', name: '英东田径场', type: '田径场', x: 46, y: 58,
+    hours: '约 6:00–22:00', price: '免费', booking: '无需预约，先到先得',
+    note: '400m 橡胶跑道，体测主场地；夜跑最热闹',
+    peak: ['20:40-22:00'], mid: ['17:00-20:40'], free: ['06:00-09:00', '09:00-17:00'], closedDays: [] },
+  { id: 'xq-track', campus: '广州南校园', name: '西区田径场', type: '田径场', x: 22, y: 74,
+    hours: '6:30–21:30', price: '免费', booking: '无需预约',
+    note: '路面不平，人比英东少，可分流',
+    peak: ['17:30-20:00'], mid: ['09:00-12:00'], free: ['06:30-09:00', '12:00-17:30'], closedDays: [] },
+  { id: 'syd-gym-badminton', campus: '广州南校园', name: '新体育馆（羽毛球）', type: '综合馆', x: 62, y: 44,
+    hours: '按预约时段', price: '30 元/全场/小时', booking: '网上预约/现场刷卡',
+    note: '学生主力馆，靠生活区；黄金时段基本满',
+    peak: ['19:00-21:00'], mid: ['14:00-17:00'], free: ['08:00-11:00'], closedDays: [] },
+  { id: 'syd-gym', campus: '广州南校园', name: '新体育馆（健身房）', type: '健身房', x: 64, y: 40,
+    hours: '按预约时段', price: '学生 3 元/人/场', booking: '网上预约',
+    note: '学生价极便宜，易满',
+    peak: ['19:00-21:00'], mid: ['16:00-18:00'], free: ['08:00-11:00'], closedDays: [] },
+  { id: 'syd-pool', campus: '广州南校园', name: '游泳池', type: '游泳馆', x: 68, y: 70,
+    hours: '工作日 6:30–8:00、19:30–21:00', price: '学生 3–5 元', booking: '先线上预约→换泳票',
+    note: '需游泳证；冬天可能不开放；晚场人最多',
+    peak: ['19:30-21:00'], mid: ['16:00-17:30'], free: ['06:30-08:00'], closedDays: [] },
+  { id: 'syd-basket', campus: '广州南校园', name: '篮球场（室外）', type: '球场', x: 54, y: 32,
+    hours: '6:00–22:00', price: '免费（周末收费）', booking: '先到先得',
+    note: '避开周一至周五 8:00–12:00 教学高峰',
+    peak: ['16:00-21:00'], mid: ['14:00-16:00'], free: ['06:00-08:00', '08:00-12:00'], closedDays: [] },
+  { id: 'syd-north-track', campus: '广州南校园', name: '北门田径场', type: '田径场', x: 30, y: 18,
+    hours: '6:00–22:00', price: '免费', booking: '无需预约',
+    note: '离北门近，人少，适合放松跑',
+    peak: ['18:00-20:00'], mid: ['16:00-18:00'], free: ['06:00-09:00', '09:00-16:00'], closedDays: [] },
+
+  /* ---------------- 东校园 ---------------- */
+  { id: 'east-artificial', campus: '广州东校园', name: '假草体育场', type: '田径场', x: 44, y: 62,
+    hours: '6:00–22:00', price: '免费', booking: '无需预约',
+    note: '灯光足、离宿舍近、安全，最热门',
+    peak: ['20:40-22:00'], mid: ['17:00-20:40'], free: ['06:00-09:00', '09:00-17:00'], closedDays: [] },
+  { id: 'east-gym', campus: '广州东校园', name: '体育馆（羽毛球）', type: '综合馆', x: 60, y: 40,
+    hours: '按预约时段', price: '运动经费抵扣', booking: '网上预约',
+    note: '系统显示饱和度；羽协周四晚、周六下午有活动',
+    peak: ['19:00-21:00'], mid: ['14:00-17:00'], free: ['08:00-11:00'], closedDays: [] },
+  { id: 'east-pool', campus: '广州东校园', name: '体育馆（游泳池）', type: '游泳馆', x: 34, y: 30,
+    hours: '按场次', price: '运动经费抵扣', booking: '网上预约 + 游泳证',
+    note: '办证后可用',
+    peak: ['17:00-19:00'], mid: ['14:00-17:00'], free: ['08:00-11:00'], closedDays: [] },
+  { id: 'east-basket', campus: '广州东校园', name: '室外篮球场', type: '球场', x: 70, y: 58,
+    hours: '6:00–22:00', price: '免费', booking: '先到先得',
+    note: '避开周一至周五 8:00–12:00 教学',
+    peak: ['16:00-21:00'], mid: ['14:00-16:00'], free: ['06:00-08:00'], closedDays: [], teachingBlock: ['08:00-12:00'] },
+
+  /* ---------------- 北校园 ---------------- */
+  { id: 'north-track', campus: '广州北校园', name: '北校园田径场', type: '田径场', x: 48, y: 52,
+    hours: '日常可跑', price: '免费', booking: '无需预约',
+    note: '场地较小，医学部学生集中',
+    peak: ['17:00-19:00'], mid: ['09:00-12:00'], free: ['12:00-14:00'], closedDays: [] },
+  { id: 'north-gym', campus: '广州北校园', name: '北校园体育馆', type: '综合馆', x: 64, y: 36,
+    hours: '按预约时段', price: '20–30 元/场/小时', booking: '网上预约',
+    note: '分学生场/教职工场',
+    peak: ['19:00-21:00'], mid: ['14:00-17:00'], free: ['08:00-11:00'], closedDays: [] },
+  { id: 'north-pool', campus: '广州北校园', name: '游泳池', type: '游泳馆', x: 36, y: 66,
+    hours: '按场次', price: '学生 3–5 元', booking: '线上预约 + 游泳证',
+    note: '高峰人多；冬天可能不开放',
+    peak: ['17:00-19:00'], mid: ['14:00-17:00'], free: ['09:00-11:00'], closedDays: [] },
+
+  /* ---------------- 珠海校区 ---------------- */
+  { id: 'zh-track', campus: '珠海校区', name: '珠海田径场', type: '田径场', x: 46, y: 60,
+    hours: '6:00–22:30', price: '免费', booking: '无需预约',
+    note: '仅半个操场有灯',
+    peak: ['20:40-21:30'], mid: ['17:00-20:40'], free: ['06:00-09:00'], closedDays: [] },
+  { id: 'zh-gym', campus: '珠海校区', name: '珠海体育馆', type: '综合馆', x: 62, y: 42,
+    hours: '8:00–12:00、14:00–22:00', price: '运动经费抵扣', booking: '网上预约',
+    note: '新体育馆，地上/地下分层',
+    peak: ['19:00-21:30'], mid: ['14:00-17:00'], free: ['08:00-12:00'], closedDays: [] },
+  { id: 'zh-pool', campus: '珠海校区', name: '恒温游泳馆', type: '游泳馆', x: 34, y: 34,
+    hours: '周二至周日 7:00–9:00、15:00–21:30', price: '运动经费抵扣', booking: '网上预约 + 游泳证',
+    note: '周一闭馆，别去',
+    peak: ['15:00-21:30'], mid: ['07:00-09:00'], free: [], closedDays: [1] },
+
+  /* ---------------- 深圳校区 ---------------- */
+  { id: 'sz-main', campus: '深圳校区', name: '深圳体育馆主馆', type: '综合馆', x: 52, y: 46,
+    hours: '8:00–12:00、14:00–22:00', price: '运动经费抵扣', booking: '网上预约',
+    note: '15 片羽毛球 + 篮球，广东高校最大之一',
+    peak: ['19:00-21:00'], mid: ['14:00-17:00'], free: ['08:00-11:00'], closedDays: [] },
+  { id: 'sz-track', campus: '深圳校区', name: '深圳田径场', type: '田径场', x: 38, y: 64,
+    hours: '6:30–22:30', price: '免费', booking: '无需预约',
+    note: '灯光开放，晚间人多',
+    peak: ['20:00-22:00'], mid: ['17:00-20:00'], free: ['06:30-09:00'], closedDays: [] },
+  { id: 'sz-pool', campus: '深圳校区', name: 'C 馆游泳馆', type: '游泳馆', x: 68, y: 62,
+    hours: '8:00–22:00', price: '运动经费抵扣', booking: '网上预约 + 游泳证',
+    note: '室内恒温 50m + 室外池',
+    peak: ['17:00-19:00'], mid: ['08:00-11:00'], free: ['13:00-17:00'], closedDays: [] }
+];
+
+/* 跨校区通用规律（历史兜底） */
+var CROWD_RULES = [
+  { test: function (h, m, weekday, v) { return weekday >= 1 && weekday <= 5 && h === 20 && m >= 40 && v.campus.indexOf('广州') === 0; }, level: 'busy', why: '20:40 前后下课高峰' },
+  { test: function (h, m, weekday, v) { return h >= 19 && (h < 21 || (h === 21 && m <= 30)) && v.type !== '田径场' && v.type !== '球场'; }, level: 'busy', why: '19:00–21:30 黄金晚间（室内馆）' },
+  { test: function (h) { return h >= 17 && h < 19; }, level: 'normal', why: '晚饭前后' },
+  { test: function (h) { return h >= 6 && h < 9; }, level: 'free', why: '早起档' },
+  { test: function (h, m, weekday) { return weekday >= 1 && weekday <= 5 && h >= 8 && h < 17; }, level: 'free', why: '工作日白天（非教学场地）' }
+];
+
+</script>
+  <script>
+/* ============================================================
  * api.js —— 后端通信 + 本地规则引擎（免费/离线兜底）
  *
  * 架构说明：
@@ -983,13 +1653,15 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
   'use strict';
 
   // ★ 后端地址（按顺序尝试，谁通就用谁）：
-  //   1) 公网后端（别人也能用；国内可能被墙）
-  //   2) 本机后端（你自己 `npm start` 时用）
+  //   1) 同源（Nginx 同时托管前端并把 /api 反代到 3000）→ 相对路径，天然避开混合内容
+  //   2) 公网后端（别人也能用；国内可能被墙）
+  //   3) 本机后端（你自己 `npm start` 时用）
   //   都不可达 → 本地规则引擎
-  var API_BASES = [
-    'https://sports-fuel-agent-backend.vercel.app',
-    'http://localhost:3000',
-  ];
+  var API_BASES = [];
+  if (typeof location !== 'undefined' && location.protocol !== 'file:' && location.hostname !== 'liaohc-42.github.io') {
+    API_BASES.push('');
+  }
+  API_BASES.push('https://sports-fuel-agent-backend.vercel.app', 'http://localhost:3000');
   var API_BASE = API_BASES[0];
 
   var state = {
@@ -1265,6 +1937,728 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
 </script>
   <script>
 /* ============================================================
+ * credits.js —— 积分雷达（「练」的部分）
+ * 列表 / 筛选 / 搜索 / 排序 / 详情 / 意向 / 讨论 / 评价 / AI 摘要
+ * 数据：data/credits.js；用户行为存 localStorage（无账号体系）
+ * ============================================================ */
+(function () {
+  'use strict';
+
+  var LS = { intents: 'sf_credit_intents', comments: 'sf_credit_comments', reviews: 'sf_credit_reviews', progress: 'sf_credit_progress' };
+  var state = { q: '', category: '全部', status: '全部', currentId: null, star: 0 };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function load(k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
+  function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function today() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+
+  function realStatus(a) {
+    if (a.status === '已结束') return '已结束';
+    if (a.period_end && a.period_end < today()) return '已结束';
+    return a.status;
+  }
+  function matches(a, q) {
+    if (!q) return true;
+    var hay = [a.title, a.location, a.category, a.credit_condition, a.description].join(' ');
+    return q.split(/\s+/).filter(Boolean).every(function (w) { return hay.indexOf(w) >= 0; });
+  }
+  function filtered() {
+    var list = CREDIT_ACTIVITIES.filter(function (a) {
+      if (state.category !== '全部' && a.category !== state.category) return false;
+      if (state.status !== '全部' && realStatus(a) !== state.status) return false;
+      return matches(a, state.q);
+    });
+    list.sort(function (x, y) {
+      var sx = realStatus(x) === '已结束' ? 1 : 0, sy = realStatus(y) === '已结束' ? 1 : 0;
+      if (sx !== sy) return sx - sy;
+      var ex = x.period_end || '', ey = y.period_end || '';
+      return sx === 1 ? (ey < ex ? -1 : ey > ex ? 1 : 0) : (ex < ey ? -1 : ex > ey ? 1 : 0);
+    });
+    return list;
+  }
+  function badge(st) {
+    var cls = st === '报名中' ? 'ok' : st === '即将截止' ? 'hot' : 'done';
+    return '<span class="stamp ' + cls + '"><i></i>' + st + '</span>';
+  }
+
+  var CATS = ['全部', '参赛即得', '打卡累积', '课程训练', '服务组织', '院系日常', '社团活动', '民间赛事', '民间活动'];
+
+  function renderList() {
+    var box = $('creditsBody');
+    if (!box) return;
+    var progress = load(LS.progress, 0);
+    var blocks = '';
+    for (var i = 1; i <= 10; i++) blocks += '<span class="pg-block' + (i <= progress ? ' on' : '') + '"></span>';
+
+    box.innerHTML =
+      '<div class="card paper-hero">' +
+        '<div class="hero-top"><div><div class="eyebrow">CREDIT RADAR · 广州南校园</div>' +
+        '<h2 class="hero-title">这学期，把一个个拿回来。</h2></div><span class="season">2026 秋</span></div>' +
+        '<div class="progress-card"><div class="pg-head"><b>本学期积分进度 ' + progress + '/10</b><span class="stamp ghost">非官方认定</span></div>' +
+        '<div class="pg-row">' + blocks + '</div>' +
+        '<div class="pg-foot"><span>仅作个人记录 · 随时可以更新</span><button class="btn btn-sm btn-soft" id="btnCreditProgress">更新进度</button></div></div>' +
+      '</div>' +
+      '<div class="toolbar">' +
+        '<div class="search-wrap"><input type="search" id="creditSearch" placeholder="搜活动：路跑 / 英东 / 逸仙杯" value="' + esc(state.q) + '" />' +
+        '<button class="search-clear' + (state.q ? '' : ' hide') + '" id="btnCreditClear" aria-label="清除">×</button></div>' +
+        '<div class="chips-scroll" id="creditCats">' + CATS.map(function (c) {
+          return '<button class="chip-btn' + (state.category === c ? ' on' : '') + '" data-cat="' + c + '">' + c + '</button>';
+        }).join('') + '</div>' +
+        '<div class="seg" id="creditStatusSeg">' + ['全部', '报名中', '即将截止', '已结束'].map(function (s) {
+          return '<button class="pill' + (state.status === s ? ' active' : '') + '" data-status="' + s + '">' + s + '</button>';
+        }).join('') + '</div>' +
+      '</div>' +
+      '<div id="creditListWrap"></div>';
+
+    var search = $('creditSearch');
+    search.oninput = function () {
+      state.q = this.value.trim();
+      $('btnCreditClear').classList.toggle('hide', !state.q);
+      renderCards();
+    };
+    $('btnCreditClear').onclick = function () { state.q = ''; $('creditSearch').value = ''; renderCards(); this.classList.add('hide'); };
+    $('btnCreditProgress').onclick = function () {
+      var n = window.prompt('本学期已获体育积分（0–10）：', String(progress));
+      if (n == null) return;
+      save(LS.progress, Math.max(0, Math.min(10, parseInt(n, 10) || 0)));
+      renderList();
+    };
+    $('creditCats').querySelectorAll('[data-cat]').forEach(function (b) {
+      b.onclick = function () {
+        state.category = b.dataset.cat;
+        $('creditCats').querySelectorAll('[data-cat]').forEach(function (x) { x.classList.toggle('on', x === b); });
+        renderCards();
+      };
+    });
+    $('creditStatusSeg').querySelectorAll('[data-status]').forEach(function (b) {
+      b.onclick = function () {
+        state.status = b.dataset.status;
+        $('creditStatusSeg').querySelectorAll('[data-status]').forEach(function (x) { x.classList.toggle('active', x === b); });
+        renderCards();
+      };
+    });
+    renderCards();
+  }
+
+  function renderCards() {
+    var wrap = $('creditListWrap');
+    if (!wrap) return;
+    var list = filtered();
+    var html = '<div class="count-line"><b>' + list.length + '</b> / ' + CREDIT_ACTIVITIES.length + ' 个机会 · 按即将截止排序</div>';
+    if (!list.length) {
+      html += '<div class="empty"><div class="emoji">🎯</div><p>这个筛选下还没有活动</p>' +
+        '<button class="btn btn-soft btn-sm" id="btnCreditReset">重置筛选</button></div>';
+    } else {
+      html += '<div class="credit-list">' + list.map(function (a) {
+        var st = realStatus(a);
+        return '<article class="credit-card" data-id="' + a.id + '">' +
+          '<div class="cc-top">' + badge(st) + (a.source === 'community' ? '<span class="src-tag">社团/民间</span>' : '') +
+          '<span class="credit-arm">' + esc(a.credit_value) + '</span></div>' +
+          '<h3>' + esc(a.title) + '</h3>' +
+          '<p class="cc-cond">获取条件：' + esc(a.credit_condition) + '</p>' +
+          '<p class="cc-meta">' + esc(a.period_label) + ' · ' + esc(a.location) + '</p></article>';
+      }).join('') + '</div>';
+    }
+    wrap.innerHTML = html;
+    var reset = $('btnCreditReset');
+    if (reset) reset.onclick = function () { state.q = ''; state.category = '全部'; state.status = '全部'; renderList(); };
+    wrap.querySelectorAll('.credit-card').forEach(function (c) {
+      c.onclick = function () { openDetail(+c.dataset.id); };
+    });
+  }
+
+  /* ---------- 详情 ---------- */
+  function getActivity(id) { return CREDIT_ACTIVITIES.filter(function (a) { return a.id === id; })[0]; }
+  function intentsOf(id) { return load(LS.intents, []).filter(function (x) { return x.activity_id === id; }); }
+  function commentsOf(id) { return load(LS.comments, []).filter(function (x) { return x.activity_id === id; }); }
+  function reviewsOf(id) { return load(LS.reviews, []).filter(function (x) { return x.activity_id === id; }); }
+  var INTENT_CN = { want_to_go: '我想去', find_buddy: '找搭子', need_team: '组队缺人' };
+
+  function openDetail(id) {
+    var box = $('creditsBody');
+    var a = getActivity(id);
+    if (!box || !a) return;
+    state.currentId = id;
+    state.star = 0;
+    var st = realStatus(a);
+    var intents = intentsOf(a.id), comments = commentsOf(a.id), reviews = reviewsOf(a.id);
+    var avg = reviews.length ? (reviews.reduce(function (s, r) { return s + r.rating; }, 0) / reviews.length) : 0;
+
+    var html = '<button class="btn btn-ghost btn-sm back-btn" id="btnCreditBack">← 返回雷达</button>';
+    html += '<article class="card detail-card">' +
+      '<div class="cc-top">' + badge(st) + (a.source === 'community' ? '<span class="src-tag">社团/民间</span>' : '') +
+      '<span class="credit-arm big">' + esc(a.credit_value) + '</span></div>' +
+      '<h2 class="detail-title">' + esc(a.title) + '</h2>' +
+      (a.source === 'community' ? '<div class="warning-dash">来源：学生社团 / 民间组织，非官方积分活动，不计入学校体育积分</div>' : '') +
+      '<p class="detail-desc">' + esc(a.description) + '</p>' +
+      '<div class="info-grid">' +
+      info('时间窗口', a.period_label + (a.period_end ? '（截止 ' + a.period_end + '）' : '')) +
+      info('地点', a.location) + info('校区', a.campus) + info('分类', a.category) +
+      info('周期', a.is_recurring ? '常年重复' : '一次性') + '</div>' +
+      '<div class="credit-box"><div class="cb-val">' + esc(a.credit_value) + '</div>' +
+      '<div class="cb-cond">' + esc(a.credit_condition) + '</div>' +
+      '<div class="cb-hint">示例分值，请以官方通知为准</div></div>' +
+      '<a class="btn btn-primary btn-block" href="' + esc(a.registration_url) + '" target="_blank" rel="noopener">前往报名入口</a>' +
+      '</article>';
+
+    html += '<div class="card ai-card"><div class="ai-head"><b>AI 一句话摘要</b><span class="ai-tag" id="aiTag">系统整理</span></div>' +
+      '<div id="aiSummary" class="ai-body">' + renderSummaryText(a) + '</div>' +
+      '<div class="ai-actions"><button class="btn btn-soft btn-sm" id="btnAiSummary">让 AI 重新概括</button></div></div>';
+
+    html += '<div class="card"><h2>一起去？</h2><div class="intent-row">' +
+      Object.keys(INTENT_CN).map(function (k) {
+        var on = intents.some(function (x) { return x.type === k && x.mine; });
+        return '<button class="intent-btn' + (on ? ' on' : '') + '" data-intent="' + k + '">' + INTENT_CN[k] + '</button>';
+      }).join('') + '</div><div class="intent-list">' +
+      (intents.length ? intents.map(function (x) { return '<span class="anon">' + esc(x.alias) + ' · ' + INTENT_CN[x.type] + '</span>'; }).join('')
+        : '<p class="muted">还没有人标记，你可以是第一个</p>') + '</div></div>';
+
+    html += '<div class="card"><h2>活动讨论</h2>' +
+      (st === '已结束' ? '<p class="muted">活动已结束，讨论区只读</p>'
+        : '<div class="chat-input"><input type="text" id="commentInput" maxlength="500" placeholder="说点什么，1–500 字" /><button class="btn btn-primary btn-sm" id="btnAddComment">发布</button></div>') +
+      '<div class="comment-list">' + (comments.length ? comments.slice().reverse().map(function (c) {
+        return '<div class="comment"><div class="cm-head"><b>' + esc(c.name) + '</b><span>' + esc(c.at) + '</span></div><p>' + esc(c.content) + '</p></div>';
+      }).join('') : '<p class="muted">还没有讨论，来开个头</p>') + '</div></div>';
+
+    html += '<div class="card"><h2>运动攻略 · 评价 <span class="muted">' +
+      (reviews.length ? avg.toFixed(1) + ' 分 · ' + reviews.length + ' 条' : '暂无评价') + '</span></h2>' +
+      '<div class="stars" id="starRow">' + [1, 2, 3, 4, 5].map(function (n) { return '<button class="star" data-star="' + n + '">★</button>'; }).join('') + '</div>' +
+      '<div class="chat-input"><input type="text" id="reviewInput" maxlength="500" placeholder="写点攻略或体验（2–500 字）" /><button class="btn btn-primary btn-sm" id="btnAddReview">提交</button></div>' +
+      '<div class="comment-list">' + (reviews.length ? reviews.slice().reverse().map(function (r) {
+        return '<div class="comment"><div class="cm-head"><b>' + esc(r.name) + '</b><span class="stars-inline">' + '★'.repeat(r.rating) + '</span></div><p>' + esc(r.content) + '</p></div>';
+      }).join('') : '') + '</div></div>';
+
+    box.innerHTML = html;
+    box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    $('btnCreditBack').onclick = function () { state.currentId = null; renderList(); };
+
+    box.querySelectorAll('[data-intent]').forEach(function (b) {
+      b.onclick = function () {
+        if (st === '已结束') { alert('该活动已结束，仅可查看'); return; }
+        var types = load(LS.intents, []);
+        var idx = types.findIndex(function (x) { return x.activity_id === a.id && x.type === b.dataset.intent && x.mine; });
+        if (idx >= 0) types.splice(idx, 1); else types.push({ activity_id: a.id, type: b.dataset.intent, mine: true, alias: '我' });
+        save(LS.intents, types); openDetail(a.id);
+      };
+    });
+
+    var addC = $('btnAddComment');
+    if (addC) addC.onclick = function () {
+      var v = ($('commentInput').value || '').trim();
+      if (v.length < 1) { alert('至少写 1 个字'); return; }
+      var arr = load(LS.comments, []);
+      arr.push({ activity_id: a.id, name: '匿名同学', content: v.slice(0, 500), at: new Date().toLocaleString('zh-CN') });
+      save(LS.comments, arr); openDetail(a.id);
+    };
+
+    box.querySelectorAll('.star').forEach(function (s) {
+      s.onclick = function () {
+        state.star = +s.dataset.star;
+        box.querySelectorAll('.star').forEach(function (x) { x.classList.toggle('on', +x.dataset.star <= state.star); });
+      };
+    });
+    var addR = $('btnAddReview');
+    if (addR) addR.onclick = function () {
+      var v = ($('reviewInput').value || '').trim();
+      if (!state.star) { alert('先点星星打个分'); return; }
+      if (v.length < 2) { alert('至少写 2 个字'); return; }
+      var arr = load(LS.reviews, []).filter(function (x) { return x.activity_id !== a.id || !x.mine; });
+      arr.push({ activity_id: a.id, mine: true, name: '我', rating: state.star, content: v.slice(0, 500) });
+      save(LS.reviews, arr); openDetail(a.id);
+    };
+
+    $('btnAiSummary').onclick = function () {
+      var out = $('aiSummary');
+      out.innerHTML = '<span class="muted">正在概括…</span>';
+      var fallback = renderSummaryText(a);
+      var done = function (text, byModel) {
+        out.innerHTML = text;
+        var tag = $('aiTag');
+        if (tag) { tag.textContent = byModel ? 'AI 生成' : '系统整理'; tag.className = 'ai-tag' + (byModel ? ' model' : ''); }
+      };
+      var online = window.API && API.getState && API.getState().backendOnline;
+      if (online) {
+        API.callAgent({ type: 'coach', question: '请用一句话（60 字内）概括这个校园体育活动，不要编造分值、时间、地点：' + a.title + '，' + a.description })
+          .then(function (res) {
+            var t = (res && res.text || '').trim();
+            if (t && t.length > 4) done('<p>' + esc(t.slice(0, 120)) + '</p><div class="ai-note">AI 概括，分值/时间以官方通知为准</div>', true);
+            else done(fallback, false);
+          })
+          .catch(function () { done(fallback, false); });
+      } else {
+        setTimeout(function () { done(fallback, false); }, 260);
+      }
+    };
+  }
+
+  function info(k, v) { return '<div class="info-cell"><div class="ik">' + esc(k) + '</div><div class="iv">' + esc(v) + '</div></div>'; }
+
+  function renderSummaryText(a) {
+    var suit = (a.suitable || []).map(function (s) { return '<span class="tag">' + esc(s) + '</span>'; }).join('');
+    var notSuit = (a.not_suitable || []).map(function (s) { return '<span class="tag bad">' + esc(s) + '</span>'; }).join('');
+    return '<p class="ai-line">' + esc(a.description.slice(0, 60)) + '</p>' +
+      '<div class="tag-row"><span class="tag-label">适合</span>' + suit + '</div>' +
+      '<div class="tag-row"><span class="tag-label">不适合</span>' + notSuit + '</div>' +
+      '<div class="ai-note">分值提醒：' + esc(a.credit_value) + '｜' + esc(a.credit_condition) + '。示例分值，请以官方通知为准。量力而行，身体不适立即停止并就医。</div>';
+  }
+
+  window.CreditsUI = {
+    init: function () {
+      if (!document.getElementById('creditsBody')) return;
+      if (!load(LS.intents, null)) save(LS.intents, [
+        { activity_id: 1, type: 'want_to_go', mine: false, alias: '松涛·青柠' },
+        { activity_id: 1, type: 'find_buddy', mine: false, alias: '英东·夜跑' },
+        { activity_id: 3, type: 'want_to_go', mine: false, alias: '北门·阿树' },
+        { activity_id: 8, type: 'need_team', mine: false, alias: '榕园·小满' }
+      ]);
+      if (!load(LS.comments, null)) save(LS.comments, [
+        { activity_id: 1, name: '匿名同学', content: '去年路线经过怀士堂，记得穿运动鞋。', at: '昨天 21:03' },
+        { activity_id: 13, name: '匿名同学', content: '每晚九点英东，慢跑 3km，欢迎搭伴。', at: '前天 22:10' }
+      ]);
+      if (!load(LS.reviews, null)) save(LS.reviews, [
+        { activity_id: 3, mine: false, name: '匿名同学', rating: 5, content: '沿逸仙大道那段路灯亮、路面平，适合放开了跑；孙文中路那段人多要减速。' }
+      ]);
+      renderList();
+    },
+    render: renderList,
+    open: openDetail
+  };
+})();
+
+</script>
+  <script>
+/* ============================================================
+ * venues.js —— 场馆与人流
+ * 判定优先级：① 近 2 小时实时上报 → ② 历史规律（校区+场馆+星期+小时）→ ③ 默认中等
+ * 历史数据来自《中山大学场馆拥挤度规律表》，无实时数据时按它给模拟状态
+ * ============================================================ */
+(function () {
+  'use strict';
+  var LS_REPORTS = 'sf_venue_reports';
+  var LEVEL_CN = { busy: '人多', normal: '适中', free: '人少', closed: '闭馆', unavailable: '不可用' };
+  var state = { campus: '广州南校园', q: '', highlight: null };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function load(k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
+  function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+  function toMin(s) { var m = /^(\d{1,2}):(\d{2})$/.exec(s); return m ? (+m[1]) * 60 + (+m[2]) : null; }
+  function inWin(cur, win) {
+    var p = String(win).split('-'); if (p.length !== 2) return false;
+    var a = toMin(p[0]), b = toMin(p[1]); if (a == null || b == null) return false;
+    return a <= b ? (cur >= a && cur <= b) : (cur >= a || cur <= b);
+  }
+  function inAny(cur, wins) { return (wins || []).some(function (w) { return inWin(cur, w); }); }
+
+  /* ---------- 核心：拥挤度判定 ---------- */
+  function reportsFor(id) {
+    var all = load(LS_REPORTS, {});
+    var arr = all[id] || [];
+    var cut = Date.now() - 2 * 3600 * 1000;
+    return arr.filter(function (r) { return r.t >= cut; });
+  }
+
+  function crowdOf(v, now) {
+    now = now || new Date();
+    var cur = now.getHours() * 60 + now.getMinutes();
+    var wd = now.getDay();
+
+    /* ① 实时上报（近 2 小时） */
+    var rs = reportsFor(v.id);
+    if (rs.length) {
+      var n = rs.length, busy = 0, free = 0;
+      rs.forEach(function (r) { if (r.level === 'busy') busy++; if (r.level === 'free') free++; });
+      if (busy / n > 0.6) return { level: 'busy', why: '近 2 小时有 ' + n + ' 条上报，' + Math.round(busy / n * 100) + '% 说人多', source: 'report' };
+      if (free / n > 0.6) return { level: 'free', why: '近 2 小时有 ' + n + ' 条上报，' + Math.round(free / n * 100) + '% 说人少', source: 'report' };
+      return { level: 'normal', why: '近 2 小时有 ' + n + ' 条上报，人流适中', source: 'report' };
+    }
+
+    /* ② 历史规律 */
+    if ((v.closedDays || []).indexOf(wd) >= 0) return { level: 'closed', why: '按历史规律，今天闭馆', source: 'history' };
+    if (v.teachingBlock && wd >= 1 && wd <= 5 && inAny(cur, v.teachingBlock)) return { level: 'unavailable', why: '教学时段占用，建议改期或换场地', source: 'history' };
+    if (inAny(cur, v.peak)) return { level: 'busy', why: '按历史规律，这个时段通常是高峰', source: 'history' };
+    if (inAny(cur, v.mid)) return { level: 'normal', why: '按历史规律，这个时段人流中等', source: 'history' };
+    if (inAny(cur, v.free)) return { level: 'free', why: '按历史规律，这个时段通常空闲', source: 'history' };
+
+    for (var i = 0; i < CROWD_RULES.length; i++) {
+      var r = CROWD_RULES[i];
+      if (r.test(now.getHours(), now.getMinutes(), wd, v)) return { level: r.level, why: '按历史规律：' + r.why, source: 'history' };
+    }
+
+    /* ③ 默认 */
+    return { level: 'normal', why: '暂无数据，欢迎上报', source: 'default' };
+  }
+
+  function levelClass(l) { return l === 'busy' ? 'busy' : l === 'free' ? 'free' : l === 'normal' ? 'normal' : 'closed'; }
+
+  function historyHint(v) {
+    var peakLen = (v.peak || []).length, midLen = (v.mid || []).length;
+    if ((v.closedDays || []).length) return '往年经验：有固定闭馆日';
+    if (peakLen >= 2) return '往年经验：通常比较挤（模拟数据，仅供参考）';
+    if (peakLen === 1) return '往年经验：偶尔会挤（模拟数据，仅供参考）';
+    if (midLen) return '往年经验：人流一般（模拟数据，仅供参考）';
+    return '往年经验：一般不挤（模拟数据，仅供参考）';
+  }
+
+  /* ---------- 渲染 ---------- */
+  function visible() {
+    var base = CAMPUS_VENUES.filter(function (v) { return state.q ? true : v.campus === state.campus; });
+    if (!state.q) return base;
+    var q = state.q;
+    return base.filter(function (v) { return (v.name + v.type + v.note + v.campus).indexOf(q) >= 0; });
+  }
+
+  function render() {
+    var box = $('venueBody');
+    if (!box) return;
+    var list = visible();
+    var q = state.q;
+
+    var html = '<div class="card venue-head">' +
+      '<h2 class="hero-title sm">先看一眼，再决定去哪练。</h2>' +
+      '<p class="hint">去之前看一眼，到了点一下「人多 / 适中 / 人少」——数据只存本机，不上传。</p>' +
+      '<div class="search-wrap"><input type="search" id="venueSearch" placeholder="全校区搜场馆：游泳 / 羽毛球 / 田径场" value="' + esc(q) + '" />' +
+      '<button class="search-clear' + (q ? '' : ' hide') + '" id="btnVenueClear">×</button></div>' +
+      (q ? '<div class="search-mode">当前为全校区搜索，共 ' + list.length + ' 个结果</div>' : '') +
+      '<div class="chips-scroll" id="campusChips">' + CAMPUS_LIST.map(function (c) {
+        return '<button class="chip-btn' + (!q && state.campus === c ? ' on' : '') + '" data-campus="' + c + '">' + c.replace('校区', '').replace('广州', '') + '</button>';
+      }).join('') + '</div>' +
+      '</div>';
+
+    /* 地图 */
+    html += '<div class="card map-card"><div class="map-label">' + esc(q ? '全校区' : state.campus) + ' · 示意图</div>' +
+      svgMap(list, q ? null : state.campus) +
+      '<div class="map-note">示意图 · 非精确比例，仅表示场馆相对位置 · 共 ' + list.length + ' 个场馆</div></div>';
+
+    html += '<div class="venue-list">' + list.map(function (v) {
+      var c = crowdOf(v);
+      var cls = levelClass(c.level);
+      var reports = reportsFor(v.id);
+      var alt = '';
+      if (c.level === 'busy' || c.level === 'unavailable' || c.level === 'closed') {
+        var better = CAMPUS_VENUES.filter(function (x) {
+          return x.campus === v.campus && x.id !== v.id && x.type === v.type && ['free', 'normal'].indexOf(crowdOf(x).level) >= 0;
+        })[0];
+        if (better) alt = '<div class="agent-tip">🤖 ' + esc(v.name) + '现在' + LEVEL_CN[c.level] + '，建议改去 <b>' + esc(better.name) + '</b>。</div>';
+      }
+      return '<article class="venue-card' + (state.highlight === v.id ? ' hl' : '') + '" data-vid="' + v.id + '">' +
+        '<div class="vc-head"><h3>' + esc(v.name) + '</h3><span class="crowd-badge ' + cls + '"><i></i>' + LEVEL_CN[c.level] + '</span></div>' +
+        '<p class="vc-type">' + esc(v.type) + ' · ' + esc(v.hours) + '</p>' +
+        '<p class="vc-note">' + esc(v.note) + '</p>' +
+        '<p class="vc-why">' + esc(c.why) + (c.source === 'history' ? '（历史规律，模拟数据）' : c.source === 'default' ? '' : '') + '</p>' +
+        '<p class="vc-hist">' + historyHint(v) + '</p>' +
+        alt +
+        '<div class="vc-foot"><span class="muted">' + (reports.length ? reports.length + ' 条近 2 小时上报' : '暂无实时上报') + '</span>' +
+        '<div class="report-row">' +
+        '<button class="rep" data-rep="busy" data-vid="' + v.id + '">人多</button>' +
+        '<button class="rep" data-rep="normal" data-vid="' + v.id + '">适中</button>' +
+        '<button class="rep" data-rep="free" data-vid="' + v.id + '">人少</button>' +
+        '</div></div></article>';
+    }).join('') + '</div>';
+
+    box.innerHTML = html;
+
+    $('venueSearch').oninput = function () {
+      state.q = this.value.trim();
+      $('btnVenueClear').classList.toggle('hide', !state.q);
+      render();
+      var s = $('venueSearch'); if (s) { s.focus(); s.setSelectionRange(s.value.length, s.value.length); }
+    };
+    $('btnVenueClear').onclick = function () { state.q = ''; render(); };
+
+    box.querySelectorAll('[data-campus]').forEach(function (b) {
+      b.onclick = function () { state.campus = b.dataset.campus; state.q = ''; render(); };
+    });
+    box.querySelectorAll('.venue-card').forEach(function (c) {
+      c.onclick = function (e) {
+        if (e.target.closest('.rep')) return;
+        state.highlight = c.dataset.vid;
+        box.querySelectorAll('.venue-card').forEach(function (x) { x.classList.toggle('hl', x === c); });
+      };
+    });
+    box.querySelectorAll('[data-rep]').forEach(function (b) {
+      b.onclick = function (e) {
+        e.stopPropagation();
+        var all = load(LS_REPORTS, {});
+        (all[b.dataset.vid] = all[b.dataset.vid] || []).push({ level: b.dataset.rep, t: Date.now() });
+        save(LS_REPORTS, all);
+        render();
+      };
+    });
+    box.querySelectorAll('.map-dot').forEach(function (d) {
+      d.onclick = function () {
+        state.highlight = d.dataset.vid;
+        var card = box.querySelector('.venue-card[data-vid="' + d.dataset.vid + '"]');
+        box.querySelectorAll('.venue-card').forEach(function (x) { x.classList.toggle('hl', x === card); });
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      };
+    });
+  }
+
+  function svgMap(list, campus) {
+    var dots = list.map(function (v) {
+      var c = crowdOf(v);
+      return '<g class="map-dot" data-vid="' + v.id + '" transform="translate(' + v.x + ',' + v.y + ')">' +
+        '<circle r="5.2" class="dot-ring ' + levelClass(c.level) + '"></circle>' +
+        '<circle r="2.1" class="dot-core"></circle>' +
+        '<text x="0" y="-7" class="dot-label">' + esc(v.name.length > 7 ? v.name.slice(0, 7) : v.name) + '</text></g>';
+    }).join('');
+    return '<svg viewBox="0 0 100 100" class="campus-map" role="img" aria-label="校区示意图">' +
+      '<rect width="100" height="100" fill="#fbf4e4"/>' +
+      '<path d="M8 30 H92 M8 66 H92 M30 8 V92 M68 8 V92" stroke="#e6d9c2" stroke-width="2.6" fill="none"/>' +
+      '<rect x="34" y="34" width="16" height="12" fill="#efe5d1" stroke="#d9cbb2" stroke-width=".8"/>' +
+      '<rect x="54" y="36" width="12" height="10" fill="#efe5d1" stroke="#d9cbb2" stroke-width=".8"/>' +
+      '<path d="M0 86 Q30 80 60 86 T100 84 L100 100 L0 100 Z" fill="#dfe9dd"/>' +
+      '<text x="4" y="8" class="map-name">' + esc(campus || '全校区') + '</text>' +
+      dots + '</svg>';
+  }
+
+  window.VenuesUI = {
+    init: function () { if (document.getElementById('venueBody')) render(); },
+    render: render,
+    crowdOf: crowdOf
+  };
+})();
+
+</script>
+  <script>
+/* ============================================================
+ * campus.js —— 约运动 / 装备 / 我的（本地演示版）
+ * 说明：无账号体系，数据仅存本机 localStorage；标注为「本地演示版」。
+ * ============================================================ */
+(function () {
+  'use strict';
+  var LS = { posts: 'sf_pickup_posts', replies: 'sf_pickup_replies', gear: 'sf_gear_items' };
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function load(k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
+  function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function ago(t) { var s = Math.floor((Date.now() - t) / 60000); return s < 60 ? s + ' 分钟前' : s < 1440 ? Math.floor(s / 60) + ' 小时前' : Math.floor(s / 1440) + ' 天前'; }
+
+  var SEED_POSTS = [
+    { id: 1, type: 'pickup', sport: '羽毛球', title: '今晚 9 点体育馆打羽毛球，缺 1 个男单', detail: '水平中等，打两小时，场地已订', place: '新体育馆', meetAt: '今晚 21:00', need: 1, at: Date.now() - 36e5 },
+    { id: 2, type: 'pickup', sport: '骑行', title: '周末想去大学城绿道骑车，求组队', detail: '往返约 30km，配速休闲，有头盔', place: '北门集合', meetAt: '周六 15:00', need: 3, at: Date.now() - 9e6 },
+    { id: 3, type: 'mentor', sport: '羽毛球', title: '求大佬带我入门羽毛球，纯零基础', detail: '想学握拍和高远球，可以请奶茶', place: '新体育馆', meetAt: '周三晚', need: 1, at: Date.now() - 17e6 },
+    { id: 4, type: 'pickup', sport: '跑步', title: '体测 800 米怎么跑不喘？', detail: '想找人带着练配速，目标 3\'50"', place: '英东田径场', meetAt: '每晚 21:30', need: 2, at: Date.now() - 26e6 },
+    { id: 5, type: 'mentor', sport: '篮球', title: '想学三步上篮，有一起练的吗', detail: '零基础，能坚持每周两次', place: '篮球场群', meetAt: '周日下午', need: 2, at: Date.now() - 40e6 }
+  ];
+  var SEED_REPLIES = [
+    { post_id: 1, name: '匿名同学', content: '我可以，男单中等水平，微信不方便的话就在这里约。', at: Date.now() - 18e5 },
+    { post_id: 3, name: '匿名同学', content: '周三晚上我有空，可以教你握拍。', at: Date.now() - 72e5 },
+    { post_id: 4, name: '匿名同学', content: '800 米关键是前 200 别冲，跟着我的配速跑。', at: Date.now() - 90e5 }
+  ];
+  var SEED_GEAR = [
+    { id: 1, title: '计数跳绳，九成新', gear_type: '跳绳', mode: 'sell', price: 15, detail: '用了一个月，计数器正常', at: Date.now() - 36e5 },
+    { id: 2, title: '瑜伽垫免费送', gear_type: '瑜伽垫', mode: 'free', price: null, detail: '毕业师兄留下的，自取', at: Date.now() - 72e5 },
+    { id: 3, title: '羽毛球拍出借（两支）', gear_type: '球拍', mode: 'lend', price: null, detail: '借一周，押学生证', at: Date.now() - 108e5 },
+    { id: 4, title: '7 号篮球', gear_type: '球类', mode: 'sell', price: 35, detail: '打了半年，气足', at: Date.now() - 144e5 }
+  ];
+
+  var pickupState = { type: '全部', sport: '全部' };
+  var gearState = { mode: '全部', type: '全部', q: '' };
+
+  function ensureSeed() {
+    if (!load(LS.posts, null)) save(LS.posts, SEED_POSTS);
+    if (!load(LS.replies, null)) save(LS.replies, SEED_REPLIES);
+    if (!load(LS.gear, null)) save(LS.gear, SEED_GEAR);
+  }
+
+  function renderPickup() {
+    var box = $('pickupBody'); if (!box) return;
+    var posts = load(LS.posts, []);
+    var replies = load(LS.replies, []);
+    var sports = ['全部'].concat(posts.map(function (p) { return p.sport; }).filter(function (v, i, a) { return a.indexOf(v) === i; }));
+    var list = posts.filter(function (p) {
+      if (pickupState.type !== '全部' && p.type !== pickupState.type) return false;
+      if (pickupState.sport !== '全部' && p.sport !== pickupState.sport) return false;
+      return true;
+    });
+
+    var html = '<div class="card paper-hero"><div class="eyebrow">PICKUP · 约运动</div>' +
+      '<h2 class="hero-title sm">官方打卡之外的运动，都在这里。</h2>' +
+      '<p class="hint">约球、约跑、约骑行；不会玩？发个「求带」。</p>' +
+      '<div class="notice-pill">本地演示版 · 数据仅存本机，不含真实账号</div></div>';
+
+    html += '<div class="toolbar"><div class="seg">' +
+      ['全部', '约战组队', '求带入门'].map(function (t) {
+        var v = t === '全部' ? '全部' : t === '约战组队' ? 'pickup' : 'mentor';
+        return '<button class="pill' + (pickupState.type === v ? ' active' : '') + '" data-ptype="' + v + '">' + t + '</button>';
+      }).join('') + '</div>' +
+      '<div class="chips-scroll">' + sports.map(function (s) {
+        return '<button class="chip-btn' + (pickupState.sport === s ? ' on' : '') + '" data-psport="' + s + '">' + s + '</button>';
+      }).join('') + '</div></div>';
+
+    html += '<details class="card post-panel"><summary><span>发个帖：约战 / 求带</span><i class="chev">▼</i></summary>' +
+      '<div class="pp-body"><div class="grid2">' +
+      '<div><label class="fld">类型</label><select id="ppType"><option value="pickup">约战组队</option><option value="mentor">求带入门</option></select></div>' +
+      '<div><label class="fld">运动项目</label><input type="text" id="ppSport" placeholder="羽毛球 / 跑步" /></div></div>' +
+      '<label class="fld">标题（2–60 字）</label><input type="text" id="ppTitle" maxlength="60" placeholder="今晚 9 点体育馆打羽毛球，缺 1 人" />' +
+      '<label class="fld">详情</label><input type="text" id="ppDetail" placeholder="水平 / 时长 / 是否订场" />' +
+      '<div class="grid2"><div><label class="fld">地点</label><input type="text" id="ppPlace" placeholder="新体育馆" /></div>' +
+      '<div><label class="fld">时间</label><input type="text" id="ppMeet" placeholder="今晚 21:00" /></div></div>' +
+      '<label class="fld">还缺几人</label><input type="number" id="ppNeed" value="1" min="1" max="20" />' +
+      '<button class="btn btn-primary btn-block" id="btnPublishPost" style="margin-top:11px">发布</button></div></details>';
+
+    html += '<div class="post-list">' + list.map(function (p) {
+      var rs = replies.filter(function (r) { return r.post_id === p.id; });
+      return '<article class="post-card">' +
+        '<div class="pc-top"><span class="mini-badge ' + (p.type === 'mentor' ? 'warn' : 'ok') + '">' + (p.type === 'mentor' ? '求带入门' : '约战组队') + '</span>' +
+        '<span class="sport-tag">' + esc(p.sport) + '</span><span class="muted">' + ago(p.at) + '</span></div>' +
+        '<h3>' + esc(p.title) + '</h3><p class="pc-detail">' + esc(p.detail) + '</p>' +
+        '<p class="pc-meta">' + esc(p.place) + ' · ' + esc(p.meetAt) + ' · 还缺 ' + p.need + ' 人</p>' +
+        '<details class="reply-panel"><summary><span>' + rs.length + ' 条响应 · 我来响应</span><i class="chev">▼</i></summary>' +
+        '<div class="reply-body">' + rs.map(function (r) {
+          return '<div class="reply"><b>' + esc(r.name) + '</b><p>' + esc(r.content) + '</p></div>';
+        }).join('') +
+        '<div class="chat-input"><input type="text" data-reply-input="' + p.id + '" placeholder="写一句响应（1–300 字）" maxlength="300" />' +
+        '<button class="btn btn-soft btn-sm" data-reply-send="' + p.id + '">发送</button></div></div></details></article>';
+    }).join('') + '</div>';
+
+    box.innerHTML = html;
+
+    box.querySelectorAll('[data-ptype]').forEach(function (b) { b.onclick = function () { pickupState.type = b.dataset.ptype; renderPickup(); }; });
+    box.querySelectorAll('[data-psport]').forEach(function (b) { b.onclick = function () { pickupState.sport = b.dataset.psport; renderPickup(); }; });
+    var pub = $('btnPublishPost');
+    if (pub) pub.onclick = function () {
+      var title = ($('ppTitle').value || '').trim();
+      if (title.length < 2) { alert('标题至少 2 个字'); return; }
+      var arr = load(LS.posts, []);
+      arr.unshift({
+        id: Date.now(), type: $('ppType').value, sport: ($('ppSport').value || '其他').trim(),
+        title: title.slice(0, 60), detail: ($('ppDetail').value || '').trim(),
+        place: ($('ppPlace').value || '待定').trim(), meetAt: ($('ppMeet').value || '待定').trim(),
+        need: +$('ppNeed').value || 1, at: Date.now()
+      });
+      save(LS.posts, arr); renderPickup();
+    };
+    box.querySelectorAll('[data-reply-send]').forEach(function (b) {
+      b.onclick = function () {
+        var id = +b.dataset.replySend;
+        var input = box.querySelector('[data-reply-input="' + id + '"]');
+        var v = (input.value || '').trim();
+        if (!v) { alert('写点什么再发送'); return; }
+        var arr = load(LS.replies, []);
+        arr.push({ post_id: id, name: '匿名同学', content: v.slice(0, 300), at: Date.now() });
+        save(LS.replies, arr); renderPickup();
+      };
+    });
+  }
+
+  function renderGear() {
+    var box = $('gearBody'); if (!box) return;
+    var items = load(LS.gear, []);
+    var types = ['全部'].concat(items.map(function (g) { return g.gear_type; }).filter(function (v, i, a) { return a.indexOf(v) === i; }));
+    var list = items.filter(function (g) {
+      if (gearState.mode !== '全部' && g.mode !== gearState.mode) return false;
+      if (gearState.type !== '全部' && g.gear_type !== gearState.type) return false;
+      if (gearState.q && (g.title + g.detail).indexOf(gearState.q) < 0) return false;
+      return true;
+    });
+    var MODE = { sell: '出', lend: '借', free: '送' };
+
+    var html = '<div class="card paper-hero"><div class="eyebrow">GEAR · 装备流转</div>' +
+      '<h2 class="hero-title sm">闲置的装备，去该去的地方。</h2>' +
+      '<p class="hint">当面交接、先验货后付款，平台不代收钱款。</p>' +
+      '<div class="notice-pill">本地演示版 · 数据仅存本机</div></div>';
+
+    html += '<div class="toolbar"><div class="seg">' +
+      ['全部', '出', '借', '送'].map(function (t) {
+        var v = t === '全部' ? '全部' : t === '出' ? 'sell' : t === '借' ? 'lend' : 'free';
+        return '<button class="pill' + (gearState.mode === v ? ' active' : '') + '" data-gmode="' + v + '">' + t + '</button>';
+      }).join('') + '</div>' +
+      '<div class="chips-scroll">' + types.map(function (t) {
+        return '<button class="chip-btn' + (gearState.type === t ? ' on' : '') + '" data-gtype="' + t + '">' + t + '</button>';
+      }).join('') + '</div>' +
+      '<div class="search-wrap"><input type="search" id="gearSearch" placeholder="搜装备：跳绳 / 球拍" value="' + esc(gearState.q) + '" /></div></div>';
+
+    html += '<details class="card post-panel"><summary><span>发布装备</span><i class="chev">▼</i></summary><div class="pp-body">' +
+      '<label class="fld">标题</label><input type="text" id="gTitle" placeholder="计数跳绳，九成新" />' +
+      '<div class="grid2"><div><label class="fld">类型</label><input type="text" id="gType" placeholder="跳绳" /></div>' +
+      '<div><label class="fld">方式</label><select id="gMode"><option value="sell">出</option><option value="lend">借</option><option value="free">送</option></select></div></div>' +
+      '<label class="fld">价格（仅「出」需要）</label><input type="number" id="gPrice" placeholder="15" />' +
+      '<label class="fld">描述</label><input type="text" id="gDetail" placeholder="成色 / 取货地点" />' +
+      '<button class="btn btn-primary btn-block" id="btnPublishGear" style="margin-top:11px">发布</button></div></details>';
+
+    html += '<div class="gear-list">' + list.map(function (g) {
+      return '<article class="gear-card"><div class="gc-top"><span class="mini-badge ' + (g.mode === 'free' ? 'ok' : 'warn') + '">' + MODE[g.mode] + '</span>' +
+        '<span class="sport-tag">' + esc(g.gear_type) + '</span><span class="muted">' + ago(g.at) + '</span></div>' +
+        '<h3>' + esc(g.title) + '</h3>' +
+        (g.price != null ? '<div class="price">¥' + g.price + '</div>' : '') +
+        '<p class="pc-detail">' + esc(g.detail) + '</p></article>';
+    }).join('') + '</div>';
+
+    box.innerHTML = html;
+    box.querySelectorAll('[data-gmode]').forEach(function (b) { b.onclick = function () { gearState.mode = b.dataset.gmode; renderGear(); }; });
+    box.querySelectorAll('[data-gtype]').forEach(function (b) { b.onclick = function () { gearState.type = b.dataset.gtype; renderGear(); }; });
+    var s = $('gearSearch');
+    if (s) {
+      var composing = false;
+      s.addEventListener('compositionstart', function () { composing = true; });
+      s.addEventListener('compositionend', function () { composing = false; gearState.q = s.value.trim(); renderGear(); });
+      s.oninput = function () { if (composing) return; gearState.q = s.value.trim(); renderGear(); };
+    }
+    var pub = $('btnPublishGear');
+    if (pub) pub.onclick = function () {
+      var title = ($('gTitle').value || '').trim();
+      if (title.length < 2) { alert('标题至少 2 个字'); return; }
+      var arr = load(LS.gear, []);
+      arr.unshift({
+        id: Date.now(), title: title, gear_type: ($('gType').value || '其他').trim(),
+        mode: $('gMode').value, price: $('gMode').value === 'sell' ? (+$('gPrice').value || 0) : null,
+        detail: ($('gDetail').value || '').trim(), at: Date.now()
+      });
+      save(LS.gear, arr); renderGear();
+    };
+  }
+
+  function renderMe() {
+    var box = $('meBody'); if (!box) return;
+    var prof = load('sf_profile', { gender: 'male', age: 19, height: 175, weight: 65, goal: '维持' });
+    var progress = load('sf_credit_progress', 0);
+    box.innerHTML = '<div class="card paper-hero"><div class="eyebrow">ME · 我的</div>' +
+      '<h2 class="hero-title sm">你的校园运动档案。</h2>' +
+      '<p class="hint">档案与记录仅保存在本机浏览器，不上传服务器。</p></div>' +
+      '<div class="card"><h2>身体档案</h2><div class="me-grid">' +
+      '<div class="me-cell"><span>身高</span><b>' + prof.height + ' cm</b></div>' +
+      '<div class="me-cell"><span>体重</span><b>' + prof.weight + ' kg</b></div>' +
+      '<div class="me-cell"><span>目标</span><b>' + esc(prof.goal) + '</b></div>' +
+      '<div class="me-cell"><span>本学期积分</span><b>' + progress + ' / 10</b></div></div>' +
+      '<button class="btn btn-soft btn-sm" id="btnOpenProfile" style="margin-top:10px">编辑档案</button></div>' +
+      '<div class="card"><h2>更多</h2>' +
+      '<div class="branch-row">' +
+      '<button class="branch-btn" data-go="pickup"><b>约运动</b><span>约球 / 求带 · 本地演示版</span></button>' +
+      '<button class="branch-btn" data-go="gear"><b>装备流转</b><span>出 / 借 / 送 · 本地演示版</span></button>' +
+      '<button class="branch-btn" data-go="science"><b>原理与数据</b><span>文献 / 数据来源 / 大模型接入</span></button>' +
+      '</div></div>';
+    var op = $('btnOpenProfile'); if (op) op.onclick = function () { var d = $('drawer'), m = $('drawerMask'); if (d && m) { d.classList.add('open'); m.classList.add('open'); } };
+    box.querySelectorAll('[data-go]').forEach(function (b) {
+      b.onclick = function () { var t = b.dataset.go; if (window.AppTabs) AppTabs.show(t); };
+    });
+  }
+
+  window.CampusUI = {
+    init: function () {
+      ensureSeed();
+      if ($('pickupBody')) renderPickup();
+      if ($('gearBody')) renderGear();
+      if ($('meBody')) renderMe();
+    },
+    renderPickup: renderPickup,
+    renderGear: renderGear,
+    renderMe: renderMe
+  };
+})();
+
+</script>
+  <script>
+/* ============================================================
  * app.js —— 练完吃啥 前端主逻辑（深绿主题 · 概念图版）
  * 配餐 / 记录 / 原理与数据 / 体测急救站
  * ============================================================ */
@@ -1297,20 +2691,29 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
   function fmtMin(v) { return v == null ? '—' : (v + ' 分钟'); }
 
   /* ================= 标签路由 ================= */
-  function initTabs() {
-    var btns = document.querySelectorAll('#tabs button[data-tab]');
-    btns.forEach(function (b) {
-      b.addEventListener('click', function () {
-        if (b.dataset.tab === 'profile') { openDrawer(); return; }
-        btns.forEach(function (x) { x.classList.remove('active'); });
-        b.classList.add('active');
-        document.querySelectorAll('.tab').forEach(function (s) { s.classList.remove('active'); });
-        var sec = $('tab-' + b.dataset.tab); if (sec) sec.classList.add('active');
-        if (b.dataset.tab === 'records') renderRecords();
-        if (b.dataset.tab === 'science') renderScience();
-        window.scrollTo({ top: 0 });
-      });
+  var TAB_PARENT = { pickup: 'me', gear: 'me', science: 'me' };
+  function showTab(name) {
+    var navTarget = TAB_PARENT[name] || name;
+    document.querySelectorAll('#tabs button[data-tab]').forEach(function (x) {
+      x.classList.toggle('active', x.dataset.tab === navTarget);
     });
+    document.querySelectorAll('.tab').forEach(function (s) { s.classList.remove('active'); });
+    var sec = $('tab-' + name); if (sec) sec.classList.add('active');
+    if (name === 'records') renderRecords();
+    if (name === 'science') renderScience();
+    if (name === 'me' && window.CampusUI) CampusUI.renderMe();
+    if (name === 'practice' && window.CreditsUI) CreditsUI.render();
+    if (name === 'venue' && window.VenuesUI) VenuesUI.render();
+    window.scrollTo({ top: 0 });
+  }
+  function initTabs() {
+    document.querySelectorAll('#tabs button[data-tab]').forEach(function (b) {
+      b.addEventListener('click', function () { showTab(b.dataset.tab); });
+    });
+    document.querySelectorAll('[data-back]').forEach(function (b) {
+      b.onclick = function () { showTab(b.dataset.back); };
+    });
+    window.AppTabs = { show: showTab };
   }
 
   /* ================= 档案 ================= */
@@ -1339,13 +2742,15 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
 
   /* ================= 配餐 · 目标 ================= */
   function renderGoal() {
-    document.querySelectorAll('#goalRow .goal-card').forEach(function (c) {
+    var hints = { '减脂': '缺口约 300–500 kcal，优先保蛋白。', '增肌': '盈余约 300 kcal，蛋白拉到 1.8g/kg。', '维持': '热量持平，蛋白质 1.4g/kg 左右。' };
+    document.querySelectorAll('#goalRow .seg-item').forEach(function (c) {
       c.classList.toggle('active', c.dataset.goal === eat.goal);
       c.onclick = function () {
         eat.goal = c.dataset.goal; profile.goal = eat.goal;
         save(LS.eat, eat); save(LS.profile, profile); renderGoal();
       };
     });
+    var h = $('goalHint'); if (h) h.textContent = hints[eat.goal] || '';
   }
 
   /* ================= 配餐 · 运动（30+ 项目） ================= */
@@ -1540,21 +2945,56 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
     return out;
   }
 
+  var dishQ = '';
+  var DISH_CAT_ORDER = ['主食', '蛋白', '蔬菜', '汤', '饮品', '热菜'];
   function renderDishGrid() {
     var box = $('dishGrid');
     var pool = getPool();
-    if (!pool.length) { box.innerHTML = '<p class="muted" style="padding:12px">当前条件下没有可选菜品，试试换个餐次或取消“不吃的东西”。</p>'; return; }
-    box.innerHTML = pool.map(function (d) {
-      var on = eat.selected.indexOf(d.name) >= 0;
-      return '<div class="dish-card' + (on ? ' active' : '') + '" data-name="' + esc(d.name) + '">' +
-        '<div class="row"><span class="nm">' + esc(d.name) + '<span class="check"> ✓</span></span><span class="pr">' + fmtPrice(d.price) + '</span></div>' +
-        '<div class="mt">' + esc(d.cat) + ' · 排队约' + d.queue + '分钟</div>' +
-        '</div>';
+    if (dishQ) pool = pool.filter(function (d) { return d.name.indexOf(dishQ) >= 0; });
+    if (!pool.length) {
+      box.innerHTML = '<p class="muted" style="padding:12px">没有匹配的菜品，换个关键词或取消「不吃的东西」。</p>';
+      renderDishCatBar([]);
+      return;
+    }
+    var groups = {};
+    pool.forEach(function (d) { (groups[d.cat] = groups[d.cat] || []).push(d); });
+    var order = DISH_CAT_ORDER.filter(function (c) { return groups[c]; })
+      .concat(Object.keys(groups).filter(function (c) { return DISH_CAT_ORDER.indexOf(c) < 0; }));
+    box.innerHTML = order.map(function (cat) {
+      return '<div class="dish-group" data-dcat="' + esc(cat) + '"><div class="dg-title">' + esc(cat) + '</div>' +
+        groups[cat].map(function (d) {
+          var on = eat.selected.indexOf(d.name) >= 0;
+          return '<div class="dish-card' + (on ? ' active' : '') + '" data-name="' + esc(d.name) + '">' +
+            '<div class="row"><span class="nm">' + esc(d.name) + '<span class="check"> ✓</span></span><span class="pr">' + fmtPrice(d.price) + '</span></div>' +
+            '<div class="mt">' + esc(d.cat) + ' · 排队约' + d.queue + '分钟</div>' +
+            '</div>';
+        }).join('') + '</div>';
     }).join('');
     box.querySelectorAll('.dish-card').forEach(function (c) {
       c.onclick = function () { toggleDish(c.dataset.name); };
     });
+    renderDishCatBar(order);
     updateSelectedCount();
+  }
+
+  function renderDishCatBar(order) {
+    var bar = $('dishCatBar'); if (!bar) return;
+    var counts = {};
+    eat.selected.forEach(function (n) {
+      var pool = getPool();
+      for (var i = 0; i < pool.length; i++) { if (pool[i].name === n) { counts[pool[i].cat] = (counts[pool[i].cat] || 0) + 1; break; } }
+    });
+    var cats = (order && order.length) ? order : DISH_CAT_ORDER;
+    bar.innerHTML = cats.map(function (c) {
+      var n = counts[c] || 0;
+      return '<button class="dc" data-cat="' + esc(c) + '">' + esc(c) + (n ? '<span class="badge-n">' + n + '</span>' : '') + '</button>';
+    }).join('');
+    bar.querySelectorAll('.dc').forEach(function (b) {
+      b.onclick = function () {
+        var g = $('dishGrid').querySelector('.dish-group[data-dcat="' + b.dataset.cat + '"]');
+        if (g) g.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+    });
   }
 
   function toggleDish(name) {
@@ -1593,7 +3033,8 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
     var ds = $('dealbreakerSeg'); ds.innerHTML = '';
     DEALBREAKERS.forEach(function (x) {
       var b = document.createElement('button');
-      b.className = 'pill' + (eat.dealbreakers.indexOf(x.id) >= 0 ? ' active' : '');
+      var on = eat.dealbreakers.indexOf(x.id) >= 0;
+      b.className = 'pill deal' + (on ? ' on' : '');
       b.textContent = x.label;
       b.onclick = function () {
         var i = eat.dealbreakers.indexOf(x.id);
@@ -1701,9 +3142,14 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
         (state.goal === '减脂' ? '减脂要控油控糖、保住蛋白' : state.goal === '增肌' ? '增肌要补足蛋白、吃到热量' : '维持要均衡') + '。' +
         '这 ' + r.picked.length + ' 道共 ' + totals.protein + 'g 蛋白（目标 ' + targetP + 'g 的 ' + coverage + '%），' +
         Math.round(totals.kcal) + ' 千卡，' + price + ' 元，排队约 ' + queue + ' 分钟。';
+      var tip = state.goal === '减脂'
+        ? '练后 1 小时内补蛋白、控油控糖，热量缺口才守得住。'
+        : state.goal === '增肌'
+          ? '练后 1 小时内补快碳 + 蛋白，帮你恢复体力、长肌肉。'
+          : '按正常三餐节奏，优先保证蛋白和蔬菜。';
       return {
         key: st.key, title: st.title, sub: st.sub, dishes: dishes, totals: totals,
-        price: price, queue: queue, walk: walk, totalMin: totalMin, coverage: coverage, why: why,
+        price: price, queue: queue, walk: walk, totalMin: totalMin, coverage: coverage, why: why, tip: tip,
       };
     });
     // 去重：如果两套完全一样，保留第一套
@@ -1722,7 +3168,8 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
       return;
     }
     $('resultMeta').textContent = '（' + eat.mealType + ' · ' + eat.goal + ' · ' + (eat.budget == null ? '不限预算' : eat.budget + '元') + '）';
-    box.innerHTML = combos.map(function (c, i) {
+    var tgt = NUTRITION.targetMacros(eat.goal, eat.weight || 60);
+    box.innerHTML = '<div class="rec-cards">' + combos.map(function (c, i) {
       var best = i === 0;
       var dishes = c.dishes.map(function (d) {
         var t = d.label === 'good' ? '推荐' : d.label === 'warn' ? '适量' : '少吃';
@@ -1739,11 +3186,13 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
         '<div class="macro"><div class="v">' + c.price + '</div><div class="k">合计¥</div></div>' +
         '</div>' +
         '<div class="macro-bar"><span class="p" style="width:' + ratio.p + '%"></span><span class="c" style="width:' + ratio.c + '%"></span><span class="f" style="width:' + Math.max(0, 100 - ratio.p - ratio.c) + '%"></span></div>' +
+        macroGoalHtml(c, tgt) +
+        (c.tip ? '<div class="tip-line">💡 ' + esc(c.tip) + '</div>' : '') +
         '<div class="rec-meta"><span>排队约 <b>' + c.queue + '</b> 分钟</span><span>全程约 <b>' + c.totalMin + '</b> 分钟</span><span>蛋白覆盖 <b>' + c.coverage + '%</b></span></div>' +
         '<div class="why">💡 <b>为什么这么配：</b>' + esc(c.why) + '</div>' +
         '<div class="rec-actions"><button class="btn btn-ghost" data-shuffle="' + i + '">换一换</button><button class="btn btn-primary" data-eat="' + i + '">就吃这个</button></div>' +
         '</div>';
-    }).join('');
+    }).join('') + '</div>';
     // 换一换 / 就吃这个
     box.querySelectorAll('[data-shuffle]').forEach(function (b) {
       b.onclick = function () { var idx = +b.dataset.shuffle; rotateCombo(idx); };
@@ -1752,6 +3201,21 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
       b.onclick = function () { var idx = +b.dataset.eat; saveMeal(combos[idx]); };
     });
     window.__lastCombos = combos;
+  }
+
+  // 宏量营养条：本餐 / 今日目标（《膳食指南》口径）
+  function macroGoalHtml(c, tgt) {
+    function row(label, got, need, cls) {
+      var pct = Math.min(100, Math.round(got / Math.max(1, need) * 100));
+      return '<div class="mg-row"><span class="mg-label">' + label + '</span>' +
+        '<span class="mg-bar"><i class="' + cls + '" style="width:' + pct + '%"></i></span>' +
+        '<span class="mg-val"><b>' + Math.round(got) + '</b> / ' + Math.round(need) + 'g</span></div>';
+    }
+    return '<div class="macro-goal">' +
+      row('蛋白', c.totals.protein, tgt.protein / 3, 'p') +
+      row('碳水', c.totals.carbs, tgt.carbs / 3, 'c') +
+      row('脂肪', c.totals.fat, tgt.fat / 3, 'f') +
+      '</div><div class="muted" style="font-size:10px">本餐 / 每餐目标（今日目标的三分之一）</div>';
   }
 
   var combosCache = [];
@@ -2055,6 +3519,26 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
     }
     $('btnCoachSend').addEventListener('click', send);
     $('coachInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
+
+    // 场景切换：三组预设，现场可当场换
+    var scenes = {
+      cut: ['减脂日怎么吃？', '减脂日：以 300–500 kcal 缺口为目标，蛋白按体重 2g/kg 保底；主食选杂粮，避开油炸和含糖饮料。练后先补蛋白，再补少量碳水。'],
+      bulk: ['增肌日怎么吃？', '增肌日：在 TDEE 上做约 300 kcal 盈余，蛋白 1.6–1.8g/kg，全天分 3–4 餐；练后 1 小时内补快碳 + 蛋白，恢复更快。'],
+      pre: ['体测前 3 天怎么准备？', '体测前 3 天：主食不降，每餐一拳半碳水；每天补水 1.5–2L；考前 2 小时吃易消化碳水，别试新食物；睡眠优先，考前只做轻量激活。']
+    };
+    document.querySelectorAll('#scenarioRow [data-scene]').forEach(function (b) {
+      b.onclick = function () {
+        var s = scenes[b.dataset.scene]; if (!s) return;
+        document.querySelectorAll('#scenarioRow [data-scene]').forEach(function (x) { x.classList.toggle('on', x === b); });
+        appendMsg('user', s[0]);
+        var t = appendMsg('ai', '…');
+        if (!API.getState().backendOnline) { t.textContent = s[1]; return; }
+        API.callAgent({ type: 'coach', question: s[0] }).then(function (res) {
+          var txt = (res && res.text || '').trim();
+          t.textContent = (txt && txt.length > 8) ? txt : s[1];
+        }).catch(function () { t.textContent = s[1]; });
+      };
+    });
   }
   function appendMsg(role, text) {
     var box = $('coachChat'), d = document.createElement('div');
@@ -2215,6 +3699,29 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
     items.forEach(function (x) { total += x.score * x.weight; wsum += x.weight; });
     total = wsum ? Math.round(total / wsum) : 0;
 
+    // ---- 提分性价比榜：每提升 1 个单位能加多少分 ----
+    var rank = [];
+    function rankPush(label, val, tbl, lowerBetter, unit, unitName) {
+      if (val == null || !tbl) return;
+      var cur = scoreFromTable(val, tbl, lowerBetter);
+      var best = null;
+      Object.keys(tbl).map(Number).forEach(function (tier) {
+        if (tier <= cur) return;
+        var need = Math.abs(tbl[tier] - val) / unit;
+        if (need <= 0) return;
+        var eff = (tier - cur) / need;
+        if (!best || eff > best.eff) best = { eff: eff, need: need, gain: tier - cur };
+      });
+      if (best) rank.push({ label: label, unitName: unitName, need: Math.max(1, Math.round(best.need)), gain: Math.round(best.gain), eff: best.eff });
+    }
+    if (+$('ftVital').value > 0) rankPush('肺活量', +$('ftVital').value, table.vital, false, 100, '100ml');
+    if ($('ft50').value.trim()) rankPush('50米跑', parseFloat($('ft50').value), table.run50, true, 0.1, '0.1秒');
+    if ($('ftReach').value.trim()) rankPush('坐位体前屈', parseFloat($('ftReach').value), table.reach, false, 0.5, '0.5cm');
+    if (+$('ftJump').value > 0) rankPush('立定跳远', +$('ftJump').value, table.jump, false, 1, '1cm');
+    rankPush(gender === 'male' ? '引体向上' : '仰卧起坐', count, gender === 'male' ? table.pullup : table.situp, false, 1, '1个');
+    rankPush(gender === 'male' ? '1000米' : '800米', runSec, table.run, true, 1, '1秒');
+    rank.sort(function (a, b) { return b.eff - a.eff; });
+
     var runScore = scoreFromTable(runSec, table.run, true);
     var strengthScore = scoreFromTable(count, gender === 'male' ? table.pullup : table.situp, false);
     var runGain = Math.max(0, scoreFromTable(Math.max(1, runSec - 10), table.run, true) - runScore);
@@ -2236,6 +3743,18 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
       html += '<tr><td>' + esc(x.label) + '</td><td ' + cls + '>' + x.score + '</td><td>' + Math.round(x.weight * 100) + '%</td></tr>';
     });
     html += '</tbody></table></div>';
+
+    if (rank.length) {
+      html += '<div class="card"><h2><span class="icon">🎯</span> 提分性价比榜</h2>' +
+        '<p class="hint">按「每提升 1 个单位能加多少分」排序；现场改成绩，榜会立刻重排。</p><div class="rank-list">' +
+        rank.slice(0, 5).map(function (r, i) {
+          return '<div class="rank-item' + (i === 0 ? ' top' : '') + '">' +
+            '<span class="rank-no">' + (i + 1) + '</span>' +
+            '<div class="rank-main"><b>' + esc(r.label) + '</b><span>再 ' + r.need + ' ' + esc(r.unitName) + ' ≈ +' + r.gain + ' 分</span></div>' +
+            '<span class="rank-eff">' + (Math.round(r.eff * 100) / 100) + ' 分/' + esc(r.unitName.replace(/^\d+(\.\d+)?/, '')) + '</span>' +
+            (i === 0 ? '<span class="rank-badge">性价比最高</span>' : '') + '</div>';
+        }).join('') + '</div></div>';
+    }
 
     html += '<div class="card"><h2><span class="icon">🎯</span> 提分诊断</h2>';
     html += '<div class="callout green">🎯 <b>先练这项：' + (focusRun ? runItem : strengthItem) + '</b>（短板优先）<br>';
@@ -2355,12 +3874,42 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
     };
   }
 
+  function initPracticeSeg() {
+    var seg = $('practiceSeg'); if (!seg) return;
+    seg.querySelectorAll('[data-ptab]').forEach(function (b) {
+      b.onclick = function () {
+        seg.querySelectorAll('[data-ptab]').forEach(function (x) { x.classList.toggle('active', x === b); });
+        $('practice-credits').style.display = b.dataset.ptab === 'credits' ? '' : 'none';
+        $('practice-fitness').style.display = b.dataset.ptab === 'fitness' ? '' : 'none';
+        if (b.dataset.ptab === 'fitness') updateBmi();
+      };
+    });
+  }
+
+  function initDishSearch() {
+    var s = $('dishSearch'); if (!s) return;
+    var composing = false;
+    s.addEventListener('compositionstart', function () { composing = true; });
+    s.addEventListener('compositionend', function () { composing = false; dishQ = s.value.trim(); $('btnDishClear').classList.toggle('hide', !dishQ); renderDishGrid(); });
+    s.oninput = function () {
+      if (composing) return;
+      dishQ = s.value.trim();
+      $('btnDishClear').classList.toggle('hide', !dishQ);
+      renderDishGrid();
+    };
+    $('btnDishClear').onclick = function () { dishQ = ''; s.value = ''; this.classList.add('hide'); renderDishGrid(); };
+  }
+
   async function init() {
     renderDateTime();
     initTabs(); initDrawer(); renderGoal(); renderExercise(); renderSource();
     renderCanteenTabs(); renderDishGrid(); renderConstraints(); initWeightInputs(); initUpload(); initPaceCalc(); initManualAdd();
-    initRecords(); initCoach(); initFitness();
+    initRecords(); initCoach(); initFitness(); initPracticeSeg(); initDishSearch();
     $('btnGenerate').addEventListener('click', generatePlan);
+
+    if (window.CreditsUI) CreditsUI.init();
+    if (window.VenuesUI) VenuesUI.init();
+    if (window.CampusUI) CampusUI.init();
 
     $('weightInput').value = eat.weight || profile.weight;
     $('trainEndInput').value = eat.trainEnd || '';

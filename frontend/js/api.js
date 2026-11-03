@@ -12,13 +12,15 @@
   'use strict';
 
   // ★ 后端地址（按顺序尝试，谁通就用谁）：
-  //   1) 公网后端（别人也能用；国内可能被墙）
-  //   2) 本机后端（你自己 `npm start` 时用）
+  //   1) 同源（Nginx 同时托管前端并把 /api 反代到 3000）→ 相对路径，天然避开混合内容
+  //   2) 公网后端（别人也能用；国内可能被墙）
+  //   3) 本机后端（你自己 `npm start` 时用）
   //   都不可达 → 本地规则引擎
-  var API_BASES = [
-    'https://sports-fuel-agent-backend.vercel.app',
-    'http://localhost:3000',
-  ];
+  var API_BASES = [];
+  if (typeof location !== 'undefined' && location.protocol !== 'file:' && location.hostname !== 'liaohc-42.github.io') {
+    API_BASES.push('');
+  }
+  API_BASES.push('https://sports-fuel-agent-backend.vercel.app', 'http://localhost:3000');
   var API_BASE = API_BASES[0];
 
   var state = {
