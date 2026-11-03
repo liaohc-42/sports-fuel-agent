@@ -44,6 +44,7 @@
     if (name === 'me' && window.CampusUI) CampusUI.renderMe();
     if (name === 'practice' && window.CreditsUI) CreditsUI.render();
     if (name === 'venue' && window.VenuesUI) VenuesUI.render();
+    if (name === 'coach') { renderAgentStatus(); var cc = $('coachChat'); if (cc) cc.scrollTop = cc.scrollHeight; }
     window.scrollTo({ top: 0 });
   }
   function initTabs() {
@@ -54,6 +55,50 @@
       b.onclick = function () { showTab(b.dataset.back); };
     });
     window.AppTabs = { show: showTab };
+  }
+
+  /* ================= Agent 状态（诚实标注） ================= */
+  function agentState() { return (window.API && API.getState) ? API.getState() : {}; }
+  function agentOnline() { return !!agentState().agentOnline; }
+
+  function engineTag(engine) {
+    var local = !engine || /本地|模板|local/.test(engine);
+    return '<div class="engine-tag' + (local ? '' : ' model') + '">' +
+      (local ? '📋 本地规则引擎生成' : '🤖 ' + esc(engine) + ' 生成') + '</div>';
+  }
+
+  // 有模型走模型；没模型就直接本地，绝不假装
+  function askAgent(type, payload, localText) {
+    var st = agentState();
+    if (!st.backendReachable) return Promise.resolve({ text: localText, engine: '本地规则引擎' });
+    var body = { type: type };
+    Object.keys(payload || {}).forEach(function (k) { body[k] = payload[k]; });
+    return API.callAgent(body).then(function (res) {
+      return { text: (res && res.text) || localText, engine: (res && res.engine) || '本地规则引擎' };
+    }).catch(function () { return { text: localText, engine: '本地规则引擎' }; });
+  }
+
+  function renderAgentStatus() {
+    var st = agentState();
+    var online = !!st.agentOnline, reach = !!st.backendReachable;
+    var pill = $('coachEnginePill');
+    if (pill) pill.textContent = online ? (st.provider + ' · ' + st.model) : (reach ? '本地规则引擎' : '离线');
+    var box = $('agentStatusBox');
+    if (box) {
+      if (online) {
+        box.innerHTML = '<div class="agent-status ok">✅ 已连接 <b>' + esc(st.provider) + ' · ' + esc(st.model) + '</b>，下面的回答由大模型生成。</div>';
+      } else if (reach) {
+        box.innerHTML = '<div class="agent-status warn">⚠️ 后端在线，但<b>没有配置模型 Key</b>：现在的回答来自<b>本地规则引擎</b>，不是大模型。配置 <code>GLM_API_KEY</code> / <code>DEEPSEEK_API_KEY</code> / <code>OLLAMA_BASE_URL</code> 后自动切换。</div>';
+      } else {
+        box.innerHTML = '<div class="agent-status warn">⚠️ 后端未连接：现在的回答来自<b>本地规则引擎</b>，不是大模型。</div>';
+      }
+    }
+    var hs = $('backendStatus'), ht = $('backendStatusText');
+    if (hs && ht) {
+      hs.classList.toggle('off', !online);
+      ht.textContent = online ? (st.provider + ' · ' + st.model) : '本地规则引擎';
+    }
+    return online;
   }
 
   /* ================= 档案 ================= */
@@ -534,7 +579,9 @@
         '<div class="why">💡 <b>为什么这么配：</b>' + esc(c.why) + '</div>' +
         '<div class="rec-actions"><button class="btn btn-ghost" data-shuffle="' + i + '">换一换</button><button class="btn btn-primary" data-eat="' + i + '">就吃这个</button></div>' +
         '</div>';
-    }).join('') + '</div>';
+    }).join('') + '</div>' +
+      '<div class="agent-cta"><button class="btn btn-soft btn-block" id="btnAgentMeal">' +
+      (agentOnline() ? '🤖 让教练点评这顿饭' : '📋 用本地规则检查这顿饭') + '</button><div id="agentMealOut"></div></div>';
     // 换一换 / 就吃这个
     box.querySelectorAll('[data-shuffle]').forEach(function (b) {
       b.onclick = function () { var idx = +b.dataset.shuffle; rotateCombo(idx); };
@@ -542,6 +589,18 @@
     box.querySelectorAll('[data-eat]').forEach(function (b) {
       b.onclick = function () { var idx = +b.dataset.eat; saveMeal(combos[idx]); };
     });
+    var cta = $('btnAgentMeal');
+    if (cta) cta.onclick = function () {
+      var c = combos[0];
+      var local = '这顿约 ' + Math.round(c.totals.kcal) + ' 千卡、蛋白 ' + Math.round(c.totals.protein) + 'g、' + c.price + ' 元；主食+蛋白+蔬菜各一份，油炸与含糖饮料少碰。';
+      $('agentMealOut').innerHTML = '<div class="callout">正在生成…</div>';
+      askAgent('meal', {
+        goal: eat.goal, exercise: currentEx().name, exerciseKcal: exerciseKcal(), budget: eat.budget,
+        dishes: c.dishes.map(function (d) { return { name: d.name, nutrition: NUTRITION.lookup(d.name) }; }),
+      }, local).then(function (r) {
+        $('agentMealOut').innerHTML = '<div class="callout">' + esc(r.text) + engineTag(r.engine) + '</div>';
+      });
+    };
     window.__lastCombos = combos;
   }
 
@@ -808,19 +867,34 @@
     $('btnRegenerateAfter').addEventListener('click', function () {
       if (!meals.length) { toast('还没有就餐记录'); return; }
       var latest = meals[meals.length - 1];
-      $('aiAdjustResult').innerHTML = '<div class="callout">🤖 ' + esc(API.localAdjustAnswer ? API.localAdjustAnswer({ eatenKcal: latest.kcal, goal: eat.goal, weightKg: eat.weight }) : '这一餐已记录，注意下一餐均衡。') + '</div>';
+      var local = API.localAdjustAnswer ? API.localAdjustAnswer({ eatenKcal: latest.kcal, goal: eat.goal, weightKg: eat.weight }) : '这一餐已记录，注意下一餐均衡。';
+      var box = $('aiAdjustResult');
+      box.innerHTML = '<div class="callout">正在生成…</div>';
+      askAgent('adjust', { eatenKcal: latest.kcal, goal: eat.goal, weightKg: eat.weight }, local).then(function (r) {
+        box.innerHTML = '<div class="callout">' + esc(r.text) + engineTag(r.engine) + '</div>';
+      });
     });
     $('btnBudgetAdvice').addEventListener('click', function () {
       var budget = +$('budgetInput').value;
       if (!budget || budget < 300) { toast('请输入合理月预算（≥300 元）'); return; }
       var past = spendingAvg();
-      $('budgetAdviceResult').innerHTML = '<div class="callout">🤖 ' + esc(API.localBudgetAnswer ? API.localBudgetAnswer({ budget: budget, pastAvg: past }) : '建议每天约 ' + Math.round(budget / 30) + ' 元。') + '</div>';
+      var local = API.localBudgetAnswer ? API.localBudgetAnswer({ budget: budget, pastAvg: past }) : '建议每天约 ' + Math.round(budget / 30) + ' 元。';
+      var box = $('budgetAdviceResult');
+      box.innerHTML = '<div class="callout">正在生成…</div>';
+      askAgent('budget', { budget: budget, pastAvg: past }, local).then(function (r) {
+        box.innerHTML = '<div class="callout">' + esc(r.text) + engineTag(r.engine) + '</div>';
+      });
     });
     $('btnSportAdvice').addEventListener('click', function () {
       var period = document.querySelector('#sportPeriodSeg .pill.active');
       period = period ? period.dataset.period : 'week';
       var s = sportStat(period);
-      $('sportAiAdvice').innerHTML = '<div class="callout">🤖 ' + esc(API.localSportAnswer ? API.localSportAnswer({ period: period, totalMin: s.min, totalKcal: s.kcal, sessions: s.sessions }) : '保持运动习惯。') + '</div>';
+      var local = API.localSportAnswer ? API.localSportAnswer({ period: period, totalMin: s.min, totalKcal: s.kcal, sessions: s.sessions }) : '保持运动习惯。';
+      var box = $('sportAiAdvice');
+      box.innerHTML = '<div class="callout">正在生成…</div>';
+      askAgent('sport', { period: period, totalMin: s.min, totalKcal: s.kcal, sessions: s.sessions }, local).then(function (r) {
+        box.innerHTML = '<div class="callout">' + esc(r.text) + engineTag(r.engine) + '</div>';
+      });
     });
     document.querySelectorAll('#sportPeriodSeg .pill').forEach(function (p) {
       p.addEventListener('click', function () {
@@ -852,15 +926,28 @@
 
   /* ================= 智能教练 ================= */
   function initCoach() {
-    appendMsg('ai', '你好！我是练完吃啥的智能教练 🤖\n运动训练、食堂饮食搭配、减脂增肌、体测提分都能问我。');
-    function send() {
-      var inp = $('coachInput'), q = inp.value.trim(); if (!q) return;
+    var st0 = agentState();
+    appendMsg('ai', '你好，我是你的运动营养教练 🤖\n训练、食堂搭配、减脂增肌、体测提分都能问我。\n' +
+      (st0.agentOnline ? '当前由 ' + st0.provider + ' · ' + st0.model + ' 回答。' : '（当前未接入大模型，下面回答由本地规则引擎生成。）'));
+
+    function show(t, text, engine) {
+      t.innerHTML = esc(text).replace(/\n/g, '<br>') + engineTag(engine);
+    }
+    function send(text) {
+      var inp = $('coachInput');
+      var q = (typeof text === 'string' ? text : inp.value).trim();
+      if (!q) return;
       appendMsg('user', q); inp.value = '';
       var t = appendMsg('ai', '…');
-      API.callAgent({ type: 'coach', question: q }).then(function (res) { t.textContent = res.text; });
+      var local = API.localCoachAnswer ? API.localCoachAnswer(q) : '（本地规则引擎）';
+      askAgent('coach', { question: q, profile: { goal: eat.goal, weightKg: eat.weight, gender: profile.gender } }, local)
+        .then(function (r) { show(t, r.text, r.engine); });
     }
-    $('btnCoachSend').addEventListener('click', send);
+    $('btnCoachSend').addEventListener('click', function () { send(); });
     $('coachInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
+    document.querySelectorAll('#quickAsk [data-ask]').forEach(function (b) {
+      b.onclick = function () { send(b.dataset.ask); };
+    });
 
     // 场景切换：三组预设，现场可当场换
     var scenes = {
@@ -874,11 +961,8 @@
         document.querySelectorAll('#scenarioRow [data-scene]').forEach(function (x) { x.classList.toggle('on', x === b); });
         appendMsg('user', s[0]);
         var t = appendMsg('ai', '…');
-        if (!API.getState().backendOnline) { t.textContent = s[1]; return; }
-        API.callAgent({ type: 'coach', question: s[0] }).then(function (res) {
-          var txt = (res && res.text || '').trim();
-          t.textContent = (txt && txt.length > 8) ? txt : s[1];
-        }).catch(function () { t.textContent = s[1]; });
+        askAgent('coach', { question: s[0] + '（请给具体、可执行、120 字以内的建议）' }, s[1])
+          .then(function (r) { show(t, r.text, r.engine); });
       };
     });
   }
@@ -1122,7 +1206,25 @@
       '<button class="pill" data-checkin="busy">⏰ 没时间</button>' +
       '</div><div id="ftCheckinMsg" style="margin-top:8px"></div></div>';
 
+    var ftGradeVal = (($('ftGrade') && $('ftGrade').value) || '大一');
+    html += '<div class="card agent-card"><h2><span class="icon">🤖</span> 教练解读</h2>' +
+      '<p class="hint">' + (agentOnline() ? '由大模型结合你的成绩给行动建议。' : '当前未接入大模型，由本地规则给建议。') + '</p>' +
+      '<button class="btn btn-soft btn-block" id="btnAgentFt">' +
+      (agentOnline() ? '让教练解读这次诊断' : '用本地规则给出 3 天安排') + '</button><div id="agentFtOut"></div></div>';
+
     box.innerHTML = html;
+    var ftCta = $('btnAgentFt');
+    if (ftCta) ftCta.onclick = function () {
+      var local = '先练' + (focusRun ? runItem : strengthItem) + '：' + plan.slice(0, 3).map(function (d) { return 'D' + d.day + ' ' + d.focus; }).join('；') + '。';
+      $('agentFtOut').innerHTML = '<div class="callout">正在生成…</div>';
+      askAgent('coach', {
+        question: '我' + (gender === 'male' ? '男' : '女') + '，' + ftGradeVal + '，' + daysLeft + ' 天后体测。耐力跑约 ' +
+          runScore + ' 分，' + (gender === 'male' ? '引体' : '仰卧起坐') + '约 ' + strengthScore + ' 分，总分 ' + total +
+          '。请给未来 3 天最优先的训练与饮食安排，120 字内。' + (injury ? '（我有伤病：' + injury + '）' : ''),
+      }, local).then(function (r) {
+        $('agentFtOut').innerHTML = '<div class="callout">' + esc(r.text) + engineTag(r.engine) + '</div>';
+      });
+    };
     box.querySelectorAll('[data-checkin]').forEach(function (b) {
       b.onclick = function () {
         var map = {
@@ -1242,11 +1344,20 @@
     $('btnDishClear').onclick = function () { dishQ = ''; s.value = ''; this.classList.add('hide'); renderDishGrid(); };
   }
 
+  function updateUploadHint() {
+    var box = $('uploadBox'); if (!box) return;
+    var v = !!agentState().vision;
+    box.textContent = v
+      ? '📷 上传菜单/菜品图片（视觉模型识别菜名）'
+      : '📷 上传菜单图片（只能识别文字，认不出菜品照片）';
+    box.title = v ? '已接入视觉模型' : '未接入视觉模型：仅文字识别（Tesseract）';
+  }
+
   async function init() {
     renderDateTime();
     initTabs(); initDrawer(); renderGoal(); renderExercise(); renderSource();
     renderCanteenTabs(); renderDishGrid(); renderConstraints(); initWeightInputs(); initUpload(); initPaceCalc(); initManualAdd();
-    initRecords(); initCoach(); initFitness(); initPracticeSeg(); initDishSearch();
+    initRecords(); initFitness(); initPracticeSeg(); initDishSearch();
     $('btnGenerate').addEventListener('click', generatePlan);
 
     if (window.CreditsUI) CreditsUI.init();
@@ -1256,9 +1367,10 @@
     $('weightInput').value = eat.weight || profile.weight;
     $('trainEndInput').value = eat.trainEnd || '';
 
-    var online = await API.checkBackend();
-    $('backendStatus').classList.toggle('off', !online);
-    $('backendStatusText').textContent = online ? '已连接 Agent' : '本地引擎';
+    await API.checkBackend();
+    renderAgentStatus();
+    updateUploadHint();
+    initCoach();
   }
 
   document.addEventListener('DOMContentLoaded', init);

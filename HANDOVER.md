@@ -164,6 +164,7 @@ npm start        # http://localhost:3000
 | `_test_campus.js` | 积分雷达数据完整性 + 场馆两级兜底判定（高峰/空闲/闭馆/教学占用） |
 | `_smoke_test.js` | 营养/热量/评分核心逻辑 |
 | `_test_agent.js` | 后端 JSON Schema 校验 + 回退 |
+| `_test_providers.js` | 模型选择：GLM / DeepSeek（deepseek-v4.1-flash）/ Ollama + 无 Key 返回 null |
 | `_check_ids.js` / `_check_refs.js` | 前端 ID / 资源引用一致性 |
 | `_verify_live.js` | 线上站点 16 项检查 |
 

@@ -24,8 +24,13 @@
   var API_BASE = API_BASES[0];
 
   var state = {
-    backendOnline: false,
-    backendReason: '本地引擎',
+    backendOnline: false,   // 真正有模型可用
+    agentOnline: false,     // 同上（语义更明确）
+    backendReachable: false,// 后端进程是否在线（可能没配 Key）
+    vision: false,          // 后端是否有视觉模型
+    provider: 'local',
+    model: '',
+    backendReason: '本地规则引擎',
     backendBase: '',
   };
 
@@ -33,23 +38,32 @@
   function getBases() { return API_BASES.slice(); }
 
   async function checkBackend() {
+    state.backendReachable = false;
+    state.agentOnline = false;
+    state.vision = false;
     for (var i = 0; i < API_BASES.length; i++) {
       var base = API_BASES[i];
       try {
         var r = await fetch(base + '/api/health', { signal: AbortSignal.timeout(3000) });
         var j = await r.json();
         if (j && j.ok) {
-          state.backendOnline = true;
+          state.backendReachable = true;
           state.backendBase = base;
-          state.backendReason = (j.provider ? j.provider + ' · ' : '') + (j.model || '已连接');
-          return true;
+          state.provider = j.provider || 'local';
+          state.model = j.model || '';
+          state.vision = !!j.vision;
+          state.agentOnline = j.agent === true || (j.provider && j.provider !== 'local');
+          state.backendOnline = state.agentOnline;
+          state.backendReason = state.agentOnline
+            ? (j.provider + ' · ' + (j.model || '已连接'))
+            : '本地规则引擎（后端未配置 Key）';
+          if (state.agentOnline) return true;
+          // 后端在线但没配模型：继续试下一个 base（可能有 Key）
         }
       } catch (e) { /* 试下一个 */ }
     }
-    state.backendOnline = false;
-    state.backendBase = '';
-    state.backendReason = '本地引擎';
-    return false;
+    if (!state.backendReachable) state.backendReason = '本地规则引擎（离线）';
+    return state.agentOnline;
   }
 
   // 填入即用：Agent Key 只存在本机浏览器 localStorage，随请求发给后端
@@ -289,6 +303,7 @@
     localAdjustAnswer: localAdjustAnswer,
     localBudgetAnswer: localBudgetAnswer,
     localSportAnswer: localSportAnswer,
+    localCoachAnswer: localCoachAnswer,
     localCoachAnswer: localCoachAnswer,
   };
 })();

@@ -13,6 +13,7 @@ const dynamicIds = new Set([
   'dishSearch', 'dishItems', 'addMealDish', 'btnAddMealDish',
   'ftToday', 'ftPacer', 'ftCheckinMsg', 'ftTimer', 'pacerClock',
   'btnPacerStart', 'btnPacerStop', 'aiComment',
+  'btnAgentMeal', 'agentMealOut', 'btnAgentFt', 'agentFtOut',
 ]);
 
 const used = new Set();
@@ -29,7 +30,7 @@ for (const id of sorted) {
   else console.log('ok    $(\'' + id + '\')' + (dynamicIds.has(id) ? ' (动态)' : ''));
 }
 // tab-x 拼接目标检查
-for (const t of ['eat','records','practice','venue','me','pickup','gear','science']) {
+for (const t of ['eat','records','practice','venue','coach','me','pickup','gear','science']) {
   if (!htmlIds.has('tab-' + t)) { console.log('MISS  tab-' + t); fail++; }
 }
 console.log(fail ? '\n*** ' + fail + ' 个 id 缺失 ***' : '\n所有 id 引用一致，共 ' + sorted.length + ' 个');

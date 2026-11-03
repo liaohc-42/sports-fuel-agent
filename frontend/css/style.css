@@ -807,4 +807,27 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   .btn { padding: 11px 16px; }
 }
 
+/* ---------- 11. Agent 状态与引擎标注（诚实展示） ---------- */
+.coach-hero { background: linear-gradient(180deg, var(--paper-2), var(--paper)); }
+.coach-hero .hero-title { font-size: 24px; }
+.agent-status {
+  margin-top: 11px; font-size: 12.5px; line-height: 1.6;
+  border: 1.5px solid var(--ink); border-radius: 12px; padding: 9px 12px;
+}
+.agent-status.ok { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+.agent-status.warn { background: var(--brick-soft); border-color: var(--brick); color: var(--brick); }
+.agent-status code { background: rgba(255, 252, 242, .7); padding: 0 4px; border-radius: 4px; font-size: 11.5px; }
+.engine-tag {
+  display: block; margin-top: 9px; padding-top: 6px;
+  border-top: 1px dashed #d9cbb2; font-size: 10.5px; color: var(--ink-3); letter-spacing: .3px;
+}
+.engine-tag.model { color: var(--green); }
+.msg .engine-tag { border-top-color: rgba(36, 28, 22, .16); }
+.quick-ask { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 10px; }
+.agent-cta {
+  margin-top: 12px; padding: 12px; border: 2px dashed #d9cbb2; border-radius: 14px; background: var(--paper-2);
+}
+.agent-cta .btn { margin-bottom: 6px; }
+.agent-card { border-color: var(--green); box-shadow: 4px 4px 0 rgba(31, 92, 58, .16); }
+
 

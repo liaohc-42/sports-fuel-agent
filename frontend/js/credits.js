@@ -168,9 +168,11 @@
       '<a class="btn btn-primary btn-block" href="' + esc(a.registration_url) + '" target="_blank" rel="noopener">前往报名入口</a>' +
       '</article>';
 
+    var aiOnline = !!(window.API && API.getState && API.getState().agentOnline);
     html += '<div class="card ai-card"><div class="ai-head"><b>AI 一句话摘要</b><span class="ai-tag" id="aiTag">系统整理</span></div>' +
       '<div id="aiSummary" class="ai-body">' + renderSummaryText(a) + '</div>' +
-      '<div class="ai-actions"><button class="btn btn-soft btn-sm" id="btnAiSummary">让 AI 重新概括</button></div></div>';
+      '<div class="ai-actions"><button class="btn btn-soft btn-sm" id="btnAiSummary">' +
+      (aiOnline ? '让 AI 重新概括' : '用本地规则重新整理') + '</button></div></div>';
 
     html += '<div class="card"><h2>一起去？</h2><div class="intent-row">' +
       Object.keys(INTENT_CN).map(function (k) {

@@ -111,7 +111,7 @@
         var better = CAMPUS_VENUES.filter(function (x) {
           return x.campus === v.campus && x.id !== v.id && x.type === v.type && ['free', 'normal'].indexOf(crowdOf(x).level) >= 0;
         })[0];
-        if (better) alt = '<div class="agent-tip">🤖 ' + esc(v.name) + '现在' + LEVEL_CN[c.level] + '，建议改去 <b>' + esc(better.name) + '</b>。</div>';
+        if (better) alt = '<div class="agent-tip">💡 规律建议：' + esc(v.name) + '现在' + LEVEL_CN[c.level] + '，可以改去 <b>' + esc(better.name) + '</b>。</div>';
       }
       return '<article class="venue-card' + (state.highlight === v.id ? ' hl' : '') + '" data-vid="' + v.id + '">' +
         '<div class="vc-head"><h3>' + esc(v.name) + '</h3><span class="crowd-badge ' + cls + '"><i></i>' + LEVEL_CN[c.level] + '</span></div>' +

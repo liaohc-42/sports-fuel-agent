@@ -26,6 +26,7 @@
     <button data-tab="records">📊 记录</button>
     <button data-tab="practice">🎯 练</button>
     <button data-tab="venue">🏟️ 场馆</button>
+    <button data-tab="coach">🤖 教练</button>
     <button data-tab="me" id="btnProfile">👤 我的</button>
   </nav>
 
@@ -253,6 +254,39 @@
       <div id="venueBody"></div>
     </section>
 
+    <!-- ================= 教练（Agent 主入口） ================= -->
+    <section class="tab" id="tab-coach">
+      <div class="card paper-hero coach-hero">
+        <div class="hero-top">
+          <div>
+            <div class="eyebrow">COACH · 运动营养教练</div>
+            <h2 class="hero-title">你的运动营养教练，一直都在。</h2>
+          </div>
+          <span class="season" id="coachEnginePill">检测中…</span>
+        </div>
+        <p class="hint">训练、食堂搭配、减脂增肌、体测提分，直接问。它会结合你当前的档案和目标回答。</p>
+        <div id="agentStatusBox"></div>
+      </div>
+
+      <div class="card">
+        <div class="scenario-row" id="scenarioRow">
+          <button class="scenario" data-scene="cut">🔥 减脂日</button>
+          <button class="scenario" data-scene="bulk">💪 增肌日</button>
+          <button class="scenario" data-scene="pre">🎯 体测前 3 天</button>
+        </div>
+        <div class="chat-box" id="coachChat"></div>
+        <div class="chat-input">
+          <input type="text" id="coachInput" placeholder="例如：今晚练完腿很酸，该吃点什么？" />
+          <button class="btn btn-primary" id="btnCoachSend">发送</button>
+        </div>
+        <div class="quick-ask" id="quickAsk">
+          <button class="chip-btn" data-ask="今晚练完腿很酸，食堂吃什么恢复快？">练完腿酸吃什么</button>
+          <button class="chip-btn" data-ask="我在减脂，食堂怎么吃才不超热量？">减脂怎么吃</button>
+          <button class="chip-btn" data-ask="引体向上 3 个，两周能练到 10 个吗？">引体怎么练</button>
+        </div>
+      </div>
+    </section>
+
     <!-- ================= 我的 ================= -->
     <section class="tab" id="tab-me">
       <div id="meBody"></div>
@@ -273,21 +307,6 @@
     <!-- ================= 原理与数据（我的分支） ================= -->
     <section class="tab" id="tab-science">
       <button class="btn btn-ghost btn-sm back-btn" data-back="me">← 返回我的</button>
-      <div class="card">
-        <h2><span class="icon">🤖</span> 智能健身教练</h2>
-        <p class="hint">运动、饮食、体测相关问题都能问。默认走「本地规则引擎」，后端配置 Key 后回答更自然。</p>
-        <div class="scenario-row" id="scenarioRow">
-          <button class="scenario" data-scene="cut">🔥 减脂日</button>
-          <button class="scenario" data-scene="bulk">💪 增肌日</button>
-          <button class="scenario" data-scene="pre">🎯 体测前 3 天</button>
-        </div>
-        <div class="chat-box" id="coachChat"></div>
-        <div class="chat-input">
-          <input type="text" id="coachInput" placeholder="例如：今晚练完腿很酸，该吃点什么？" />
-          <button class="btn btn-primary" id="btnCoachSend">发送</button>
-        </div>
-      </div>
-
       <div class="card">
         <h2><span class="icon">📖</span> AI 参考的文献与依据</h2>
         <ul class="ref-list" id="refList"></ul>

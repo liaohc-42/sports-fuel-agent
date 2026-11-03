@@ -815,6 +815,29 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   .btn { padding: 11px 16px; }
 }
 
+/* ---------- 11. Agent 状态与引擎标注（诚实展示） ---------- */
+.coach-hero { background: linear-gradient(180deg, var(--paper-2), var(--paper)); }
+.coach-hero .hero-title { font-size: 24px; }
+.agent-status {
+  margin-top: 11px; font-size: 12.5px; line-height: 1.6;
+  border: 1.5px solid var(--ink); border-radius: 12px; padding: 9px 12px;
+}
+.agent-status.ok { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+.agent-status.warn { background: var(--brick-soft); border-color: var(--brick); color: var(--brick); }
+.agent-status code { background: rgba(255, 252, 242, .7); padding: 0 4px; border-radius: 4px; font-size: 11.5px; }
+.engine-tag {
+  display: block; margin-top: 9px; padding-top: 6px;
+  border-top: 1px dashed #d9cbb2; font-size: 10.5px; color: var(--ink-3); letter-spacing: .3px;
+}
+.engine-tag.model { color: var(--green); }
+.msg .engine-tag { border-top-color: rgba(36, 28, 22, .16); }
+.quick-ask { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 10px; }
+.agent-cta {
+  margin-top: 12px; padding: 12px; border: 2px dashed #d9cbb2; border-radius: 14px; background: var(--paper-2);
+}
+.agent-cta .btn { margin-bottom: 6px; }
+.agent-card { border-color: var(--green); box-shadow: 4px 4px 0 rgba(31, 92, 58, .16); }
+
 
 
 </style>
@@ -839,6 +862,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     <button data-tab="records">📊 记录</button>
     <button data-tab="practice">🎯 练</button>
     <button data-tab="venue">🏟️ 场馆</button>
+    <button data-tab="coach">🤖 教练</button>
     <button data-tab="me" id="btnProfile">👤 我的</button>
   </nav>
 
@@ -1066,6 +1090,39 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
       <div id="venueBody"></div>
     </section>
 
+    <!-- ================= 教练（Agent 主入口） ================= -->
+    <section class="tab" id="tab-coach">
+      <div class="card paper-hero coach-hero">
+        <div class="hero-top">
+          <div>
+            <div class="eyebrow">COACH · 运动营养教练</div>
+            <h2 class="hero-title">你的运动营养教练，一直都在。</h2>
+          </div>
+          <span class="season" id="coachEnginePill">检测中…</span>
+        </div>
+        <p class="hint">训练、食堂搭配、减脂增肌、体测提分，直接问。它会结合你当前的档案和目标回答。</p>
+        <div id="agentStatusBox"></div>
+      </div>
+
+      <div class="card">
+        <div class="scenario-row" id="scenarioRow">
+          <button class="scenario" data-scene="cut">🔥 减脂日</button>
+          <button class="scenario" data-scene="bulk">💪 增肌日</button>
+          <button class="scenario" data-scene="pre">🎯 体测前 3 天</button>
+        </div>
+        <div class="chat-box" id="coachChat"></div>
+        <div class="chat-input">
+          <input type="text" id="coachInput" placeholder="例如：今晚练完腿很酸，该吃点什么？" />
+          <button class="btn btn-primary" id="btnCoachSend">发送</button>
+        </div>
+        <div class="quick-ask" id="quickAsk">
+          <button class="chip-btn" data-ask="今晚练完腿很酸，食堂吃什么恢复快？">练完腿酸吃什么</button>
+          <button class="chip-btn" data-ask="我在减脂，食堂怎么吃才不超热量？">减脂怎么吃</button>
+          <button class="chip-btn" data-ask="引体向上 3 个，两周能练到 10 个吗？">引体怎么练</button>
+        </div>
+      </div>
+    </section>
+
     <!-- ================= 我的 ================= -->
     <section class="tab" id="tab-me">
       <div id="meBody"></div>
@@ -1086,21 +1143,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     <!-- ================= 原理与数据（我的分支） ================= -->
     <section class="tab" id="tab-science">
       <button class="btn btn-ghost btn-sm back-btn" data-back="me">← 返回我的</button>
-      <div class="card">
-        <h2><span class="icon">🤖</span> 智能健身教练</h2>
-        <p class="hint">运动、饮食、体测相关问题都能问。默认走「本地规则引擎」，后端配置 Key 后回答更自然。</p>
-        <div class="scenario-row" id="scenarioRow">
-          <button class="scenario" data-scene="cut">🔥 减脂日</button>
-          <button class="scenario" data-scene="bulk">💪 增肌日</button>
-          <button class="scenario" data-scene="pre">🎯 体测前 3 天</button>
-        </div>
-        <div class="chat-box" id="coachChat"></div>
-        <div class="chat-input">
-          <input type="text" id="coachInput" placeholder="例如：今晚练完腿很酸，该吃点什么？" />
-          <button class="btn btn-primary" id="btnCoachSend">发送</button>
-        </div>
-      </div>
-
       <div class="card">
         <h2><span class="icon">📖</span> AI 参考的文献与依据</h2>
         <ul class="ref-list" id="refList"></ul>
@@ -1781,8 +1823,13 @@ var CROWD_RULES = [
   var API_BASE = API_BASES[0];
 
   var state = {
-    backendOnline: false,
-    backendReason: '本地引擎',
+    backendOnline: false,   // 真正有模型可用
+    agentOnline: false,     // 同上（语义更明确）
+    backendReachable: false,// 后端进程是否在线（可能没配 Key）
+    vision: false,          // 后端是否有视觉模型
+    provider: 'local',
+    model: '',
+    backendReason: '本地规则引擎',
     backendBase: '',
   };
 
@@ -1790,23 +1837,32 @@ var CROWD_RULES = [
   function getBases() { return API_BASES.slice(); }
 
   async function checkBackend() {
+    state.backendReachable = false;
+    state.agentOnline = false;
+    state.vision = false;
     for (var i = 0; i < API_BASES.length; i++) {
       var base = API_BASES[i];
       try {
         var r = await fetch(base + '/api/health', { signal: AbortSignal.timeout(3000) });
         var j = await r.json();
         if (j && j.ok) {
-          state.backendOnline = true;
+          state.backendReachable = true;
           state.backendBase = base;
-          state.backendReason = (j.provider ? j.provider + ' · ' : '') + (j.model || '已连接');
-          return true;
+          state.provider = j.provider || 'local';
+          state.model = j.model || '';
+          state.vision = !!j.vision;
+          state.agentOnline = j.agent === true || (j.provider && j.provider !== 'local');
+          state.backendOnline = state.agentOnline;
+          state.backendReason = state.agentOnline
+            ? (j.provider + ' · ' + (j.model || '已连接'))
+            : '本地规则引擎（后端未配置 Key）';
+          if (state.agentOnline) return true;
+          // 后端在线但没配模型：继续试下一个 base（可能有 Key）
         }
       } catch (e) { /* 试下一个 */ }
     }
-    state.backendOnline = false;
-    state.backendBase = '';
-    state.backendReason = '本地引擎';
-    return false;
+    if (!state.backendReachable) state.backendReason = '本地规则引擎（离线）';
+    return state.agentOnline;
   }
 
   // 填入即用：Agent Key 只存在本机浏览器 localStorage，随请求发给后端
@@ -2047,6 +2103,7 @@ var CROWD_RULES = [
     localBudgetAnswer: localBudgetAnswer,
     localSportAnswer: localSportAnswer,
     localCoachAnswer: localCoachAnswer,
+    localCoachAnswer: localCoachAnswer,
   };
 })();
 
@@ -2222,9 +2279,11 @@ var CROWD_RULES = [
       '<a class="btn btn-primary btn-block" href="' + esc(a.registration_url) + '" target="_blank" rel="noopener">前往报名入口</a>' +
       '</article>';
 
+    var aiOnline = !!(window.API && API.getState && API.getState().agentOnline);
     html += '<div class="card ai-card"><div class="ai-head"><b>AI 一句话摘要</b><span class="ai-tag" id="aiTag">系统整理</span></div>' +
       '<div id="aiSummary" class="ai-body">' + renderSummaryText(a) + '</div>' +
-      '<div class="ai-actions"><button class="btn btn-soft btn-sm" id="btnAiSummary">让 AI 重新概括</button></div></div>';
+      '<div class="ai-actions"><button class="btn btn-soft btn-sm" id="btnAiSummary">' +
+      (aiOnline ? '让 AI 重新概括' : '用本地规则重新整理') + '</button></div></div>';
 
     html += '<div class="card"><h2>一起去？</h2><div class="intent-row">' +
       Object.keys(INTENT_CN).map(function (k) {
@@ -2463,7 +2522,7 @@ var CROWD_RULES = [
         var better = CAMPUS_VENUES.filter(function (x) {
           return x.campus === v.campus && x.id !== v.id && x.type === v.type && ['free', 'normal'].indexOf(crowdOf(x).level) >= 0;
         })[0];
-        if (better) alt = '<div class="agent-tip">🤖 ' + esc(v.name) + '现在' + LEVEL_CN[c.level] + '，建议改去 <b>' + esc(better.name) + '</b>。</div>';
+        if (better) alt = '<div class="agent-tip">💡 规律建议：' + esc(v.name) + '现在' + LEVEL_CN[c.level] + '，可以改去 <b>' + esc(better.name) + '</b>。</div>';
       }
       return '<article class="venue-card' + (state.highlight === v.id ? ' hl' : '') + '" data-vid="' + v.id + '">' +
         '<div class="vc-head"><h3>' + esc(v.name) + '</h3><span class="crowd-badge ' + cls + '"><i></i>' + LEVEL_CN[c.level] + '</span></div>' +
@@ -2823,6 +2882,7 @@ var CROWD_RULES = [
     if (name === 'me' && window.CampusUI) CampusUI.renderMe();
     if (name === 'practice' && window.CreditsUI) CreditsUI.render();
     if (name === 'venue' && window.VenuesUI) VenuesUI.render();
+    if (name === 'coach') { renderAgentStatus(); var cc = $('coachChat'); if (cc) cc.scrollTop = cc.scrollHeight; }
     window.scrollTo({ top: 0 });
   }
   function initTabs() {
@@ -2833,6 +2893,50 @@ var CROWD_RULES = [
       b.onclick = function () { showTab(b.dataset.back); };
     });
     window.AppTabs = { show: showTab };
+  }
+
+  /* ================= Agent 状态（诚实标注） ================= */
+  function agentState() { return (window.API && API.getState) ? API.getState() : {}; }
+  function agentOnline() { return !!agentState().agentOnline; }
+
+  function engineTag(engine) {
+    var local = !engine || /本地|模板|local/.test(engine);
+    return '<div class="engine-tag' + (local ? '' : ' model') + '">' +
+      (local ? '📋 本地规则引擎生成' : '🤖 ' + esc(engine) + ' 生成') + '</div>';
+  }
+
+  // 有模型走模型；没模型就直接本地，绝不假装
+  function askAgent(type, payload, localText) {
+    var st = agentState();
+    if (!st.backendReachable) return Promise.resolve({ text: localText, engine: '本地规则引擎' });
+    var body = { type: type };
+    Object.keys(payload || {}).forEach(function (k) { body[k] = payload[k]; });
+    return API.callAgent(body).then(function (res) {
+      return { text: (res && res.text) || localText, engine: (res && res.engine) || '本地规则引擎' };
+    }).catch(function () { return { text: localText, engine: '本地规则引擎' }; });
+  }
+
+  function renderAgentStatus() {
+    var st = agentState();
+    var online = !!st.agentOnline, reach = !!st.backendReachable;
+    var pill = $('coachEnginePill');
+    if (pill) pill.textContent = online ? (st.provider + ' · ' + st.model) : (reach ? '本地规则引擎' : '离线');
+    var box = $('agentStatusBox');
+    if (box) {
+      if (online) {
+        box.innerHTML = '<div class="agent-status ok">✅ 已连接 <b>' + esc(st.provider) + ' · ' + esc(st.model) + '</b>，下面的回答由大模型生成。</div>';
+      } else if (reach) {
+        box.innerHTML = '<div class="agent-status warn">⚠️ 后端在线，但<b>没有配置模型 Key</b>：现在的回答来自<b>本地规则引擎</b>，不是大模型。配置 <code>GLM_API_KEY</code> / <code>DEEPSEEK_API_KEY</code> / <code>OLLAMA_BASE_URL</code> 后自动切换。</div>';
+      } else {
+        box.innerHTML = '<div class="agent-status warn">⚠️ 后端未连接：现在的回答来自<b>本地规则引擎</b>，不是大模型。</div>';
+      }
+    }
+    var hs = $('backendStatus'), ht = $('backendStatusText');
+    if (hs && ht) {
+      hs.classList.toggle('off', !online);
+      ht.textContent = online ? (st.provider + ' · ' + st.model) : '本地规则引擎';
+    }
+    return online;
   }
 
   /* ================= 档案 ================= */
@@ -3313,7 +3417,9 @@ var CROWD_RULES = [
         '<div class="why">💡 <b>为什么这么配：</b>' + esc(c.why) + '</div>' +
         '<div class="rec-actions"><button class="btn btn-ghost" data-shuffle="' + i + '">换一换</button><button class="btn btn-primary" data-eat="' + i + '">就吃这个</button></div>' +
         '</div>';
-    }).join('') + '</div>';
+    }).join('') + '</div>' +
+      '<div class="agent-cta"><button class="btn btn-soft btn-block" id="btnAgentMeal">' +
+      (agentOnline() ? '🤖 让教练点评这顿饭' : '📋 用本地规则检查这顿饭') + '</button><div id="agentMealOut"></div></div>';
     // 换一换 / 就吃这个
     box.querySelectorAll('[data-shuffle]').forEach(function (b) {
       b.onclick = function () { var idx = +b.dataset.shuffle; rotateCombo(idx); };
@@ -3321,6 +3427,18 @@ var CROWD_RULES = [
     box.querySelectorAll('[data-eat]').forEach(function (b) {
       b.onclick = function () { var idx = +b.dataset.eat; saveMeal(combos[idx]); };
     });
+    var cta = $('btnAgentMeal');
+    if (cta) cta.onclick = function () {
+      var c = combos[0];
+      var local = '这顿约 ' + Math.round(c.totals.kcal) + ' 千卡、蛋白 ' + Math.round(c.totals.protein) + 'g、' + c.price + ' 元；主食+蛋白+蔬菜各一份，油炸与含糖饮料少碰。';
+      $('agentMealOut').innerHTML = '<div class="callout">正在生成…</div>';
+      askAgent('meal', {
+        goal: eat.goal, exercise: currentEx().name, exerciseKcal: exerciseKcal(), budget: eat.budget,
+        dishes: c.dishes.map(function (d) { return { name: d.name, nutrition: NUTRITION.lookup(d.name) }; }),
+      }, local).then(function (r) {
+        $('agentMealOut').innerHTML = '<div class="callout">' + esc(r.text) + engineTag(r.engine) + '</div>';
+      });
+    };
     window.__lastCombos = combos;
   }
 
@@ -3587,19 +3705,34 @@ var CROWD_RULES = [
     $('btnRegenerateAfter').addEventListener('click', function () {
       if (!meals.length) { toast('还没有就餐记录'); return; }
       var latest = meals[meals.length - 1];
-      $('aiAdjustResult').innerHTML = '<div class="callout">🤖 ' + esc(API.localAdjustAnswer ? API.localAdjustAnswer({ eatenKcal: latest.kcal, goal: eat.goal, weightKg: eat.weight }) : '这一餐已记录，注意下一餐均衡。') + '</div>';
+      var local = API.localAdjustAnswer ? API.localAdjustAnswer({ eatenKcal: latest.kcal, goal: eat.goal, weightKg: eat.weight }) : '这一餐已记录，注意下一餐均衡。';
+      var box = $('aiAdjustResult');
+      box.innerHTML = '<div class="callout">正在生成…</div>';
+      askAgent('adjust', { eatenKcal: latest.kcal, goal: eat.goal, weightKg: eat.weight }, local).then(function (r) {
+        box.innerHTML = '<div class="callout">' + esc(r.text) + engineTag(r.engine) + '</div>';
+      });
     });
     $('btnBudgetAdvice').addEventListener('click', function () {
       var budget = +$('budgetInput').value;
       if (!budget || budget < 300) { toast('请输入合理月预算（≥300 元）'); return; }
       var past = spendingAvg();
-      $('budgetAdviceResult').innerHTML = '<div class="callout">🤖 ' + esc(API.localBudgetAnswer ? API.localBudgetAnswer({ budget: budget, pastAvg: past }) : '建议每天约 ' + Math.round(budget / 30) + ' 元。') + '</div>';
+      var local = API.localBudgetAnswer ? API.localBudgetAnswer({ budget: budget, pastAvg: past }) : '建议每天约 ' + Math.round(budget / 30) + ' 元。';
+      var box = $('budgetAdviceResult');
+      box.innerHTML = '<div class="callout">正在生成…</div>';
+      askAgent('budget', { budget: budget, pastAvg: past }, local).then(function (r) {
+        box.innerHTML = '<div class="callout">' + esc(r.text) + engineTag(r.engine) + '</div>';
+      });
     });
     $('btnSportAdvice').addEventListener('click', function () {
       var period = document.querySelector('#sportPeriodSeg .pill.active');
       period = period ? period.dataset.period : 'week';
       var s = sportStat(period);
-      $('sportAiAdvice').innerHTML = '<div class="callout">🤖 ' + esc(API.localSportAnswer ? API.localSportAnswer({ period: period, totalMin: s.min, totalKcal: s.kcal, sessions: s.sessions }) : '保持运动习惯。') + '</div>';
+      var local = API.localSportAnswer ? API.localSportAnswer({ period: period, totalMin: s.min, totalKcal: s.kcal, sessions: s.sessions }) : '保持运动习惯。';
+      var box = $('sportAiAdvice');
+      box.innerHTML = '<div class="callout">正在生成…</div>';
+      askAgent('sport', { period: period, totalMin: s.min, totalKcal: s.kcal, sessions: s.sessions }, local).then(function (r) {
+        box.innerHTML = '<div class="callout">' + esc(r.text) + engineTag(r.engine) + '</div>';
+      });
     });
     document.querySelectorAll('#sportPeriodSeg .pill').forEach(function (p) {
       p.addEventListener('click', function () {
@@ -3631,15 +3764,28 @@ var CROWD_RULES = [
 
   /* ================= 智能教练 ================= */
   function initCoach() {
-    appendMsg('ai', '你好！我是练完吃啥的智能教练 🤖\n运动训练、食堂饮食搭配、减脂增肌、体测提分都能问我。');
-    function send() {
-      var inp = $('coachInput'), q = inp.value.trim(); if (!q) return;
+    var st0 = agentState();
+    appendMsg('ai', '你好，我是你的运动营养教练 🤖\n训练、食堂搭配、减脂增肌、体测提分都能问我。\n' +
+      (st0.agentOnline ? '当前由 ' + st0.provider + ' · ' + st0.model + ' 回答。' : '（当前未接入大模型，下面回答由本地规则引擎生成。）'));
+
+    function show(t, text, engine) {
+      t.innerHTML = esc(text).replace(/\n/g, '<br>') + engineTag(engine);
+    }
+    function send(text) {
+      var inp = $('coachInput');
+      var q = (typeof text === 'string' ? text : inp.value).trim();
+      if (!q) return;
       appendMsg('user', q); inp.value = '';
       var t = appendMsg('ai', '…');
-      API.callAgent({ type: 'coach', question: q }).then(function (res) { t.textContent = res.text; });
+      var local = API.localCoachAnswer ? API.localCoachAnswer(q) : '（本地规则引擎）';
+      askAgent('coach', { question: q, profile: { goal: eat.goal, weightKg: eat.weight, gender: profile.gender } }, local)
+        .then(function (r) { show(t, r.text, r.engine); });
     }
-    $('btnCoachSend').addEventListener('click', send);
+    $('btnCoachSend').addEventListener('click', function () { send(); });
     $('coachInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
+    document.querySelectorAll('#quickAsk [data-ask]').forEach(function (b) {
+      b.onclick = function () { send(b.dataset.ask); };
+    });
 
     // 场景切换：三组预设，现场可当场换
     var scenes = {
@@ -3653,11 +3799,8 @@ var CROWD_RULES = [
         document.querySelectorAll('#scenarioRow [data-scene]').forEach(function (x) { x.classList.toggle('on', x === b); });
         appendMsg('user', s[0]);
         var t = appendMsg('ai', '…');
-        if (!API.getState().backendOnline) { t.textContent = s[1]; return; }
-        API.callAgent({ type: 'coach', question: s[0] }).then(function (res) {
-          var txt = (res && res.text || '').trim();
-          t.textContent = (txt && txt.length > 8) ? txt : s[1];
-        }).catch(function () { t.textContent = s[1]; });
+        askAgent('coach', { question: s[0] + '（请给具体、可执行、120 字以内的建议）' }, s[1])
+          .then(function (r) { show(t, r.text, r.engine); });
       };
     });
   }
@@ -3901,7 +4044,25 @@ var CROWD_RULES = [
       '<button class="pill" data-checkin="busy">⏰ 没时间</button>' +
       '</div><div id="ftCheckinMsg" style="margin-top:8px"></div></div>';
 
+    var ftGradeVal = (($('ftGrade') && $('ftGrade').value) || '大一');
+    html += '<div class="card agent-card"><h2><span class="icon">🤖</span> 教练解读</h2>' +
+      '<p class="hint">' + (agentOnline() ? '由大模型结合你的成绩给行动建议。' : '当前未接入大模型，由本地规则给建议。') + '</p>' +
+      '<button class="btn btn-soft btn-block" id="btnAgentFt">' +
+      (agentOnline() ? '让教练解读这次诊断' : '用本地规则给出 3 天安排') + '</button><div id="agentFtOut"></div></div>';
+
     box.innerHTML = html;
+    var ftCta = $('btnAgentFt');
+    if (ftCta) ftCta.onclick = function () {
+      var local = '先练' + (focusRun ? runItem : strengthItem) + '：' + plan.slice(0, 3).map(function (d) { return 'D' + d.day + ' ' + d.focus; }).join('；') + '。';
+      $('agentFtOut').innerHTML = '<div class="callout">正在生成…</div>';
+      askAgent('coach', {
+        question: '我' + (gender === 'male' ? '男' : '女') + '，' + ftGradeVal + '，' + daysLeft + ' 天后体测。耐力跑约 ' +
+          runScore + ' 分，' + (gender === 'male' ? '引体' : '仰卧起坐') + '约 ' + strengthScore + ' 分，总分 ' + total +
+          '。请给未来 3 天最优先的训练与饮食安排，120 字内。' + (injury ? '（我有伤病：' + injury + '）' : ''),
+      }, local).then(function (r) {
+        $('agentFtOut').innerHTML = '<div class="callout">' + esc(r.text) + engineTag(r.engine) + '</div>';
+      });
+    };
     box.querySelectorAll('[data-checkin]').forEach(function (b) {
       b.onclick = function () {
         var map = {
@@ -4021,11 +4182,20 @@ var CROWD_RULES = [
     $('btnDishClear').onclick = function () { dishQ = ''; s.value = ''; this.classList.add('hide'); renderDishGrid(); };
   }
 
+  function updateUploadHint() {
+    var box = $('uploadBox'); if (!box) return;
+    var v = !!agentState().vision;
+    box.textContent = v
+      ? '📷 上传菜单/菜品图片（视觉模型识别菜名）'
+      : '📷 上传菜单图片（只能识别文字，认不出菜品照片）';
+    box.title = v ? '已接入视觉模型' : '未接入视觉模型：仅文字识别（Tesseract）';
+  }
+
   async function init() {
     renderDateTime();
     initTabs(); initDrawer(); renderGoal(); renderExercise(); renderSource();
     renderCanteenTabs(); renderDishGrid(); renderConstraints(); initWeightInputs(); initUpload(); initPaceCalc(); initManualAdd();
-    initRecords(); initCoach(); initFitness(); initPracticeSeg(); initDishSearch();
+    initRecords(); initFitness(); initPracticeSeg(); initDishSearch();
     $('btnGenerate').addEventListener('click', generatePlan);
 
     if (window.CreditsUI) CreditsUI.init();
@@ -4035,9 +4205,10 @@ var CROWD_RULES = [
     $('weightInput').value = eat.weight || profile.weight;
     $('trainEndInput').value = eat.trainEnd || '';
 
-    var online = await API.checkBackend();
-    $('backendStatus').classList.toggle('off', !online);
-    $('backendStatusText').textContent = online ? '已连接 Agent' : '本地引擎';
+    await API.checkBackend();
+    renderAgentStatus();
+    updateUploadHint();
+    initCoach();
   }
 
   document.addEventListener('DOMContentLoaded', init);

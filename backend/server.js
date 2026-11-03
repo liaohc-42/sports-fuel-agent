@@ -66,13 +66,17 @@ function currentProvider() {
 // 健康检查
 app.get('/api/health', (req, res) => {
   const prov = currentProvider();
+  const model = prov === 'ollama' ? (process.env.OLLAMA_MODEL || 'qwen2.5')
+    : prov === 'deepseek' ? (process.env.DEEPSEEK_MODEL || 'deepseek-v4.1-flash')
+      : (process.env.GLM_MODEL || 'glm-4-flash');
+  const vision = !!(process.env.GLM_API_KEY || (process.env.OLLAMA_BASE_URL && process.env.OLLAMA_VISION_MODEL));
   res.json({
     ok: true,
     agent: prov !== 'local',
     provider: prov,
-    model: prov === 'ollama' ? (process.env.OLLAMA_MODEL || 'qwen2.5')
-      : prov === 'deepseek' ? (process.env.DEEPSEEK_MODEL || 'deepseek-chat')
-        : (process.env.GLM_MODEL || 'glm-4-flash'),
+    model: model,
+    vision: vision,
+    visionModel: vision ? (process.env.GLM_API_KEY ? (process.env.GLM_VISION_MODEL || 'glm-4v-flash') : process.env.OLLAMA_VISION_MODEL) : '',
     engine: prov === 'local' ? 'local' : prov,
   });
 });

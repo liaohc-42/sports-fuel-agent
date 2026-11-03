@@ -129,19 +129,21 @@ function pickProvider(override) {
   if (prov === 'deepseek') {
     var dk = (override && override.key) || process.env.DEEPSEEK_API_KEY;
     if (!dk) return null;
+    var dModel = process.env.DEEPSEEK_MODEL || 'deepseek-v4.1-flash';
     return {
-      name: 'DeepSeek',
+      name: 'DeepSeek·' + dModel,
       cfg: {},
-      call: function (cfg, messages) { return callOpenAICompatible('https://api.deepseek.com/chat/completions', dk, process.env.DEEPSEEK_MODEL || 'deepseek-chat', messages); },
+      call: function (cfg, messages) { return callOpenAICompatible('https://api.deepseek.com/chat/completions', dk, dModel, messages); },
     };
   }
   if (prov === 'glm') {
     var gk = (override && override.key) || process.env.GLM_API_KEY;
     if (!gk) return null;
+    var gModel = process.env.GLM_MODEL || 'glm-4-flash';
     return {
-      name: 'GLM-4-Flash',
+      name: 'GLM·' + gModel,
       cfg: {},
-      call: function (cfg, messages) { return callOpenAICompatible('https://open.bigmodel.cn/api/paas/v4/chat/completions', gk, process.env.GLM_MODEL || 'glm-4-flash', messages); },
+      call: function (cfg, messages) { return callOpenAICompatible('https://open.bigmodel.cn/api/paas/v4/chat/completions', gk, gModel, messages); },
     };
   }
   return null;
@@ -211,21 +213,25 @@ async function callOllamaVision(baseUrl, model, imageB64) {
   return (data.message && data.message.content) || '';
 }
 
-// 返回 {dishes, engine} 或 null（无可用视觉模型）
+// 返回 {dishes, engine} 或 null（无可用视觉模型 / 调用失败）
 async function recognizeFood(imageB64, mime) {
   var raw = null, engine = '';
-  if (process.env.GLM_API_KEY) {
-    raw = await callGLMVision(process.env.GLM_API_KEY, imageB64, mime);
-    engine = 'GLM-4V-Flash';
-  } else if (process.env.OLLAMA_BASE_URL && process.env.OLLAMA_VISION_MODEL) {
-    raw = await callOllamaVision(process.env.OLLAMA_BASE_URL, process.env.OLLAMA_VISION_MODEL, imageB64);
-    engine = 'Ollama·' + process.env.OLLAMA_VISION_MODEL;
-  } else {
-    return null;
+  try {
+    if (process.env.GLM_API_KEY) {
+      raw = await callGLMVision(process.env.GLM_API_KEY, imageB64, mime);
+      engine = 'GLM-4V-Flash';
+    } else if (process.env.OLLAMA_BASE_URL && process.env.OLLAMA_VISION_MODEL) {
+      raw = await callOllamaVision(process.env.OLLAMA_BASE_URL, process.env.OLLAMA_VISION_MODEL, imageB64);
+      engine = 'Ollama·' + process.env.OLLAMA_VISION_MODEL;
+    } else {
+      return null;
+    }
+  } catch (e) {
+    return null; // 视觉模型报错 → 交给前端回退到文字识别
   }
   var obj = parseJson(raw);
   var dishes = obj && Array.isArray(obj.dishes) ? obj.dishes.filter(function (x) { return typeof x === 'string' && x.trim(); }) : [];
   return { dishes: dishes, engine: engine };
 }
 
-module.exports = { runAgent, recognizeFood, buildPrompt, validate, parseJson, SYSTEM_PROMPT };
+module.exports = { runAgent, recognizeFood, buildPrompt, validate, parseJson, SYSTEM_PROMPT, pickProvider };
