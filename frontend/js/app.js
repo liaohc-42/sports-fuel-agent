@@ -920,7 +920,7 @@
     var strengthScore = scoreFromTable(count, gender === 'male' ? table.pullup : table.situp, false);
     var runGain = Math.max(0, scoreFromTable(Math.max(1, runSec - 10), table.run, true) - runScore);
     var strengthGain = Math.max(0, scoreFromTable(count + 2, gender === 'male' ? table.pullup : table.situp, false) - strengthScore);
-    var focusRun = runGain >= strengthGain;
+    var focusRun = runScore < strengthScore; // 短板优先：谁分低先练谁
     var runItem = gender === 'male' ? '1000米' : '800米', strengthItem = gender === 'male' ? '引体向上' : '仰卧起坐';
     var plan = buildFtPlan({ daysLeft: daysLeft, runItem: runItem, strengthItem: strengthItem, injury: injury });
 
@@ -938,9 +938,9 @@
     html += '</tbody></table></div>';
 
     html += '<div class="card"><h2><span class="icon">🎯</span> 提分诊断</h2>';
-    html += '<div class="callout green">🎯 <b>先练这项：' + (focusRun ? runItem : strengthItem) + '</b><br>';
-    if (focusRun) html += '当前 ' + runItem + ' ' + fmtSec(runSec) + '（约 ' + runScore + ' 分）。提 10 秒约 +' + runGain + ' 分。';
-    else html += '当前 ' + strengthItem + ' ' + count + ' 个（约 ' + strengthScore + ' 分）。+2 个约 +' + strengthGain + ' 分，比 ' + runItem + ' 提 10 秒(+' + runGain + ' 分)更划算。';
+    html += '<div class="callout green">🎯 <b>先练这项：' + (focusRun ? runItem : strengthItem) + '</b>（短板优先）<br>';
+    if (focusRun) html += '当前 ' + runItem + ' ' + fmtSec(runSec) + '（约 ' + runScore + ' 分），是短板；提 10 秒约 +' + runGain + ' 分。';
+    else html += '当前 ' + strengthItem + ' ' + count + ' 个（约 ' + strengthScore + ' 分），是短板；练到及格线即 60 分，提分空间最大。';
     html += '</div>';
     if (injury) html += '<div class="callout">⚠️ 检测到「' + esc(injury) + '」：训练已自动降载/换项。</div>';
     html += '</div>';
