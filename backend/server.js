@@ -14,7 +14,7 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-const { runAgent } = require('./api/agent');
+const { runAgent, recognizeFood } = require('./api/agent');
 
 const app = express();
 app.use(cors());
@@ -62,6 +62,21 @@ app.post('/api/agent', async (req, res) => {
     return res.json({ ok: false, engine: 'local', reason: '未配置任何后端大模型（GLM_API_KEY / DEEPSEEK_API_KEY / OLLAMA_BASE_URL）' });
   }
   res.json({ ok: true, text: result.text, engine: result.engine });
+});
+
+// 视觉识别：菜品图片 → 菜名（需后端视觉大模型）
+app.post('/api/vision', async (req, res) => {
+  const { image, mime } = req.body || {};
+  if (!image) return res.status(400).json({ ok: false, reason: '缺少图片' });
+  try {
+    const result = await recognizeFood(String(image), mime || 'image/jpeg');
+    if (!result) {
+      return res.json({ ok: false, engine: 'local', reason: '未配置视觉大模型（GLM_API_KEY 用 GLM-4V，或 OLLAMA_BASE_URL + OLLAMA_VISION_MODEL）' });
+    }
+    res.json({ ok: true, dishes: result.dishes, engine: result.engine });
+  } catch (e) {
+    res.status(500).json({ ok: false, engine: 'error', reason: e.message });
+  }
 });
 
 // 运行态设置 Key（可选）

@@ -537,9 +537,7 @@
     renderRecommendCards(combos, eat);
   }
 
-  /* ================= 配餐 · 菜单图片上传（OCR） ================= */
-  var OCR_LANG_PATH = 'https://cdn.jsdelivr.net/npm/@tesseract.js-data/chi_sim@1.0.0/4.0.0_best_int/';
-
+  /* ================= 配餐 · 菜品图片识别（后端视觉大模型） ================= */
   function initUpload() {
     var box = $('uploadBox'), file = $('menuFile'), preview = $('menuPreview'), ocrList = $('ocrList');
     box.onclick = function () { file.click(); };
@@ -547,67 +545,48 @@
       var f = file.files[0]; if (!f) return;
       var url = URL.createObjectURL(f);
       preview.src = url; preview.style.display = 'block';
-      ocrList.innerHTML = '<span class="muted">正在加载识别引擎…</span>';
+      ocrList.innerHTML = '<span class="muted">正在识别…</span>';
       runOcr(f);
     });
   }
 
-  function loadTesseract() {
+  function fileToBase64(file) {
     return new Promise(function (resolve, reject) {
-      if (window.Tesseract) return resolve(window.Tesseract);
-      var urls = [
-        'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js',
-        'https://unpkg.com/tesseract.js@5/dist/tesseract.min.js',
-        'https://cdn.staticfile.org/tesseract.js/5.1.1/tesseract.min.js',
-        'https://fastly.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js',
-      ];
-      var i = 0;
-      function tryNext() {
-        if (i >= urls.length) { reject(new Error('识别引擎加载失败')); return; }
-        var s = document.createElement('script');
-        s.src = urls[i++];
-        s.onload = function () { if (window.Tesseract) resolve(window.Tesseract); else tryNext(); };
-        s.onerror = function () { tryNext(); };
-        document.head.appendChild(s);
-      }
-      tryNext();
+      var reader = new FileReader();
+      reader.onload = function () { resolve(String(reader.result).split(',')[1] || ''); };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
     });
   }
 
   async function runOcr(file) {
     var ocrList = $('ocrList');
+    var base = API.API_BASE;
+    if (!base) {
+      ocrList.innerHTML = '<span class="muted">图片识别需要后端。请先启动后端（cd backend && npm start），并把 api.js 的 API_BASE 指向它。</span>';
+      return;
+    }
     try {
-      var T = await loadTesseract();
-      ocrList.innerHTML = '<span class="muted">正在下载中文识别模型（首次约 10–30 秒，之后会快很多）…</span>';
-      var res = await T.recognize(file, 'chi_sim', {
-        langPath: OCR_LANG_PATH,
-        logger: function (m) {
-          if (m && m.status === 'recognizing text' && m.progress != null) {
-            ocrList.innerHTML = '<span class="muted">识别中 ' + Math.round(m.progress * 100) + '%…</span>';
-          }
-        }
+      ocrList.innerHTML = '<span class="muted">正在用视觉大模型识别菜品（约 3–10 秒）…</span>';
+      var b64 = await fileToBase64(file);
+      var r = await fetch(base + '/api/vision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: b64, mime: file.type || 'image/jpeg' }),
+        signal: AbortSignal.timeout(30000),
       });
-      var text = (res && res.data && res.data.text) || '';
-      // 按行匹配菜品（避免整段误匹配）
-      var lines = String(text).split(/\n+/).map(function (l) { return l.trim(); }).filter(Boolean);
-      var pool = getPool();
-      var found = [];
-      pool.forEach(function (d) {
-        var nm = d.name;
-        var hit = lines.some(function (line) {
-          if (line.indexOf(nm) >= 0) return true;
-          return nm.length >= 3 && line.indexOf(nm.slice(0, 2)) >= 0;
-        });
-        if (hit) found.push(nm);
-      });
-      found = Array.from(new Set(found));
-      if (!found.length) {
-        ocrList.innerHTML = '<span class="muted">识别完成但没匹配到菜品名。可看下方预览，手动勾选或在「手动添加菜品」输入。</span>';
+      var j = await r.json();
+      if (!j.ok) {
+        ocrList.innerHTML = '<span class="muted">' + esc(j.reason || '视觉模型不可用') + '。请手动勾选或手动添加菜品。</span>';
         return;
       }
-      ocrList.innerHTML = found.map(function (nm) {
-        return '<span class="chip">' + esc(nm) + ' <a href="javascript:void(0)" style="color:var(--green)" data-ocr="' + esc(nm) + '">＋加入</a></span>';
-      }).join('') + '<p class="hint">点「＋加入」把这道菜加进已选。</p>';
+      var dishes = (j.dishes || []).filter(function (x) { return x && x.trim(); });
+      if (!dishes.length) { ocrList.innerHTML = '<span class="muted">没识别出菜品名，请手动勾选。</span>'; return; }
+      var known = getPool().map(function (d) { return d.name; });
+      ocrList.innerHTML = dishes.map(function (nm) {
+        var inPool = known.indexOf(nm) >= 0;
+        return '<span class="chip">' + esc(nm) + ' <a href="javascript:void(0)" style="color:var(--green)" data-ocr="' + esc(nm) + '">＋加入</a>' + (inPool ? '' : ' <small class="muted">(菜库无此菜)</small>') + '</span>';
+      }).join('') + '<p class="hint">识别引擎：' + esc(j.engine || '视觉模型') + '。点「＋加入」加进已选。</p>';
       ocrList.querySelectorAll('[data-ocr]').forEach(function (a) {
         a.onclick = function () {
           var nm = a.dataset.ocr;
@@ -617,7 +596,7 @@
         };
       });
     } catch (e) {
-      ocrList.innerHTML = '<span class="muted">OCR 失败（' + esc(e.message || '网络/离线') + '）。可看预览手动勾选，或在「手动添加菜品」输入。</span>';
+      ocrList.innerHTML = '<span class="muted">识别失败（' + esc(e.message || '网络/超时') + '）。请确认后端已启动并配置了视觉模型（GLM_API_KEY 或 OLLAMA_VISION_MODEL）。</span>';
     }
   }
 

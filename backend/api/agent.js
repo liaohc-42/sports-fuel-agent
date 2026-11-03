@@ -169,4 +169,63 @@ async function runAgent(type, payload, override) {
   return { text: fallback(type, payload), engine: prov.name + '·模板回退' };
 }
 
-module.exports = { runAgent, buildPrompt, validate, parseJson, SYSTEM_PROMPT };
+// ---------- 视觉识别（菜品图片 → 识别菜名） ----------
+const VISION_PROMPT = [
+  '识别这张图片里的菜品（可能是食堂窗口/菜单照片，也可能是单道菜）。',
+  '只输出 JSON，不要多余文字：{"dishes":["菜名1","菜名2"]}',
+  '菜名用中文、尽量简短（如"红烧肉""番茄炒蛋"）；识别不出就给空数组。',
+].join('\n');
+
+async function callGLMVision(apiKey, imageB64, mime) {
+  var url = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+  var resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+    body: JSON.stringify({
+      model: process.env.GLM_VISION_MODEL || 'glm-4v-flash',
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image_url', image_url: { url: 'data:' + (mime || 'image/jpeg') + ';base64,' + imageB64 } },
+          { type: 'text', text: VISION_PROMPT },
+        ],
+      }],
+      max_tokens: 400,
+      temperature: 0.2,
+    }),
+  });
+  if (!resp.ok) throw new Error('GLM-4V ' + resp.status + ' ' + (await resp.text()).slice(0, 160));
+  var data = await resp.json();
+  return (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
+}
+
+async function callOllamaVision(baseUrl, model, imageB64) {
+  var url = String(baseUrl).replace(/\/$/, '') + '/api/chat';
+  var resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: model, messages: [{ role: 'user', content: VISION_PROMPT, images: [imageB64] }], stream: false }),
+  });
+  if (!resp.ok) throw new Error('Ollama ' + resp.status);
+  var data = await resp.json();
+  return (data.message && data.message.content) || '';
+}
+
+// 返回 {dishes, engine} 或 null（无可用视觉模型）
+async function recognizeFood(imageB64, mime) {
+  var raw = null, engine = '';
+  if (process.env.GLM_API_KEY) {
+    raw = await callGLMVision(process.env.GLM_API_KEY, imageB64, mime);
+    engine = 'GLM-4V-Flash';
+  } else if (process.env.OLLAMA_BASE_URL && process.env.OLLAMA_VISION_MODEL) {
+    raw = await callOllamaVision(process.env.OLLAMA_BASE_URL, process.env.OLLAMA_VISION_MODEL, imageB64);
+    engine = 'Ollama·' + process.env.OLLAMA_VISION_MODEL;
+  } else {
+    return null;
+  }
+  var obj = parseJson(raw);
+  var dishes = obj && Array.isArray(obj.dishes) ? obj.dishes.filter(function (x) { return typeof x === 'string' && x.trim(); }) : [];
+  return { dishes: dishes, engine: engine };
+}
+
+module.exports = { runAgent, recognizeFood, buildPrompt, validate, parseJson, SYSTEM_PROMPT };
