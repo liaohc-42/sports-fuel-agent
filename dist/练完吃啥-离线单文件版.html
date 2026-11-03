@@ -982,9 +982,9 @@ window.SYSU_CANTEENS = [{"campus": "广州校区南校园", "canteens": [{"name"
 (function () {
   'use strict';
 
-  // ★ 后端地址（已部署到 Vercel）。留空 = 永远使用本地引擎。
-  //   注意：国内直连 *.vercel.app 可能被墙；前端有超时保护，连不上会自动降级本地引擎。
-  var API_BASE = 'https://sports-fuel-agent-backend.vercel.app';
+  // ★ 后端地址：指向本地后端（先 cd 到 backend 目录运行 `npm start`）。
+  //   留空 = 永远使用本地引擎（纯离线）；改成本地/其他 URL = 调用该后端。
+  var API_BASE = 'http://localhost:3000';
 
   var state = {
     backendOnline: false,

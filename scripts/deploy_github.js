@@ -52,7 +52,7 @@ async function api(method, url, body) {
 }
 
 // 需要忽略的目录/文件
-const SKIP = new Set(['node_modules', '.git', '.pnpm-store', '.dsh-office']);
+const SKIP = new Set(['node_modules', '.git', '.pnpm-store', '.dsh-office', '.vercel', '.env']);
 function collectFiles(dir, base) {
   const out = [];
   for (const name of fs.readdirSync(dir)) {
