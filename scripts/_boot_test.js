@@ -112,6 +112,26 @@ Promise.resolve(p).then(() => {
       var tenOk = /引体向上<\/td><td[^>]*>60<\/td>/.test(fr10);
       console.log('  [' + (tenOk ? 'OK' : 'FAIL') + '] 引体向上 10 个 → 60 分');
       if (!tenOk) process.exit(2);
+      // 大三/大四表：引体 11 个 → 60 分（官方及格线），且结果标注分组
+      documentStub.getElementById('ftPullup').value = '11';
+      documentStub.getElementById('ftGrade').value = '大三';
+      dia._handlers.click();
+      var frSenior = (elCache['ftResult'] && elCache['ftResult'].innerHTML) || '';
+      var seniorOk = /引体向上<\/td><td[^>]*>60<\/td>/.test(frSenior) && frSenior.indexOf('大三/大四') >= 0;
+      console.log('  [' + (seniorOk ? 'OK' : 'FAIL') + '] 大三/大四：引体 11 个 → 60 分 + 标注分组');
+      if (!seniorOk) process.exit(2);
+      // 50 米 7.0 秒：大一/大二 85 分，大三/大四 80 分（两组表确有差异）
+      documentStub.getElementById('ft50').value = '7.0';
+      documentStub.getElementById('ftGrade').value = '大一';
+      dia._handlers.click();
+      var s50Junior = (((elCache['ftResult'] || {}).innerHTML) || '');
+      var j85 = /50米跑<\/td><td[^>]*>85<\/td>/.test(s50Junior);
+      documentStub.getElementById('ftGrade').value = '大三';
+      dia._handlers.click();
+      var s50Senior = (((elCache['ftResult'] || {}).innerHTML) || '');
+      var j80 = /50米跑<\/td><td[^>]*>80<\/td>/.test(s50Senior);
+      console.log('  [' + (j85 && j80 ? 'OK' : 'FAIL') + '] 50米 7.0 秒 → 大一/大二 ' + (j85 ? 85 : '?') + ' / 大三/大四 ' + (j80 ? 80 : '?') + ' 分');
+      if (!(j85 && j80)) process.exit(2);
     } catch (e) { console.log('  [FAIL] 体测诊断抛错:', e && e.message); process.exit(2); }
   } else {
     console.log('  [WARN] 未捕获体测诊断点击处理');
