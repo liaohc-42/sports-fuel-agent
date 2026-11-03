@@ -537,7 +537,10 @@
     renderRecommendCards(combos, eat);
   }
 
-  /* ================= 配餐 · 菜品图片识别（后端视觉大模型） ================= */
+  /* ================= 配餐 · 菜品图片识别 =================
+   * 优先：后端视觉大模型（/api/vision，能识别"菜品照片"）
+   * 回退：Tesseract 文字识别（只认菜单上的文字，认不出菜品照片）
+   */
   function initUpload() {
     var box = $('uploadBox'), file = $('menuFile'), preview = $('menuPreview'), ocrList = $('ocrList');
     box.onclick = function () { file.click(); };
@@ -559,44 +562,99 @@
     });
   }
 
+  function renderOcrChips(ocrList, names, engineLabel) {
+    var known = getPool().map(function (d) { return d.name; });
+    ocrList.innerHTML = names.map(function (nm) {
+      var inPool = known.indexOf(nm) >= 0;
+      return '<span class="chip">' + esc(nm) + ' <a href="javascript:void(0)" style="color:var(--green)" data-ocr="' + esc(nm) + '">＋加入</a>' + (inPool ? '' : ' <small class="muted">(菜库无此菜)</small>') + '</span>';
+    }).join('') + (engineLabel ? '<p class="hint">' + engineLabel + '</p>' : '');
+    ocrList.querySelectorAll('[data-ocr]').forEach(function (a) {
+      a.onclick = function () {
+        var nm = a.dataset.ocr;
+        if (eat.selected.indexOf(nm) < 0) eat.selected.push(nm);
+        save(LS.eat, eat); renderDishGrid(); updateStats();
+        a.textContent = '已加入'; a.style.color = 'var(--ink-3)';
+      };
+    });
+  }
+
   async function runOcr(file) {
     var ocrList = $('ocrList');
     var base = API.API_BASE;
-    if (!base) {
-      ocrList.innerHTML = '<span class="muted">图片识别需要后端。请先启动后端（cd backend && npm start），并把 api.js 的 API_BASE 指向它。</span>';
-      return;
+    // 1) 优先后端视觉大模型
+    if (base) {
+      try {
+        ocrList.innerHTML = '<span class="muted">正在用视觉大模型识别菜品（约 3–10 秒）…</span>';
+        var b64 = await fileToBase64(file);
+        var r = await fetch(base + '/api/vision', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: b64, mime: file.type || 'image/jpeg' }),
+          signal: AbortSignal.timeout(30000),
+        });
+        var j = await r.json();
+        if (j && j.ok) {
+          var dishes = (j.dishes || []).filter(function (x) { return x && x.trim(); });
+          if (!dishes.length) { ocrList.innerHTML = '<span class="muted">视觉模型没识别出菜名，可手动勾选。</span>'; return; }
+          renderOcrChips(ocrList, dishes, '识别引擎：' + esc(j.engine || '视觉模型') + '。点「＋加入」加进已选。');
+          return;
+        }
+      } catch (e) { /* 后端不可用 → 回退 */ }
     }
+    // 2) 回退：Tesseract 文字识别（只认文字）
+    await runTesseract(file);
+  }
+
+  function loadTesseract() {
+    return new Promise(function (resolve, reject) {
+      if (window.Tesseract) return resolve(window.Tesseract);
+      var urls = [
+        'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js',
+        'https://unpkg.com/tesseract.js@5/dist/tesseract.min.js',
+        'https://cdn.staticfile.org/tesseract.js/5.1.1/tesseract.min.js',
+        'https://fastly.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js',
+      ];
+      var i = 0;
+      function tryNext() {
+        if (i >= urls.length) { reject(new Error('OCR 引擎加载失败')); return; }
+        var s = document.createElement('script');
+        s.src = urls[i++];
+        s.onload = function () { if (window.Tesseract) resolve(window.Tesseract); else tryNext(); };
+        s.onerror = function () { tryNext(); };
+        document.head.appendChild(s);
+      }
+      tryNext();
+    });
+  }
+
+  async function runTesseract(file) {
+    var ocrList = $('ocrList');
+    ocrList.innerHTML = '<span class="muted">视觉模型未配置，改用<b>文字识别（OCR）</b>——<b>只能识别菜单上的文字，无法识别菜品照片</b>。' +
+      '（想识别菜品照片，请在后端配置 GLM_API_KEY 或 OLLAMA_VISION_MODEL）</span>' +
+      '<span class="muted" style="display:block;margin-top:6px">正在加载 OCR 引擎…</span>';
     try {
-      ocrList.innerHTML = '<span class="muted">正在用视觉大模型识别菜品（约 3–10 秒）…</span>';
-      var b64 = await fileToBase64(file);
-      var r = await fetch(base + '/api/vision', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: b64, mime: file.type || 'image/jpeg' }),
-        signal: AbortSignal.timeout(30000),
+      var T = await loadTesseract();
+      var res = await T.recognize(file, 'chi_sim', {
+        langPath: 'https://cdn.jsdelivr.net/npm/@tesseract.js-data/chi_sim@1.0.0/4.0.0_best_int/',
       });
-      var j = await r.json();
-      if (!j.ok) {
-        ocrList.innerHTML = '<span class="muted">' + esc(j.reason || '视觉模型不可用') + '。请手动勾选或手动添加菜品。</span>';
+      var text = (res && res.data && res.data.text) || '';
+      var lines = String(text).split(/\n+/).map(function (l) { return l.trim(); }).filter(Boolean);
+      var pool = getPool();
+      var found = [];
+      pool.forEach(function (d) {
+        var nm = d.name;
+        if (lines.some(function (line) { return line.indexOf(nm) >= 0 || (nm.length >= 3 && line.indexOf(nm.slice(0, 2)) >= 0); })) found.push(nm);
+      });
+      found = Array.from(new Set(found));
+      if (!found.length) {
+        ocrList.innerHTML = '<span class="muted">文字识别完成，但没在图片里找到菜单文字/菜名。' +
+          '<br><b>这通常是因为上传的是「菜品照片」而不是「菜单文字截图」</b>——文字识别只能认字，认不出菜。' +
+          '<br>可手动勾选，或配置视觉模型后重试。</span>';
         return;
       }
-      var dishes = (j.dishes || []).filter(function (x) { return x && x.trim(); });
-      if (!dishes.length) { ocrList.innerHTML = '<span class="muted">没识别出菜品名，请手动勾选。</span>'; return; }
-      var known = getPool().map(function (d) { return d.name; });
-      ocrList.innerHTML = dishes.map(function (nm) {
-        var inPool = known.indexOf(nm) >= 0;
-        return '<span class="chip">' + esc(nm) + ' <a href="javascript:void(0)" style="color:var(--green)" data-ocr="' + esc(nm) + '">＋加入</a>' + (inPool ? '' : ' <small class="muted">(菜库无此菜)</small>') + '</span>';
-      }).join('') + '<p class="hint">识别引擎：' + esc(j.engine || '视觉模型') + '。点「＋加入」加进已选。</p>';
-      ocrList.querySelectorAll('[data-ocr]').forEach(function (a) {
-        a.onclick = function () {
-          var nm = a.dataset.ocr;
-          if (eat.selected.indexOf(nm) < 0) eat.selected.push(nm);
-          save(LS.eat, eat); renderDishGrid(); updateStats();
-          a.textContent = '已加入'; a.style.color = 'var(--ink-3)';
-        };
-      });
+      renderOcrChips(ocrList, found, '识别方式：<b>文字识别（OCR，仅认菜单文字）</b>。点「＋加入」加进已选。');
     } catch (e) {
-      ocrList.innerHTML = '<span class="muted">识别失败（' + esc(e.message || '网络/超时') + '）。请确认后端已启动并配置了视觉模型（GLM_API_KEY 或 OLLAMA_VISION_MODEL）。</span>';
+      ocrList.innerHTML = '<span class="muted">OCR 失败（' + esc(e.message || '网络/离线') + '）。可看预览手动勾选，或在「手动添加菜品」输入。</span>';
     }
   }
 
