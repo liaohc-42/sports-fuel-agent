@@ -1441,6 +1441,16 @@
     renderAgentStatus();
     updateUploadHint();
     initCoach();
+
+    // 深链：?tab=eat / practice / coach / venue / records / me / fitness / credits
+    var startTab = (typeof location !== 'undefined' && (location.search.match(/[?&]tab=([a-z]+)/) || [])[1]) || '';
+    if (startTab === 'fitness' || startTab === 'credits') {
+      showTab('practice');
+      var ptab = document.querySelector('#practiceSeg [data-ptab="' + startTab + '"]');
+      if (ptab) ptab.click();
+    } else if (startTab) {
+      showTab(startTab);
+    }
   }
 
   document.addEventListener('DOMContentLoaded', init);
