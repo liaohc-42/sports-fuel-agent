@@ -8,17 +8,18 @@ const OUT = path.join(ROOT, 'dist', '练完吃啥-离线单文件版.html');
 
 let html = fs.readFileSync(path.join(FRONT, 'index.html'), 'utf8');
 
-// 内联 CSS
+// 内联 CSS（兼容 ?v= 缓存版本号）
 const css = fs.readFileSync(path.join(FRONT, 'css', 'style.css'), 'utf8');
-html = html.replace(/<link rel="stylesheet" href="css\/style\.css" \/>/, '<style>\n' + css + '\n</style>');
+html = html.replace(/<link rel="stylesheet" href="css\/style\.css(?:\?v=[^"]*)?" \/>/, '<style>\n' + css + '\n</style>');
 
-// 内联 JS（保持加载顺序）
+// 内联 JS（保持加载顺序；兼容标签上的 ?v= 查询串）
 const scripts = ['data/nutrition.js', 'data/exercise.js', 'data/canteen.js', 'data/dishes.js', 'data/credits.js', 'data/venues.js', 'js/api.js', 'js/credits.js', 'js/venues.js', 'js/campus.js', 'js/app.js'];
+const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 for (const s of scripts) {
   const code = fs.readFileSync(path.join(FRONT, s), 'utf8');
-  const tag = '<script src="' + s + '"></script>';
-  if (!html.includes(tag)) { console.log('WARN 未找到标签: ' + tag); continue; }
-  html = html.replace(tag, '<script>\n' + code + '\n</script>');
+  const re = new RegExp('<script src="' + escRe(s) + '(?:\\?v=[^"]*)?"></script>');
+  if (!re.test(html)) { console.log('WARN 未找到标签: ' + s); continue; }
+  html = html.replace(re, '<script>\n' + code + '\n</script>');
 }
 
 // 加生成标记

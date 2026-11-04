@@ -22,10 +22,10 @@ ok('Ollama 被识别', /^Ollama/.test(a.pickProvider({}).name));
 process.env.DEEPSEEK_API_KEY = 'sk-test';
 delete process.env.OLLAMA_BASE_URL;
 const d = a.pickProvider({});
-ok('DeepSeek 默认模型 = deepseek-v4.1-flash', /deepseek-v4\.1-flash/.test(d.name));
+ok('DeepSeek 默认模型 = deepseek-flash', /deepseek-flash/.test(d.name));
 
-process.env.DEEPSEEK_MODEL = 'deepseek-chat';
-ok('DeepSeek 模型可被环境变量覆盖', /deepseek-chat/.test(a.pickProvider({}).name));
+process.env.DEEPSEEK_MODEL = 'deepseek-v4-pro';
+ok('DeepSeek 模型可被环境变量覆盖', /deepseek-v4-pro/.test(a.pickProvider({}).name));
 
 delete process.env.DEEPSEEK_API_KEY;
 process.env.GLM_API_KEY = 'glm-test';

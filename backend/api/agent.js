@@ -129,7 +129,7 @@ function pickProvider(override) {
   if (prov === 'deepseek') {
     var dk = (override && override.key) || process.env.DEEPSEEK_API_KEY;
     if (!dk) return null;
-    var dModel = process.env.DEEPSEEK_MODEL || 'deepseek-v4.1-flash';
+    var dModel = process.env.DEEPSEEK_MODEL || 'deepseek-flash';
     return {
       name: 'DeepSeek·' + dModel,
       cfg: {},

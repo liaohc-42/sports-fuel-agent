@@ -178,7 +178,7 @@ GLM_MODEL=glm-4-flash
 
 # 方案二：DeepSeek（Key 形如 sk-xxx）
 DEEPSEEK_API_KEY=你的DeepSeekKey
-DEEPSEEK_MODEL=deepseek-chat
+DEEPSEEK_MODEL=deepseek-flash
 
 # 方案三：Ollama 本地大模型（不联网、不花钱）
 OLLAMA_BASE_URL=http://localhost:11434

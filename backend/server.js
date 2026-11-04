@@ -67,7 +67,7 @@ function currentProvider() {
 app.get('/api/health', (req, res) => {
   const prov = currentProvider();
   const model = prov === 'ollama' ? (process.env.OLLAMA_MODEL || 'qwen2.5')
-    : prov === 'deepseek' ? (process.env.DEEPSEEK_MODEL || 'deepseek-v4.1-flash')
+    : prov === 'deepseek' ? (process.env.DEEPSEEK_MODEL || 'deepseek-flash')
       : (process.env.GLM_MODEL || 'glm-4-flash');
   const vision = !!(process.env.GLM_API_KEY || (process.env.OLLAMA_BASE_URL && process.env.OLLAMA_VISION_MODEL));
   // 三通道配置状态（只暴露布尔值，不泄露 Key）
@@ -144,7 +144,7 @@ app.get('/', (req, res) => {
     '  POST /api/admin/set-key 运行态设置 Key(需 ADMIN_TOKEN)\n' +
     '\n配置（环境变量）：\n' +
     '  GLM_API_KEY        智谱 GLM-4-Flash\n' +
-    '  DEEPSEEK_API_KEY   DeepSeek（deepseek-chat）\n' +
+    '  DEEPSEEK_API_KEY   DeepSeek（deepseek-flash / deepseek-v4-pro）\n' +
     '  OLLAMA_BASE_URL    Ollama 本地服务，如 http://localhost:11434\n' +
     '  OLLAMA_MODEL       Ollama 模型名，如 qwen2.5\n'
   );

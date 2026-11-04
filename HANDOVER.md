@@ -108,7 +108,8 @@ sports-fuel-agent/
    - 主入口是「🤖 教练」tab（不是二级菜单）；另外三个入口：配餐结果「让教练点评这顿」、体测诊断「让教练解读短板」、记录页的运动/花销/调整建议。
    - `frontend/js/api.js` 的 `checkBackend()` 区分 **`backendReachable`（后端进程在）** 与 **`agentOnline`（真配了模型）**；只有后者才显示「已连接」。
    - 每条 AI 回答下方都有 `engineTag()`：模型生成标 🤖 + 模型名；本地生成标「📋 本地规则引擎生成」。**没接模型就不冒充 AI。**
-   - 后端三选一：`GLM_API_KEY` / `DEEPSEEK_API_KEY`（默认 `deepseek-v4.1-flash`）/ `OLLAMA_BASE_URL`；`PROVIDER` 可强制指定，见 `scripts/_test_providers.js`。
+   - 后端三选一：`GLM_API_KEY` / `DEEPSEEK_API_KEY`（默认 `deepseek-flash`，另一可选 `deepseek-v4-pro`）/ `OLLAMA_BASE_URL`；`PROVIDER` 可强制指定，见 `scripts/_test_providers.js`。
+   - ⚠️ DeepSeek 官方**不存在** `DeepSeek-V4.1-Flash` 这个名字（API 只认 `deepseek-flash` / `deepseek-v4-pro` / 兼容别名 `deepseek-chat`），写错会 400。
    - 图片识别：`/api/health` 返回 `vision` 布尔值；有视觉模型时上传框写「视觉模型识别菜名」，没有时写「只能识别文字，认不出菜品照片」，Tesseract 回退时也会再次标注。
 
 ## 五、环境注意事项（重要）
@@ -169,22 +170,23 @@ npm start        # http://localhost:3000
 | `_test_campus.js` | 积分雷达数据完整性 + 场馆两级兜底判定（高峰/空闲/闭馆/教学占用） |
 | `_smoke_test.js` | 营养/热量/评分核心逻辑 |
 | `_test_agent.js` | 后端 JSON Schema 校验 + 回退 |
-| `_test_providers.js` | 模型选择：GLM / DeepSeek（deepseek-v4.1-flash）/ Ollama + 无 Key 返回 null |
+| `_test_providers.js` | 模型选择：GLM / DeepSeek（deepseek-flash）/ Ollama + 无 Key 返回 null |
 | `_check_ids.js` / `_check_refs.js` | 前端 ID / 资源引用一致性 |
-| `_verify_live.js` | 线上站点 16 项检查 |
+| `_verify_live.js` | 线上站点 25 项检查 |
 
-## 九、测试状态（最后验证 2026-11-03）
+## 九、测试状态（最后验证 2026-11-04）
 
 - `_boot_test.js`：全部 OK（init 无异常、推荐引擎出卡、体测全项目+专项计划、引体 0→0 / 10→60（大一/大二）/ 11→60（大三/大四）、50 米 7.0 → 85（大一）/ 80（大三））
 - `_boot_campus.js`：ALL PASS（整站 init；积分雷达列表/详情、场馆、约运动、装备、我的 均渲染成功）
 - `_smoke_test.js`：ALL PASS（含官方表关键分档 eq 断言）
 - `_test_agent.js`：ALL PASS
+- `_test_providers.js`：ALL PASS（GLM / DeepSeek `deepseek-flash` / Ollama 三通道 + 无 Key 返回 null + 视觉无模型返回 null）
 - `_test_campus.js`：ALL PASS（13 条机会、五校区坐标、英东 20:45 高峰 / 07:00 空闲、珠海游泳馆周一闭馆、东校园篮球场教学占用）
-- `_check_ids.js`：104 个 ID 一致
+- `_check_ids.js`：110 个 ID 一致
 - `_check_refs.js`：12 项资源有效
-- `_verify_live.js`：23 项线上检查 PASS（新增积分雷达、场馆、菜品搜索、目标分段、场景切换）
+- `_verify_live.js`：25 项线上检查 PASS（含积分雷达、场馆、菜品搜索、目标分段、场景切换、教练主入口、Agent 状态标注）
 
-> ✅ **已于 2026-11-03 部署到线上并验证**：线上 `js/app.js` 已含 `FT_BMI`、「按年级自动切换」提示已上线，`_verify_live.js` **18 项全 PASS**。部署脚本已改为按二进制读文件，线上 PPT 的 SHA256 与本地一致（此前会把 pptx 传坏）。
+> ✅ **2026-11-03 / 04 已部署并验证**：GitHub Pages 与阿里云 ECS 均为最新版；ECS 后端 `/api/health` 已返回 `vision` 与 `channels:{glm,deepseek,ollama}`（当前三通道均为 false，因为 `.env` 里 Key 为空）。
 
 ---
 
