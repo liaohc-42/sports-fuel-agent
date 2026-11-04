@@ -4,7 +4,7 @@ import os
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN
+from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.oxml.ns import qn
 
@@ -71,7 +71,31 @@ def text(slide, x, y, w, h, s, size=14, bold=False, color=INK, align=PP_ALIGN.LE
 
 
 def bg(slide, color=CREAM):
-    rect(slide, 0, 0, 13.333, 7.5, fill=color)
+    slide.shapes.add_picture(os.path.join(IMG, 'bg.jpg'), 0, 0, prs.slide_width, prs.slide_height)
+
+
+# 讲者标签：页边缘的 A/B/C/D 圆章 + 时间段
+SPEAKERS = [('A', '0:20–0:55'), ('A', '0:55–1:35'), ('A', '1:35–2:00'),
+            ('B', '2:00–3:10'), ('B', '3:10–4:00'),
+            ('C', '4:00–5:10'), ('C', '5:10–6:10'), ('C', '6:10–6:30'),
+            ('D', '6:30–7:00'), ('D', '7:00–7:20'), ('D', '7:20–7:40'),
+            ('全员', '排练')]
+_sp = {'i': 0}
+
+
+def speaker(slide, who, when, light=False):
+    color = BRICK if who == 'D' else (MUTED if who == '全员' else GREEN)
+    c = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(11.6), Inches(0.48), Inches(0.44), Inches(0.44))
+    c.fill.solid(); c.fill.fore_color.rgb = color
+    c.line.color.rgb = INK; c.line.width = Pt(1.0)
+    c.shadow.inherit = False
+    tf = c.text_frame
+    tf.margin_left = 0; tf.margin_right = 0; tf.margin_top = 0; tf.margin_bottom = 0
+    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+    p = tf.paragraphs[0]; p.alignment = PP_ALIGN.CENTER
+    r = p.add_run(); r.text = '全' if who == '全员' else who
+    r.font.size = Pt(12); r.font.bold = True; r.font.color.rgb = WHITE; r.font.name = FONT
+    text(slide, 9.9, 0.55, 1.55, 0.3, when, 9, False, LINE if light else MUTED, align=PP_ALIGN.RIGHT)
 
 
 def footer(slide, n, section):
@@ -87,9 +111,9 @@ def notes(slide, s):
 
 def head(slide, section, title, subtitle=None):
     text(slide, ML, 0.52, 8, 0.28, section.upper(), 10, True, BRICK)
-    text(slide, ML, 0.8, 11.6, 0.62, title, 27, True, INK, spacing=1.1)
+    text(slide, ML, 0.8, 10.2, 0.62, title, 27, True, INK, spacing=1.1)
     if subtitle:
-        text(slide, ML, 1.36, 11.6, 0.35, subtitle, 12, False, MUTED)
+        text(slide, ML, 1.36, 10.6, 0.35, subtitle, 12, False, MUTED)
 
 
 def bullet_block(slide, items, x=ML, w=TEXT_W, block_y=BODY_Y, block_h=PIC_H):
@@ -120,6 +144,9 @@ def pic_card(slide, path, caption):
 def new(section, title, subtitle=None):
     s = prs.slides.add_slide(BLANK); bg(s)
     head(s, section, title, subtitle)
+    who, when = SPEAKERS[_sp['i']] if _sp['i'] < len(SPEAKERS) else ('D', '')
+    _sp['i'] += 1
+    speaker(s, who, when)
     footer(s, len(prs.slides), section)
     return s
 
@@ -135,6 +162,7 @@ text(s, ML, 3.8, 7.2, 1.0, "运动消耗的，吃回来；\n校园里的运动�
 text(s, ML, 5.55, 7.2, 0.9,
      "演示  http://sportsfuel.120.78.120.161.nip.io/\n源码  github.com/liaohc-42/sports-fuel-agent", 11, False, LINE)
 text(s, ML, 6.55, 7.2, 0.3, "汇报 8 分钟 ｜ 提问 2 分钟 ｜ 4 人分工", 10, False, RGBColor(0xB9, 0xAE, 0x9D))
+speaker(s, 'A', '0:00–0:20', light=True)
 notes(s, "【讲者A｜0:00–0:20】\n各位评委老师好，我们是「练完吃啥」团队，主题词是「运动」。\n"
          "一句话：练完怎么吃、校园里怎么练、去哪练。演示地址在左下角，也可扫码。")
 
@@ -276,7 +304,7 @@ text(s, ML, BODY_Y + 3.35, CW, 0.7, "边界：无账号体系（数据本机）�
 notes(s, "【讲者D｜7:20–7:40】\n用证据收尾：测试、数据、部署。主动说边界比被问出来好。")
 
 # 13 演示动线
-s = new("Runbook", "现场动线：谁、讲多久、点什么")
+s = new("Runbook", "排练用：谁、讲多久、点什么", "正式页右上角已标注讲者与时间段，这里只做排练速查")
 plan = [("A", "0:00–2:00", "开场 → 痛点 → 总览", "停在封面讲"),
         ("B", "2:00–4:00", "吃：定目标 → 搜「鸡」→ 生成", "指宏量条"),
         ("C", "4:00–6:30", "练：雷达 → 体测 → 场馆", "改成绩看榜"),
@@ -306,6 +334,7 @@ text(s, ML, 5.65, 7.4, 1.2,
 rect(s, 9.35, 1.55, 2.5, 2.5, fill=RGBColor(0xFF, 0xFF, 0xFF), line=INK)
 s.shapes.add_picture(QR, Inches(9.47), Inches(1.67), Inches(2.26), Inches(2.26))
 text(s, 9.1, 4.2, 3.0, 0.9, "扫码体验\n演示入口 / 手机可用", 11, False, MUTED, align=PP_ALIGN.CENTER, spacing=1.35)
+speaker(s, 'D', '7:40–8:00')
 footer(s, 14, "End")
 notes(s, "【讲者D｜7:40–8:00】\n最后一句话说完就停。\nQ&A：D 主答，B 补饮食、C 补运动、A 补赛制。")
 
