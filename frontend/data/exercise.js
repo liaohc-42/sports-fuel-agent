@@ -9,6 +9,9 @@
   const LIB = {
     '有氧': [
       { id: 'run', name: '跑步', met: 9, note: '配速约 6 分/公里' },
+      { id: 'longrun', name: '长跑月', met: 9, note: '3km / 30min 打卡（校园积分活动）' },
+      { id: 'orienteer', name: '定向越野', met: 9, note: '校园定向赛（积分活动）' },
+      { id: 'skate', name: '轮滑', met: 7, note: '刷街/休闲滑行' },
       { id: 'walk', name: '快走', met: 4.5, note: '约 6 公里/小时' },
       { id: 'hike', name: '徒步', met: 5, note: '平地快步' },
       { id: 'climb', name: '登山', met: 7, note: '爬坡/负重' },
@@ -33,6 +36,7 @@
       { id: 'str-low', name: '下肢', met: 5, note: '深蹲/弓步/臀桥' },
       { id: 'str-core', name: '核心', met: 3.8, note: '平板/卷腹/死虫' },
       { id: 'str-full', name: '全身', met: 6, note: '杠铃/哑铃综合' },
+      { id: 'fitness-class', name: '体能训练', met: 8, note: '体能提高班/循环训练' },
     ],
     '球类': [
       { id: 'basket', name: '篮球', met: 6.5, note: '半场对抗' },
@@ -46,6 +50,8 @@
       { id: 'yoga', name: '瑜伽', met: 3, note: '流瑜伽/拉伸' },
       { id: 'pilates', name: '普拉提', met: 3, note: '核心控制' },
       { id: 'taichi', name: '太极', met: 3, note: '慢速练习' },
+      { id: 'taekwondo', name: '跆拳道', met: 10, note: '社团体验课/对抗' },
+      { id: 'dragonboat', name: '龙舟', met: 10, note: '晨训/团队划桨' },
     ],
   };
 

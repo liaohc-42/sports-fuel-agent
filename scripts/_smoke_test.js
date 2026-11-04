@@ -31,6 +31,9 @@ console.log('  targetMacros(减脂,60) =', JSON.stringify(NUTRITION.targetMacros
 eq('calcKcal(10,65,30)', EXERCISE.calcKcal(10, 65, 30), 341);
 eq('calcBMR(male,65,175,19)', EXERCISE.calcBMR('male', 65, 175, 19), Math.round(10*65+6.25*175-5*19+5));
 eq('find(run).met', EXERCISE.find('run').met, 9);
+eq('长跑月已加入运动项目', EXERCISE.find('longrun').name, '长跑月');
+eq('定向越野已加入运动项目', EXERCISE.find('orienteer').name, '定向越野');
+eq('跆拳道 MET', EXERCISE.find('taekwondo').met, 10);
 
 // 食堂数据
 console.log('  校区数 =', window.SYSU_CANTEENS.length);
@@ -51,18 +54,20 @@ console.log('  plan2(减脂) combo0 =', JSON.stringify(plan2.combos[0].dishes.ma
 // 体测评分（独立复刻《2014 标准》官方表，交叉验证 app.js）
 const FTJ = {
   run: {100:197,95:202,90:207,85:214,80:222,78:227,76:232,74:237,72:242,70:247,68:252,66:257,64:262,62:267,60:272,50:292,40:312,30:332,20:352,10:372},
-  pullup:{100:19,95:18,90:17,85:16,80:15,76:14,72:13,68:12,64:11,60:10,50:9,40:8,30:7,20:6,10:5,0:0}
+  pullup:{100:19,95:18,90:17,85:16,80:15,76:14,72:13,68:12,64:11,60:10,50:9,40:8,30:7,20:6,10:5}
 };
 const FTS = { // 大三、大四
   run: {100:195,95:200,90:205,85:212,80:220,78:225,76:230,74:235,72:240,70:245,68:250,66:255,64:260,62:265,60:270,50:290,40:310,30:330,20:350,10:370},
-  pullup:{100:20,95:19,90:18,85:17,80:16,76:15,72:14,68:13,64:12,60:11,50:10,40:9,30:8,20:7,10:6,0:0}
+  pullup:{100:20,95:19,90:18,85:17,80:16,76:15,72:14,68:13,64:12,60:11,50:10,40:9,30:8,20:7,10:6}
 };
-function scoreFromTable(val, table, lowerBetter){var pts=Object.keys(table).map(Number).sort((a,b)=>b-a); var maxS=pts[0], minS=pts[pts.length-1]; if(lowerBetter?val<=table[maxS]:val>=table[maxS])return maxS; if(lowerBetter?val>=table[minS]:val<=table[minS])return minS; for(var i=0;i<pts.length-1;i++){var hi=pts[i],lo=pts[i+1],hiV=table[hi],loV=table[lo]; if(lowerBetter?(val>=hiV&&val<=loV):(val<=hiV&&val>=loV)){var r=(val-hiV)/(loV-hiV); return Math.round(hi+(lo-hi)*r);}} return minS;}
+function scoreFromTable(val, table, lowerBetter){var pts=Object.keys(table).map(Number).sort((a,b)=>b-a); var maxS=pts[0], minS=pts[pts.length-1]; if(lowerBetter?val<=table[maxS]:val>=table[maxS])return maxS; if(lowerBetter?val>table[minS]:val<table[minS])return 0; if(val===table[minS])return minS; for(var i=0;i<pts.length-1;i++){var hi=pts[i],lo=pts[i+1],hiV=table[hi],loV=table[lo]; if(lowerBetter?(val>=hiV&&val<=loV):(val<=hiV&&val>=loV)){var r=(val-hiV)/(loV-hiV); return Math.round(hi+(lo-hi)*r);}} return minS;}
 // 关键分档锁定（官方原表）
 eq('1000米 4:32(272s) 大一/大二', scoreFromTable(272, FTJ.run, true), 60);
 eq('引体 10 个 大一/大二', scoreFromTable(10, FTJ.pullup, false), 60);
 eq('引体 11 个 大三/大四', scoreFromTable(11, FTS.pullup, false), 60);
 eq('引体 0 个', scoreFromTable(0, FTJ.pullup, false), 0);
+eq('引体 4 个（未到最低档）', scoreFromTable(4, FTJ.pullup, false), 0);
+eq('引体 5 个（最低档）', scoreFromTable(5, FTJ.pullup, false), 10);
 // 1000米 4'35" = 275s
 console.log('  1000米 4:35(275s) 得分 =', scoreFromTable(275, FTJ.run, true));
 console.log('  引体 3个 得分 =', scoreFromTable(3, FTJ.pullup, false));

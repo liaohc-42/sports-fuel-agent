@@ -22,17 +22,17 @@
   </header>
 
   <nav class="tabs" id="tabs">
-    <button data-tab="eat" class="active">🍚 吃</button>
-    <button data-tab="records">📊 记录</button>
-    <button data-tab="practice">🎯 练</button>
-    <button data-tab="venue">🏟️ 场馆</button>
+    <button data-tab="practice" class="active">🎯 练</button>
+    <button data-tab="eat">🍚 吃</button>
     <button data-tab="coach">🤖 教练</button>
+    <button data-tab="venue">🏟️ 场馆</button>
+    <button data-tab="records">📊 记录</button>
     <button data-tab="me" id="btnProfile">👤 我的</button>
   </nav>
 
   <main>
     <!-- ================= 吃 ================= -->
-    <section class="tab active" id="tab-eat">
+    <section class="tab" id="tab-eat">
       <div class="card paper-hero eat-hero">
         <div class="hero-top">
           <div>
@@ -183,7 +183,7 @@
     </section>
 
     <!-- ================= 练（积分雷达 + 体测） ================= -->
-    <section class="tab" id="tab-practice">
+    <section class="tab active" id="tab-practice">
       <div class="seg practice-seg" id="practiceSeg">
         <button class="pill active" data-ptab="credits">🎯 积分雷达</button>
         <button class="pill" data-ptab="fitness">🚑 体测急救站</button>

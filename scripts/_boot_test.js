@@ -105,6 +105,13 @@ Promise.resolve(p).then(() => {
       var zeroOk = /引体向上<\/td><td[^>]*>0<\/td>/.test(fr0);
       console.log('  [' + (zeroOk ? 'OK' : 'FAIL') + '] 引体向上 0 个 → 0 分');
       if (!zeroOk) process.exit(2);
+      // 引体向上 4 个：未到最低得分档（5 个 = 10 分）→ 0 分
+      documentStub.getElementById('ftPullup').value = '4';
+      dia._handlers.click();
+      var fr4 = (elCache['ftResult'] && elCache['ftResult'].innerHTML) || '';
+      var fourOk = /引体向上<\/td><td[^>]*>0<\/td>/.test(fr4);
+      console.log('  [' + (fourOk ? 'OK' : 'FAIL') + '] 引体向上 4 个 → 0 分（未到最低档）');
+      if (!fourOk) process.exit(2);
       // 引体向上 10 个应为 60 分（2014标准及格线）
       documentStub.getElementById('ftPullup').value = '10';
       dia._handlers.click();
