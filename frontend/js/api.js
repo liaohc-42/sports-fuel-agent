@@ -28,6 +28,7 @@
     agentOnline: false,     // 同上（语义更明确）
     backendReachable: false,// 后端进程是否在线（可能没配 Key）
     vision: false,          // 后端是否有视觉模型
+    channels: null,         // {glm, deepseek, ollama} 三通道配置状态
     provider: 'local',
     model: '',
     backendReason: '本地规则引擎',
@@ -52,6 +53,7 @@
           state.provider = j.provider || 'local';
           state.model = j.model || '';
           state.vision = !!j.vision;
+          state.channels = j.channels || null;
           state.agentOnline = j.agent === true || (j.provider && j.provider !== 'local');
           state.backendOnline = state.agentOnline;
           state.backendReason = state.agentOnline

@@ -78,6 +78,15 @@
     }).catch(function () { return { text: localText, engine: '本地规则引擎' }; });
   }
 
+  function channelChips(st) {
+    var c = st.channels;
+    if (!c) return '';
+    function one(name, key) {
+      return '<span class="ch-chip' + (c[key] ? ' on' : '') + '">' + name + (c[key] ? ' ✓' : ' ✗') + '</span>';
+    }
+    return '<div class="ch-row">模型通道：' + one('GLM', 'glm') + one('DeepSeek', 'deepseek') + one('Ollama', 'ollama') + '</div>';
+  }
+
   function renderAgentStatus() {
     var st = agentState();
     var online = !!st.agentOnline, reach = !!st.backendReachable;
@@ -86,9 +95,10 @@
     var box = $('agentStatusBox');
     if (box) {
       if (online) {
-        box.innerHTML = '<div class="agent-status ok">✅ 已连接 <b>' + esc(st.provider) + ' · ' + esc(st.model) + '</b>，下面的回答由大模型生成。</div>';
+        box.innerHTML = '<div class="agent-status ok">✅ 已连接 <b>' + esc(st.provider) + ' · ' + esc(st.model) + '</b>，下面的回答由大模型生成。' + channelChips(st) + '</div>';
       } else if (reach) {
-        box.innerHTML = '<div class="agent-status warn">⚠️ 后端在线，但<b>没有配置模型 Key</b>：现在的回答来自<b>本地规则引擎</b>，不是大模型。配置 <code>GLM_API_KEY</code> / <code>DEEPSEEK_API_KEY</code> / <code>OLLAMA_BASE_URL</code> 后自动切换。</div>';
+        box.innerHTML = '<div class="agent-status warn">⚠️ 后端在线，但<b>没有配置模型 Key</b>：现在的回答来自<b>本地规则引擎</b>，不是大模型。' +
+          '支持三种通道，任配其一即可自动切换：<code>GLM_API_KEY</code> / <code>DEEPSEEK_API_KEY</code> / <code>OLLAMA_BASE_URL</code>。' + channelChips(st) + '</div>';
       } else {
         box.innerHTML = '<div class="agent-status warn">⚠️ 后端未连接：现在的回答来自<b>本地规则引擎</b>，不是大模型。</div>';
       }

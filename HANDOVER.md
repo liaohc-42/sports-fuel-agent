@@ -104,7 +104,12 @@ sports-fuel-agent/
 
 8. **积分雷达无账号体系**：数据在 `data/credits.js`（13 条），用户行为（意向/讨论/评价/进度）存 `localStorage`。状态由 `realStatus()` 实时推导（`period_end < 今天` → 已结束）。
 
-9. **UI 色系**：融合「纸质票据 + 硬阴影」（`--cream/--paper/--brick/--green/--ink`），粗描边、硬阴影、票根章。旧类名（`.pill`/`.card`…）保留，靠 `:root` 变量映射兼容。
+10. **Agent 是产品主线，必须诚实标注状态**：
+   - 主入口是「🤖 教练」tab（不是二级菜单）；另外三个入口：配餐结果「让教练点评这顿」、体测诊断「让教练解读短板」、记录页的运动/花销/调整建议。
+   - `frontend/js/api.js` 的 `checkBackend()` 区分 **`backendReachable`（后端进程在）** 与 **`agentOnline`（真配了模型）**；只有后者才显示「已连接」。
+   - 每条 AI 回答下方都有 `engineTag()`：模型生成标 🤖 + 模型名；本地生成标「📋 本地规则引擎生成」。**没接模型就不冒充 AI。**
+   - 后端三选一：`GLM_API_KEY` / `DEEPSEEK_API_KEY`（默认 `deepseek-v4.1-flash`）/ `OLLAMA_BASE_URL`；`PROVIDER` 可强制指定，见 `scripts/_test_providers.js`。
+   - 图片识别：`/api/health` 返回 `vision` 布尔值；有视觉模型时上传框写「视觉模型识别菜名」，没有时写「只能识别文字，认不出菜品照片」，Tesseract 回退时也会再次标注。
 
 ## 五、环境注意事项（重要）
 

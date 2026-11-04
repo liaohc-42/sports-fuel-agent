@@ -70,6 +70,12 @@ app.get('/api/health', (req, res) => {
     : prov === 'deepseek' ? (process.env.DEEPSEEK_MODEL || 'deepseek-v4.1-flash')
       : (process.env.GLM_MODEL || 'glm-4-flash');
   const vision = !!(process.env.GLM_API_KEY || (process.env.OLLAMA_BASE_URL && process.env.OLLAMA_VISION_MODEL));
+  // 三通道配置状态（只暴露布尔值，不泄露 Key）
+  const channels = {
+    glm: !!process.env.GLM_API_KEY,
+    deepseek: !!process.env.DEEPSEEK_API_KEY,
+    ollama: !!process.env.OLLAMA_BASE_URL,
+  };
   res.json({
     ok: true,
     agent: prov !== 'local',
@@ -77,6 +83,7 @@ app.get('/api/health', (req, res) => {
     model: model,
     vision: vision,
     visionModel: vision ? (process.env.GLM_API_KEY ? (process.env.GLM_VISION_MODEL || 'glm-4v-flash') : process.env.OLLAMA_VISION_MODEL) : '',
+    channels: channels,
     engine: prov === 'local' ? 'local' : prov,
   });
 });

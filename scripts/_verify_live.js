@@ -39,6 +39,8 @@ function get(url) {
     ['菜品搜索', t.indexOf('dishSearch') >= 0],
     ['目标分段控件', t.indexOf('segmented') >= 0],
     ['场景切换', t.indexOf('scenarioRow') >= 0],
+    ['教练主入口', t.indexOf('coachEnginePill') >= 0],
+    ['Agent 状态标注', t.indexOf('agentStatusBox') >= 0],
   ];
   let ok = true;
   for (const [name, pass] of checks) {
