@@ -3936,6 +3936,33 @@ var CROWD_RULES = [
     return minS;
   }
   function fmtSec(s) { var m = Math.floor(s / 60), r = s % 60; return m + ':' + String(r).padStart(2, '0'); }
+
+  /* ===== 表8 加分指标（最高 +10/项，总分上限 120） =====
+   * 引体向上 / 1分钟仰卧起坐（高优）：超过 100 分对应次数后，每多 1 次 +1 分
+   * 1000米 / 800米（低优）：快于 100 分对应成绩后，按减少的秒数对应加分
+   */
+  var BONUS_RUN_STEP = {
+    male: [4, 8, 12, 16, 20, 23, 26, 29, 32, 35],
+    female: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
+  };
+  function bonusStrength(count, table) {
+    var base = table && table[100];
+    if (base == null || count == null) return 0;
+    return Math.max(0, Math.min(10, Math.floor(count - base)));
+  }
+  function bonusRun(sec, table, gender) {
+    var base = table && table[100];
+    if (base == null || sec == null) return 0;
+    var faster = base - sec;
+    if (faster <= 0) return 0;
+    var steps = BONUS_RUN_STEP[gender] || [];
+    var b = 0;
+    for (var i = 0; i < steps.length; i++) if (faster >= steps[i]) b = i + 1;
+    return Math.min(10, b);
+  }
+  function gradeOf(score) {
+    return score >= 90 ? '优秀' : score >= 80 ? '良好' : score >= 60 ? '及格' : '不及格';
+  }
   function syncFtGender() {
     var female = $('ftGender').value === 'female';
     $('ftPullupWrap').style.display = female ? 'none' : '';
@@ -4012,9 +4039,17 @@ var CROWD_RULES = [
     items.push({ key: 'strength', label: gender === 'male' ? '引体向上' : '仰卧起坐', score: scoreFromTable(count, gender === 'male' ? table.pullup : table.situp, false), weight: FT_WEIGHT.strength });
     items.push({ key: 'run', label: gender === 'male' ? '1000米' : '800米', score: scoreFromTable(runSec, table.run, true), weight: FT_WEIGHT.run });
 
-    var total = 0, wsum = 0;
-    items.forEach(function (x) { total += x.score * x.weight; wsum += x.weight; });
-    total = wsum ? Math.round(total / wsum) : 0;
+    var standardTotal = 0, wsum = 0;
+    items.forEach(function (x) { standardTotal += x.score * x.weight; wsum += x.weight; });
+    standardTotal = wsum ? Math.round(standardTotal / wsum) : 0;
+
+    // 表8 加分：只有引体/仰卧 与 1000/800 米有加分，单项最高 +10，总分上限 120
+    var bonusStrengthVal = bonusStrength(count, gender === 'male' ? table.pullup : table.situp);
+    var bonusRunVal = bonusRun(runSec, table.run, gender);
+    var bonus = bonusStrengthVal + bonusRunVal;
+    var total = Math.min(120, standardTotal + bonus);
+    var grade = gradeOf(total);
+    var partial = items.length < 7;
 
     // ---- 提分性价比榜：每提升 1 个单位能加多少分 ----
     var rank = [];
@@ -4050,10 +4085,13 @@ var CROWD_RULES = [
     var box = $('ftResult');
     var html = '<div class="card"><h2><span class="icon">📋</span> 全项目评分</h2>';
     html += '<p class="hint">按《国家学生体质健康标准（2014年修订）》' + ftGroupLabel() + ' 评分表计算。</p>';
-    html += '<div class="kpi-grid"><div class="kpi"><div class="v">' + total + '</div><div class="k">加权总分</div></div>' +
+    html += '<div class="kpi-grid"><div class="kpi"><div class="v">' + total + '</div><div class="k">总分' + (partial ? '（按已填项折算）' : '（标准分+加分）') + '</div></div>' +
+      '<div class="kpi"><div class="v">' + grade + '</div><div class="k">等级</div></div>' +
       '<div class="kpi"><div class="v">' + bmi.toFixed(1) + '</div><div class="k">BMI</div></div>' +
-      '<div class="kpi"><div class="v">' + daysLeft + '天</div><div class="k">剩余时间</div></div>' +
       '<div class="kpi"><div class="v">' + (focusRun ? runItem : strengthItem) + '</div><div class="k">优先提升</div></div></div>';
+    html += '<div class="callout green" style="margin-top:10px">标准分 <b>' + standardTotal + '</b> ＋ 加分 <b>+' + bonus + '</b>' +
+      '（' + strengthItem + ' +' + bonusStrengthVal + '，' + runItem + ' +' + bonusRunVal + '）＝ <b>' + total + '</b> / 120 · 等级 <b>' + grade + '</b>' +
+      '<br><span class="muted" style="font-size:11px">加分依据表 8：引体/仰卧超过 100 分次数每多 1 次 +1 分；1000/800 米快于 100 分成绩按秒数加分；单项最高 +10，总分上限 120。</span></div>';
     html += '<table style="margin-top:12px"><thead><tr><th>项目</th><th>得分</th><th>权重</th></tr></thead><tbody>';
     items.forEach(function (x) {
       var cls = x.score < 60 ? 'style="color:#fca5a5"' : x.score >= 80 ? 'style="color:#86efac"' : '';

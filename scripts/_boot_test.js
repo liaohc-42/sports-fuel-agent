@@ -132,6 +132,20 @@ Promise.resolve(p).then(() => {
       var j80 = /50米跑<\/td><td[^>]*>80<\/td>/.test(s50Senior);
       console.log('  [' + (j85 && j80 ? 'OK' : 'FAIL') + '] 50米 7.0 秒 → 大一/大二 ' + (j85 ? 85 : '?') + ' / 大三/大四 ' + (j80 ? 80 : '?') + ' 分');
       if (!(j85 && j80)) process.exit(2);
+
+      // 表8 加分：全项满分后再超额 → 标准分 100 + 加分 10 = 110，等级优秀
+      documentStub.getElementById('ftGrade').value = '大一';
+      documentStub.getElementById('ftVital').value = '5000';
+      documentStub.getElementById('ft50').value = '6.5';
+      documentStub.getElementById('ftReach').value = '26';
+      documentStub.getElementById('ftJump').value = '280';
+      documentStub.getElementById('ftPullup').value = '25';
+      documentStub.getElementById('ftRunScore').value = '3:00';
+      dia._handlers.click();
+      var frBonus = (elCache['ftResult'] && elCache['ftResult'].innerHTML) || '';
+      var bonusOk = /＋ 加分 <b>\+10<\/b>/.test(frBonus) && /等级 <b>优秀<\/b>/.test(frBonus) && frBonus.indexOf('110') >= 0;
+      console.log('  [' + (bonusOk ? 'OK' : 'FAIL') + '] 表8 加分：标准分 100 + 加分 10 = 110 / 优秀');
+      if (!bonusOk) process.exit(2);
     } catch (e) { console.log('  [FAIL] 体测诊断抛错:', e && e.message); process.exit(2); }
   } else {
     console.log('  [WARN] 未捕获体测诊断点击处理');
