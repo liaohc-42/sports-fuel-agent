@@ -1,192 +1,192 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>缁冨畬鍚冨暐 脳 鍗楁牎杩愬姩鍦板浘</title>
-  <meta name="description" content="缁冨畬鍚冨暐锛氳繍鍔楅ギ椋熸櫤鑳戒綋 + 绉垎闆疯揪 + 鍦洪浜烘祦銆傞€夌洰鏍囥€佸嬀鑿滃搧銆佸嚭鎼厤锛涗綋娴嬫彁鍒嗭紱鏍″洯杩愬姩鏈轰細鑱氬悎銆? />
+  <title>练完吃啥 × 南校运动地图</title>
+  <meta name="description" content="练完吃啥：运动×饮食智能体 + 积分雷达 + 场馆人流。选目标、勾菜品、出搭配；体测提分；校园运动机会聚合。" />
   <link rel="stylesheet" href="css/style.css?v=20261104" />
 </head>
 <body>
   <header class="app-header">
     <div class="brand">
-      <div class="logo">馃</div>
+      <div class="logo">🥗</div>
       <div>
-        <div class="name">缁冨畬鍚冨暐</div>
-        <div class="sub">杩愬姩 脳 楗 脳 鏍″洯杩愬姩鍦板浘</div>
+        <div class="name">练完吃啥</div>
+        <div class="sub">运动 × 饮食 × 校园运动地图</div>
       </div>
     </div>
     <div class="header-status off" id="backendStatus">
-      <span class="dot"></span><span id="backendStatusText">鏈湴寮曟搸</span>
+      <span class="dot"></span><span id="backendStatusText">本地引擎</span>
     </div>
   </header>
 
   <nav class="tabs" id="tabs">
-    <button data-tab="eat" class="active">馃崥 鍚?/button>
-    <button data-tab="records">馃搳 璁板綍</button>
-    <button data-tab="practice">馃幆 缁?/button>
-    <button data-tab="venue">馃彑锔?鍦洪</button>
-    <button data-tab="coach">馃 鏁欑粌</button>
-    <button data-tab="me" id="btnProfile">馃懁 鎴戠殑</button>
+    <button data-tab="eat" class="active">🍚 吃</button>
+    <button data-tab="records">📊 记录</button>
+    <button data-tab="practice">🎯 练</button>
+    <button data-tab="venue">🏟️ 场馆</button>
+    <button data-tab="coach">🤖 教练</button>
+    <button data-tab="me" id="btnProfile">👤 我的</button>
   </nav>
 
   <main>
-    <!-- ================= 鍚?================= -->
+    <!-- ================= 吃 ================= -->
     <section class="tab active" id="tab-eat">
       <div class="card paper-hero eat-hero">
         <div class="hero-top">
           <div>
-            <div class="eyebrow">EAT 路 缁冨畬鍚冨暐</div>
-            <h2 class="hero-title">缁冨畬杩欎竴椤匡紝鍚冨鎵嶄笉鐧界粌銆?/h2>
+            <div class="eyebrow">EAT · 练完吃啥</div>
+            <h2 class="hero-title">练完这一顿，吃对才不白练。</h2>
           </div>
-          <span class="season">鍗楁牎鍥?/span>
+          <span class="season">南校园</span>
         </div>
-        <p class="hint">閫夌洰鏍?鈫?鎸戣彍 鈫?鍑?2鈥? 濂楁惌閰嶏細鐑噺銆佽泲鐧姐€佷环鏍笺€佹帓闃熸椂闂翠竴娆＄畻娓呫€?/p>
+        <p class="hint">选目标 → 挑菜 → 出 2–3 套搭配：热量、蛋白、价格、排队时间一次算清。</p>
       </div>
       <p class="hint" id="dateTime" style="margin: 2px 0 12px 2px"></p>
       <div class="eat-grid">
         <div class="eat-col">
           <div class="card">
-            <div class="step-head">STEP 1 路 鍏堝畾鐩爣</div>
+            <div class="step-head">STEP 1 · 先定目标</div>
             <div class="segmented" id="goalRow">
-              <button class="seg-item" data-goal="鍑忚剛"><span class="si-icon">馃敟</span><b>鍑忚剛</b><small>鐑噺缂哄彛</small></button>
-              <button class="seg-item" data-goal="澧炶倢"><span class="si-icon">馃挭</span><b>澧炶倢</b><small>琛ヨ冻铔嬬櫧</small></button>
-              <button class="seg-item active" data-goal="缁存寔"><span class="si-icon">鈿栵笍</span><b>缁存寔</b><small>涓嶅涓嶅噺</small></button>
+              <button class="seg-item" data-goal="减脂"><span class="si-icon">🔥</span><b>减脂</b><small>热量缺口</small></button>
+              <button class="seg-item" data-goal="增肌"><span class="si-icon">💪</span><b>增肌</b><small>补足蛋白</small></button>
+              <button class="seg-item active" data-goal="维持"><span class="si-icon">⚖️</span><b>维持</b><small>不增不减</small></button>
             </div>
-            <p class="hint goal-hint" id="goalHint">缂哄彛绾?300鈥?00 kcal锛屼紭鍏堜繚铔嬬櫧銆?/p>
-            <div class="sub-label">浠婂ぉ缁冧簡浠€涔堬紙30+ 涓绘祦椤圭洰锛?/div>
+            <p class="hint goal-hint" id="goalHint">缺口约 300–500 kcal，优先保蛋白。</p>
+            <div class="sub-label">今天练了什么（30+ 主流项目）</div>
             <div class="seg" id="exerciseCatSeg"></div>
             <div class="seg" id="exerciseTypeSeg" style="margin-top:8px"></div>
-            <div class="sub-label">鏃堕暱锛堟暟杞达紝鍒嗗害 5 鍒嗛挓锛?/div>
+            <div class="sub-label">时长（数轴，分度 5 分钟）</div>
             <div class="slider-row">
               <input type="range" id="durationRange" min="5" max="180" step="5" value="45" />
-              <output id="durationVal">45 鍒嗛挓</output>
+              <output id="durationVal">45 分钟</output>
             </div>
-            <div class="range-marks"><span>5</span><span>45</span><span>90</span><span>135</span><span>180鍒嗛挓</span></div>
-            <div class="sub-label">寮哄害</div>
+            <div class="range-marks"><span>5</span><span>45</span><span>90</span><span>135</span><span>180分钟</span></div>
+            <div class="sub-label">强度</div>
             <div class="seg" id="intensitySeg"></div>
             <p class="hint" id="intensityNote"></p>
             <div id="exerciseStats" style="margin-top:8px"></div>
           </div>
 
           <div class="card">
-            <div class="step-head">STEP 2 路 浠婂ぉ鍚冧粈涔?/div>
+            <div class="step-head">STEP 2 · 今天吃什么</div>
             <div class="source-toggle" id="sourceToggle">
-              <button data-src="generic" class="active">馃寪 閫氱敤鑿滃搧搴?/button>
-              <button data-src="sysu">馃彨 涓北澶у椋熷爞</button>
+              <button data-src="generic" class="active">🌐 通用菜品库</button>
+              <button data-src="sysu">🏫 中山大学食堂</button>
             </div>
             <div class="canteen-tabs" id="canteenTabs"></div>
             <div class="grid2" id="sysuLevels" style="display:none">
-              <div><label class="fld">椋熷爞</label><select id="canteenSelect"></select></div>
-              <div><label class="fld">绐楀彛/妤煎眰</label><select id="windowSelect"></select></div>
+              <div><label class="fld">食堂</label><select id="canteenSelect"></select></div>
+              <div><label class="fld">窗口/楼层</label><select id="windowSelect"></select></div>
             </div>
-            <div class="search-wrap dish-search"><input type="search" id="dishSearch" placeholder="鎼滆彍鍝侊細楦¤兏 / 闈掕彍 / 璞嗚厫" /><button class="search-clear hide" id="btnDishClear">脳</button></div>
+            <div class="search-wrap dish-search"><input type="search" id="dishSearch" placeholder="搜菜品：鸡胸 / 青菜 / 豆腐" /><button class="search-clear hide" id="btnDishClear">×</button></div>
             <div class="dish-catbar" id="dishCatBar"></div>
             <div class="dish-grid" id="dishGrid"></div>
-            <div class="upload-box" id="uploadBox">馃摲 涓婁紶鑿滃崟/鑿滃搧鍥剧墖锛屼竴閿瘑鍒?/div>
+            <div class="upload-box" id="uploadBox">📷 上传菜单/菜品图片，一键识别</div>
             <input type="file" id="menuFile" accept="image/*" style="display:none" />
-            <img id="menuPreview" class="upload-preview" style="display:none" alt="鑿滃崟棰勮" />
+            <img id="menuPreview" class="upload-preview" style="display:none" alt="菜单预览" />
             <div class="ocr-list" id="ocrList"></div>
             <div class="grid2" style="margin-top:8px">
-              <div><label class="fld">鎵嬪姩娣诲姞鑿滃搧锛堝垪琛ㄦ病鏈夋椂锛?/label><input type="text" id="manualDish" placeholder="濡?鐧藉垏楦? /></div>
-              <div style="display:flex;align-items:flex-end"><button class="btn btn-soft btn-sm" id="btnAddManual" style="width:100%">锛?娣诲姞</button></div>
+              <div><label class="fld">手动添加菜品（列表没有时）</label><input type="text" id="manualDish" placeholder="如 白切鸡" /></div>
+              <div style="display:flex;align-items:flex-end"><button class="btn btn-soft btn-sm" id="btnAddManual" style="width:100%">＋ 添加</button></div>
             </div>
-            <p class="hint">宸查€?<b id="selectedCount">0</b> 閬?路 鐐硅彍鍝佸崱鐗囧嬀閫?鍙栨秷</p>
+            <p class="hint">已选 <b id="selectedCount">0</b> 道 · 点菜品卡片勾选/取消</p>
           </div>
 
           <div class="card">
-            <div class="step-head">STEP 3 路 杩欓】鐨勭害鏉?/div>
-            <div class="sub-label">棰勭畻锛堟暟杞达紝鍒嗗害 1 鍏冿級</div>
+            <div class="step-head">STEP 3 · 这顿的约束</div>
+            <div class="sub-label">预算（数轴，分度 1 元）</div>
             <div class="slider-row">
               <input type="range" id="budgetRange" min="0" max="30" step="1" value="15" />
-              <output id="budgetVal">15 鍏?/output>
+              <output id="budgetVal">15 元</output>
             </div>
-            <div class="range-marks"><span>0鍏?/span><span>10</span><span>20</span><span>30鍏?/span></div>
+            <div class="range-marks"><span>0元</span><span>10</span><span>20</span><span>30元</span></div>
             <div class="seg" style="margin-top:6px">
-              <button class="pill" id="btnBudgetUnlimited">涓嶉檺</button>
-              <input type="number" id="budgetCustom" placeholder="鑷畾涔夐噾棰? style="width:110px" />
+              <button class="pill" id="btnBudgetUnlimited">不限</button>
+              <input type="number" id="budgetCustom" placeholder="自定义金额" style="width:110px" />
             </div>
-            <div class="sub-label">鏈€澶氳姳鍦ㄨ矾涓婄殑鏃堕棿锛堟暟杞达紝鍒嗗害 1 鍒嗛挓锛?/div>
+            <div class="sub-label">最多花在路上的时间（数轴，分度 1 分钟）</div>
             <div class="slider-row">
               <input type="range" id="timeRange" min="0" max="30" step="1" value="15" />
-              <output id="timeVal">15 鍒嗛挓</output>
+              <output id="timeVal">15 分钟</output>
             </div>
-            <div class="range-marks"><span>0鍒嗛挓</span><span>10</span><span>20</span><span>30鍒嗛挓</span></div>
+            <div class="range-marks"><span>0分钟</span><span>10</span><span>20</span><span>30分钟</span></div>
             <div class="seg" style="margin-top:6px">
-              <button class="pill" id="btnTimeNoRush">涓嶈刀鏃堕棿</button>
-              <input type="number" id="timeCustom" placeholder="鑷畾涔夊垎閽? style="width:110px" />
+              <button class="pill" id="btnTimeNoRush">不赶时间</button>
+              <input type="number" id="timeCustom" placeholder="自定义分钟" style="width:110px" />
             </div>
-            <div class="sub-label">杩欎竴椁愭槸</div>
+            <div class="sub-label">这一餐是</div>
             <div class="seg" id="mealTypeSeg"></div>
-            <div class="sub-label">涓嶅悆鐨勪笢瑗匡紙鐐逛竴涓嬫帓闄わ級</div>
+            <div class="sub-label">不吃的东西（点一下排除）</div>
             <div class="seg" id="dealbreakerSeg"></div>
             <div class="grid2" style="margin-top:8px">
-              <div><label class="fld">浣撻噸(kg)</label><input type="number" id="weightInput" min="35" max="150" /></div>
-              <div><label class="fld">璁粌缁撴潫鏃堕棿</label><input type="text" id="trainEndInput" placeholder="濡?18:30" /></div>
+              <div><label class="fld">体重(kg)</label><input type="number" id="weightInput" min="35" max="150" /></div>
+              <div><label class="fld">训练结束时间</label><input type="text" id="trainEndInput" placeholder="如 18:30" /></div>
             </div>
           </div>
 
           <div class="card">
-            <div class="step-head">璺戞娴嬮€?/ 閰嶉€熻绠?/div>
+            <div class="step-head">跑步测速 / 配速计算</div>
             <div class="grid2">
-              <div><label class="fld">璺濈(绫?</label><input type="number" id="paceDist" value="1000" min="100" /></div>
-              <div><label class="fld">鐢ㄦ椂(鍒?绉?</label><input type="text" id="paceTime" placeholder="濡?4:35" /></div>
+              <div><label class="fld">距离(米)</label><input type="number" id="paceDist" value="1000" min="100" /></div>
+              <div><label class="fld">用时(分:秒)</label><input type="text" id="paceTime" placeholder="如 4:35" /></div>
             </div>
-            <button class="btn btn-soft btn-sm" id="btnPaceCalc" style="margin-top:8px">璁＄畻閰嶉€?/button>
+            <button class="btn btn-soft btn-sm" id="btnPaceCalc" style="margin-top:8px">计算配速</button>
             <div id="paceResult" style="margin-top:8px"></div>
           </div>
 
-          <button class="btn btn-primary btn-block btn-cta" id="btnGenerate">馃嵔锔?璁?Agent 閰嶈繖涓€椁愶紙1 绉掑嚭 3 濂楋級</button>
+          <button class="btn btn-primary btn-block btn-cta" id="btnGenerate">🍽️ 让 Agent 配这一餐（1 秒出 3 套）</button>
         </div>
 
         <div class="eat-col">
-          <div class="result-head">杩欓】鍚冧粈涔?<span class="muted" id="resultMeta"></span></div>
+          <div class="result-head">这顿吃什么 <span class="muted" id="resultMeta"></span></div>
           <div id="recommendCards">
-            <div class="card"><p class="muted">宸﹁竟閫夊ソ鐩爣鍜岃彍鍝侊紝鐐逛笅鏂规寜閽紝杩欓噷浼氱粰鍑?2鈥? 濂楁惌閰?+ 涓轰粈涔堣繖涔堥厤銆?/p></div>
+            <div class="card"><p class="muted">左边选好目标和菜品，点下方按钮，这里会给出 2–3 套搭配 + 为什么这么配。</p></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ================= 璁板綍 ================= -->
+    <!-- ================= 记录 ================= -->
     <section class="tab" id="tab-records">
       <div class="card">
-        <h2><span class="icon">鉁忥笍</span> 淇敼浠婃棩鏂规</h2>
-        <p class="hint">鎸夊綋澶╁疄闄呭氨椁愭儏鍐靛鍒犺彍鍝侊紝AI 浼氱粰鍑烘湭鏉?1鈥? 椁愮殑璋冩暣寤鸿銆?/p>
+        <h2><span class="icon">✏️</span> 修改今日方案</h2>
+        <p class="hint">按当天实际就餐情况增删菜品，AI 会给出未来 1–2 餐的调整建议。</p>
         <div id="recordMeals"></div>
-        <button class="btn btn-orange btn-block" id="btnRegenerateAfter">馃 璁?AI 缁欐垜鎺ヤ笅鏉ョ殑寤鸿</button>
+        <button class="btn btn-orange btn-block" id="btnRegenerateAfter">🧠 让 AI 给我接下来的建议</button>
         <div id="aiAdjustResult" style="margin-top:12px"></div>
       </div>
 
       <div class="card">
-        <h2><span class="icon">馃挵</span> 楗鑺遍攢缁熻</h2>
+        <h2><span class="icon">💰</span> 饮食花销统计</h2>
         <div id="spendingStats"></div>
-        <label class="fld">璁惧畾鏈潵涓€涓湀楗棰勭畻锛堝厓锛?/label>
+        <label class="fld">设定未来一个月饮食预算（元）</label>
         <div class="grid2">
-          <input type="number" id="budgetInput" placeholder="渚嬪 1200" />
-          <button class="btn btn-primary btn-sm" id="btnBudgetAdvice">璁?AI 缁欏缓璁?/button>
+          <input type="number" id="budgetInput" placeholder="例如 1200" />
+          <button class="btn btn-primary btn-sm" id="btnBudgetAdvice">让 AI 给建议</button>
         </div>
         <div id="budgetAdviceResult" style="margin-top:12px"></div>
       </div>
 
       <div class="card">
-        <h2><span class="icon">馃搱</span> 鏈€杩戣繍鍔?/h2>
+        <h2><span class="icon">📈</span> 最近运动</h2>
         <div class="seg" id="sportPeriodSeg">
-          <button class="pill active" data-period="week">鏈懆</button>
-          <button class="pill" data-period="month">鏈湀</button>
-          <button class="pill" data-period="year">浠婂勾</button>
+          <button class="pill active" data-period="week">本周</button>
+          <button class="pill" data-period="month">本月</button>
+          <button class="pill" data-period="year">今年</button>
         </div>
         <div id="sportChart" style="margin-top:12px"></div>
-        <button class="btn btn-ghost btn-sm" id="btnSportAdvice" style="margin-top:8px">馃挕 AI 杩愬姩寤鸿</button>
+        <button class="btn btn-ghost btn-sm" id="btnSportAdvice" style="margin-top:8px">💡 AI 运动建议</button>
         <div id="sportAiAdvice" style="margin-top:8px"></div>
       </div>
     </section>
 
-    <!-- ================= 缁冿紙绉垎闆疯揪 + 浣撴祴锛?================= -->
+    <!-- ================= 练（积分雷达 + 体测） ================= -->
     <section class="tab" id="tab-practice">
       <div class="seg practice-seg" id="practiceSeg">
-        <button class="pill active" data-ptab="credits">馃幆 绉垎闆疯揪</button>
-        <button class="pill" data-ptab="fitness">馃殤 浣撴祴鎬ユ晳绔?/button>
+        <button class="pill active" data-ptab="credits">🎯 积分雷达</button>
+        <button class="pill" data-ptab="fitness">🚑 体测急救站</button>
       </div>
 
       <div id="practice-credits">
@@ -195,53 +195,53 @@
 
       <div id="practice-fitness" style="display:none">
         <div class="card">
-          <h2><span class="icon">馃殤</span> 浣撴祴鎬ユ晳绔?<span class="badge orange">銆婂浗瀹跺鐢熶綋璐ㄥ仴搴锋爣鍑嗐€嬪叏椤圭洰</span></h2>
-          <p class="hint">褰曞叆鎴愮哗 鈫?閫愰」绠楀垎 鈫?鎻愬垎鎬т环姣?鈫?涓撻」璁粌璁″垝 + 閰嶉€熷櫒銆傝瘎鍒嗚〃鍐呯疆锛堟寜骞寸骇鑷姩鍒囨崲銆屽ぇ涓€/澶т簩銆嶃€屽ぇ涓?澶у洓銆嶏級銆侀€忔槑鍙煡锛屼互瀛︽牎鎵ц鐗堟湰涓哄噯銆?/p>
+          <h2><span class="icon">🚑</span> 体测急救站 <span class="badge orange">《国家学生体质健康标准》全项目</span></h2>
+          <p class="hint">录入成绩 → 逐项算分 → 提分性价比 → 专项训练计划 + 配速器。评分表内置（按年级自动切换「大一/大二」「大三/大四」）、透明可查，以学校执行版本为准。</p>
           <div class="grid2">
-            <div><label class="fld">鎬у埆</label><select id="ftGender"><option value="male">鐢?/option><option value="female">濂?/option></select></div>
-            <div><label class="fld">骞寸骇</label><select id="ftGrade"><option>澶т竴</option><option>澶т簩</option><option>澶т笁</option><option>澶у洓</option></select></div>
+            <div><label class="fld">性别</label><select id="ftGender"><option value="male">男</option><option value="female">女</option></select></div>
+            <div><label class="fld">年级</label><select id="ftGrade"><option>大一</option><option>大二</option><option>大三</option><option>大四</option></select></div>
           </div>
           <div class="grid3">
-            <div><label class="fld">韬珮(cm)</label><input type="number" id="ftHeight" value="175" min="130" max="210" /></div>
-            <div><label class="fld">浣撻噸(kg)</label><input type="number" id="ftWeight" value="65" min="35" max="150" /></div>
-            <div><label class="fld">BMI锛堣嚜鍔級</label><div class="pill" id="ftBmi" style="width:100%;text-align:center">鈥?/div></div>
+            <div><label class="fld">身高(cm)</label><input type="number" id="ftHeight" value="175" min="130" max="210" /></div>
+            <div><label class="fld">体重(kg)</label><input type="number" id="ftWeight" value="65" min="35" max="150" /></div>
+            <div><label class="fld">BMI（自动）</label><div class="pill" id="ftBmi" style="width:100%;text-align:center">—</div></div>
           </div>
           <div class="grid3">
-            <div><label class="fld">鑲烘椿閲?ml)</label><input type="number" id="ftVital" placeholder="濡?4000" min="0" /></div>
-            <div><label class="fld">50绫?绉?</label><input type="text" id="ft50" placeholder="濡?7.5" /></div>
-            <div><label class="fld">鍧愪綅浣撳墠灞?cm)</label><input type="text" id="ftReach" placeholder="濡?10" /></div>
+            <div><label class="fld">肺活量(ml)</label><input type="number" id="ftVital" placeholder="如 4000" min="0" /></div>
+            <div><label class="fld">50米(秒)</label><input type="text" id="ft50" placeholder="如 7.5" /></div>
+            <div><label class="fld">坐位体前屈(cm)</label><input type="text" id="ftReach" placeholder="如 10" /></div>
           </div>
           <div class="grid3">
-            <div><label class="fld">绔嬪畾璺宠繙(cm)</label><input type="number" id="ftJump" placeholder="濡?230" min="0" /></div>
-            <div id="ftPullupWrap"><label class="fld">寮曚綋鍚戜笂(涓?</label><input type="number" id="ftPullup" placeholder="濡?3" min="0" /></div>
-            <div id="ftSitupWrap"><label class="fld">浠板崸璧峰潗(涓?鍒?</label><input type="number" id="ftSitup" placeholder="濡?30" min="0" /></div>
+            <div><label class="fld">立定跳远(cm)</label><input type="number" id="ftJump" placeholder="如 230" min="0" /></div>
+            <div id="ftPullupWrap"><label class="fld">引体向上(个)</label><input type="number" id="ftPullup" placeholder="如 3" min="0" /></div>
+            <div id="ftSitupWrap"><label class="fld">仰卧起坐(个/分)</label><input type="number" id="ftSitup" placeholder="如 30" min="0" /></div>
           </div>
           <div class="grid3">
-            <div><label class="fld">鑰愬姏璺?/label><select id="ftEvent"><option value="1000">1000 绫筹紙鐢凤級</option><option value="800">800 绫筹紙濂筹級</option></select></div>
-            <div><label class="fld">鑰愬姏璺戞垚缁?鍒?绉?</label><input type="text" id="ftRunScore" placeholder="濡?4:35" /></div>
-            <div><label class="fld">璺濅綋娴嬪ぉ鏁?/label><input type="number" id="ftDaysLeft" value="12" min="1" max="30" /></div>
+            <div><label class="fld">耐力跑</label><select id="ftEvent"><option value="1000">1000 米（男）</option><option value="800">800 米（女）</option></select></div>
+            <div><label class="fld">耐力跑成绩(分:秒)</label><input type="text" id="ftRunScore" placeholder="如 4:35" /></div>
+            <div><label class="fld">距体测天数</label><input type="number" id="ftDaysLeft" value="12" min="1" max="30" /></div>
           </div>
           <div class="grid2">
-            <div><label class="fld">姣忓懆鍙粌澶╂暟</label><input type="number" id="ftDaysPerWeek" value="5" min="1" max="7" /></div>
-            <div><label class="fld">浼ょ梾/鍦哄湴闄愬埗</label><input type="text" id="ftInjury" placeholder="渚嬪锛氳啙鐩栨湁鐐圭柤" /></div>
+            <div><label class="fld">每周可练天数</label><input type="number" id="ftDaysPerWeek" value="5" min="1" max="7" /></div>
+            <div><label class="fld">伤病/场地限制</label><input type="text" id="ftInjury" placeholder="例如：膝盖有点疼" /></div>
           </div>
-          <button class="btn btn-primary btn-block" id="btnFtDiagnose" style="margin-top:14px">馃攳 绠楀垎 + 鎻愬垎璇婃柇</button>
+          <button class="btn btn-primary btn-block" id="btnFtDiagnose" style="margin-top:14px">🔍 算分 + 提分诊断</button>
         </div>
 
         <div class="card">
-          <h2><span class="icon">鈴憋笍</span> 閰嶉€熷櫒锛堢洰鏍囨垚缁?鈫?鍒嗘 鈫?鎶ユ椂锛?/h2>
-          <p class="hint">杈撳叆鐩爣鎴愮哗锛岃嚜鍔ㄧ敓鎴愭瘡 200/400 绫冲垎娈碉紝鎸夊垎娈电敤 Web Audio 鍙０鎶ユ椂銆備笉渚濊禆 GPS锛屾搷鍦哄拰璺戞鏈洪兘鑳界敤銆?/p>
+          <h2><span class="icon">⏱️</span> 配速器（目标成绩 → 分段 → 报时）</h2>
+          <p class="hint">输入目标成绩，自动生成每 200/400 米分段，按分段用 Web Audio 叮声报时。不依赖 GPS，操场和跑步机都能用。</p>
           <div class="grid3">
-            <div><label class="fld">璺濈(绫?</label><input type="number" id="pacerDist" value="1000" min="200" /></div>
-            <div><label class="fld">鐩爣鎴愮哗(鍒?绉?</label><input type="text" id="pacerTarget" value="4:30" /></div>
-            <div><label class="fld">鍒嗘</label><select id="pacerSeg"><option value="200">姣?200 绫?/option><option value="400">姣?400 绫?/option></select></div>
+            <div><label class="fld">距离(米)</label><input type="number" id="pacerDist" value="1000" min="200" /></div>
+            <div><label class="fld">目标成绩(分:秒)</label><input type="text" id="pacerTarget" value="4:30" /></div>
+            <div><label class="fld">分段</label><select id="pacerSeg"><option value="200">每 200 米</option><option value="400">每 400 米</option></select></div>
           </div>
-          <button class="btn btn-soft btn-sm" id="btnPacerPlan" style="margin-top:8px">鐢熸垚鍒嗘</button>
+          <button class="btn btn-soft btn-sm" id="btnPacerPlan" style="margin-top:8px">生成分段</button>
           <div id="pacerResult" style="margin-top:8px"></div>
-          <div class="timer-big" id="pacerClock" style="margin-top:8px">鈥?/div>
+          <div class="timer-big" id="pacerClock" style="margin-top:8px">—</div>
           <div class="grid2" style="margin-top:8px">
-            <button class="btn btn-primary" id="btnPacerStart">鈻?寮€濮嬫姤鏃?/button>
-            <button class="btn btn-ghost" id="btnPacerStop">鈴?鍋滄</button>
+            <button class="btn btn-primary" id="btnPacerStart">▶ 开始报时</button>
+            <button class="btn btn-ghost" id="btnPacerStop">⏹ 停止</button>
           </div>
         </div>
 
@@ -249,103 +249,103 @@
       </div>
     </section>
 
-    <!-- ================= 鍦洪 ================= -->
+    <!-- ================= 场馆 ================= -->
     <section class="tab" id="tab-venue">
       <div id="venueBody"></div>
     </section>
 
-    <!-- ================= 鏁欑粌锛圓gent 涓诲叆鍙ｏ級 ================= -->
+    <!-- ================= 教练（Agent 主入口） ================= -->
     <section class="tab" id="tab-coach">
       <div class="card paper-hero coach-hero">
         <div class="hero-top">
           <div>
-            <div class="eyebrow">COACH 路 杩愬姩钀ュ吇鏁欑粌</div>
-            <h2 class="hero-title">浣犵殑杩愬姩钀ュ吇鏁欑粌锛屼竴鐩撮兘鍦ㄣ€?/h2>
+            <div class="eyebrow">COACH · 运动营养教练</div>
+            <h2 class="hero-title">你的运动营养教练，一直都在。</h2>
           </div>
-          <span class="season" id="coachEnginePill">妫€娴嬩腑鈥?/span>
+          <span class="season" id="coachEnginePill">检测中…</span>
         </div>
-        <p class="hint">璁粌銆侀鍫傛惌閰嶃€佸噺鑴傚鑲屻€佷綋娴嬫彁鍒嗭紝鐩存帴闂€傚畠浼氱粨鍚堜綘褰撳墠鐨勬。妗堝拰鐩爣鍥炵瓟銆?/p>
+        <p class="hint">训练、食堂搭配、减脂增肌、体测提分，直接问。它会结合你当前的档案和目标回答。</p>
         <div id="agentStatusBox"></div>
       </div>
 
       <div class="card">
         <div class="scenario-row" id="scenarioRow">
-          <button class="scenario" data-scene="cut">馃敟 鍑忚剛鏃?/button>
-          <button class="scenario" data-scene="bulk">馃挭 澧炶倢鏃?/button>
-          <button class="scenario" data-scene="pre">馃幆 浣撴祴鍓?3 澶?/button>
+          <button class="scenario" data-scene="cut">🔥 减脂日</button>
+          <button class="scenario" data-scene="bulk">💪 增肌日</button>
+          <button class="scenario" data-scene="pre">🎯 体测前 3 天</button>
         </div>
         <div class="chat-box" id="coachChat"></div>
         <div class="chat-input">
-          <input type="text" id="coachInput" placeholder="渚嬪锛氫粖鏅氱粌瀹岃吙寰堥吀锛岃鍚冪偣浠€涔堬紵" />
-          <button class="btn btn-primary" id="btnCoachSend">鍙戦€?/button>
+          <input type="text" id="coachInput" placeholder="例如：今晚练完腿很酸，该吃点什么？" />
+          <button class="btn btn-primary" id="btnCoachSend">发送</button>
         </div>
         <div class="quick-ask" id="quickAsk">
-          <button class="chip-btn" data-ask="浠婃櫄缁冨畬鑵垮緢閰革紝椋熷爞鍚冧粈涔堟仮澶嶅揩锛?>缁冨畬鑵块吀鍚冧粈涔?/button>
-          <button class="chip-btn" data-ask="鎴戝湪鍑忚剛锛岄鍫傛€庝箞鍚冩墠涓嶈秴鐑噺锛?>鍑忚剛鎬庝箞鍚?/button>
-          <button class="chip-btn" data-ask="寮曚綋鍚戜笂 3 涓紝涓ゅ懆鑳界粌鍒?10 涓悧锛?>寮曚綋鎬庝箞缁?/button>
+          <button class="chip-btn" data-ask="今晚练完腿很酸，食堂吃什么恢复快？">练完腿酸吃什么</button>
+          <button class="chip-btn" data-ask="我在减脂，食堂怎么吃才不超热量？">减脂怎么吃</button>
+          <button class="chip-btn" data-ask="引体向上 3 个，两周能练到 10 个吗？">引体怎么练</button>
         </div>
       </div>
     </section>
 
-    <!-- ================= 鎴戠殑 ================= -->
+    <!-- ================= 我的 ================= -->
     <section class="tab" id="tab-me">
       <div id="meBody"></div>
     </section>
 
-    <!-- ================= 绾﹁繍鍔紙鎴戠殑鍒嗘敮锛?================= -->
+    <!-- ================= 约运动（我的分支） ================= -->
     <section class="tab" id="tab-pickup">
-      <button class="btn btn-ghost btn-sm back-btn" data-back="me">鈫?杩斿洖鎴戠殑</button>
+      <button class="btn btn-ghost btn-sm back-btn" data-back="me">← 返回我的</button>
       <div id="pickupBody"></div>
     </section>
 
-    <!-- ================= 瑁呭锛堟垜鐨勫垎鏀級 ================= -->
+    <!-- ================= 装备（我的分支） ================= -->
     <section class="tab" id="tab-gear">
-      <button class="btn btn-ghost btn-sm back-btn" data-back="me">鈫?杩斿洖鎴戠殑</button>
+      <button class="btn btn-ghost btn-sm back-btn" data-back="me">← 返回我的</button>
       <div id="gearBody"></div>
     </section>
 
-    <!-- ================= 鍘熺悊涓庢暟鎹紙鎴戠殑鍒嗘敮锛?================= -->
+    <!-- ================= 原理与数据（我的分支） ================= -->
     <section class="tab" id="tab-science">
-      <button class="btn btn-ghost btn-sm back-btn" data-back="me">鈫?杩斿洖鎴戠殑</button>
+      <button class="btn btn-ghost btn-sm back-btn" data-back="me">← 返回我的</button>
       <div class="card">
-        <h2><span class="icon">馃摉</span> AI 鍙傝€冪殑鏂囩尞涓庝緷鎹?/h2>
+        <h2><span class="icon">📖</span> AI 参考的文献与依据</h2>
         <ul class="ref-list" id="refList"></ul>
       </div>
 
       <div class="card">
-        <h2><span class="icon">馃梻锔?/span> 鏁版嵁鏉ユ簮璇存槑</h2>
+        <h2><span class="icon">🗂️</span> 数据来源说明</h2>
         <div id="dataSourceList"></div>
       </div>
 
       <div class="card">
-        <h2><span class="icon">鈿欙笍</span> 澶фā鍨嬫帴鍏ワ紙鍚庣锛?/h2>
-        <p class="hint">涓轰簡瀹夊叏锛孠ey 搴旈厤缃湪<b>鍚庣鐜鍙橀噺</b>锛?code>GLM_API_KEY</code>锛夛紝鍓嶇涓嶄繚瀛樹换浣曞瘑閽ャ€傛湭閰嶇疆鏃惰嚜鍔ㄤ娇鐢ㄦ湰鍦拌鍒欏紩鎿庛€?/p>
+        <h2><span class="icon">⚙️</span> 大模型接入（后端）</h2>
+        <p class="hint">为了安全，Key 应配置在<b>后端环境变量</b>（<code>GLM_API_KEY</code>），前端不保存任何密钥。未配置时自动使用本地规则引擎。</p>
         <div class="callout green" id="devConfigNote"></div>
       </div>
     </section>
   </main>
 
   <footer>
-    <p>缁冨畬鍚冨暐 脳 涓ぇ閫氬叧 路 鍗楁牎杩愬姩鍦板浘锛堣蒋浠跺伐绋嬪闄€岃蒋宸ヨ弫鑻辨澂銆嶅弬璧涗綔鍝侊級</p>
-    <p style="margin-top:4px">鏈骇鍝佷负鏍″洯杩愬姩鎺㈢储涓庣Н鍒嗕俊鎭仛鍚堝伐鍏凤紝涓嶆瀯鎴愬尰鐤楀缓璁紱绉垎杩涘害浠呬负浜у搧鍐呬釜浜鸿褰曪紝闈炲鏍″畼鏂硅瀹氾紱娲诲姩鍒嗗€间互瀹樻柟閫氱煡涓哄噯锛涜繍鍔ㄤ腑鍑虹幇鐤肩棝銆佽兏闂枫€佺湬鏅曠瓑涓嶉€傝绔嬪嵆鍋滄骞跺氨鍖汇€?/p>
+    <p>练完吃啥 × 中大通关 · 南校运动地图（软件工程学院「软工菁英杯」参赛作品）</p>
+    <p style="margin-top:4px">本产品为校园运动探索与积分信息聚合工具，不构成医疗建议；积分进度仅为产品内个人记录，非学校官方认定；活动分值以官方通知为准；运动中出现疼痛、胸闷、眩晕等不适请立即停止并就医。</p>
   </footer>
 
   <div class="drawer-mask" id="drawerMask"></div>
   <aside class="drawer" id="drawer">
-    <h2>馃懁 鎴戠殑妗ｆ</h2>
-    <label class="fld">鎬у埆</label>
-    <select id="pGender"><option value="male">鐢?/option><option value="female">濂?/option></select>
-    <label class="fld">骞撮緞</label>
+    <h2>👤 我的档案</h2>
+    <label class="fld">性别</label>
+    <select id="pGender"><option value="male">男</option><option value="female">女</option></select>
+    <label class="fld">年龄</label>
     <input type="number" id="pAge" value="19" min="15" max="40" />
-    <label class="fld">韬珮锛坈m锛?/label>
+    <label class="fld">身高（cm）</label>
     <input type="number" id="pHeight" value="175" min="130" max="210" />
-    <label class="fld">浣撻噸锛坘g锛?/label>
+    <label class="fld">体重（kg）</label>
     <input type="number" id="pWeight" value="65" min="35" max="150" />
-    <label class="fld">榛樿鐩爣</label>
-    <select id="pGoal"><option value="缁存寔">缁存寔</option><option value="澧炶倢">澧炶倢</option><option value="鍑忚剛">鍑忚剛</option></select>
-    <button class="btn btn-primary btn-block" id="btnSaveProfile" style="margin-top:16px">淇濆瓨妗ｆ</button>
-    <button class="btn btn-ghost btn-block" id="btnResetData" style="margin-top:10px">娓呯┖鏈湴璁板綍</button>
-    <p class="hint" style="margin-top:12px">妗ｆ涓庤褰曚粎淇濆瓨鍦ㄦ湰鏈烘祻瑙堝櫒 localStorage锛屼笉涓婁紶鏈嶅姟鍣ㄣ€?/p>
+    <label class="fld">默认目标</label>
+    <select id="pGoal"><option value="维持">维持</option><option value="增肌">增肌</option><option value="减脂">减脂</option></select>
+    <button class="btn btn-primary btn-block" id="btnSaveProfile" style="margin-top:16px">保存档案</button>
+    <button class="btn btn-ghost btn-block" id="btnResetData" style="margin-top:10px">清空本地记录</button>
+    <p class="hint" style="margin-top:12px">档案与记录仅保存在本机浏览器 localStorage，不上传服务器。</p>
   </aside>
 
   <div class="toast" id="toast"></div>

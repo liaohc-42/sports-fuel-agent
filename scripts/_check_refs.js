@@ -12,7 +12,9 @@ for (const m of html.matchAll(/\s(?:src|href)="([^"]+)"/g)) {
 }
 let fail = 0;
 for (const r of refs) {
-  const p = path.join(ROOT, r);
+  // 去掉 ?v= 这类缓存版本号再判断文件是否存在
+  const clean = r.split('?')[0];
+  const p = path.join(ROOT, clean);
   const ok = fs.existsSync(p);
   console.log((ok ? 'ok  ' : 'MISS') + ' ' + r);
   if (!ok) fail++;

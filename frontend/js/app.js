@@ -61,10 +61,31 @@
   function agentState() { return (window.API && API.getState) ? API.getState() : {}; }
   function agentOnline() { return !!agentState().agentOnline; }
 
+  // 只在“本地规则”时留一个很轻的角标；模型回答不强调是谁生成的
   function engineTag(engine) {
     var local = !engine || /本地|模板|local/.test(engine);
-    return '<div class="engine-tag' + (local ? '' : ' model') + '">' +
-      (local ? '📋 本地规则引擎生成' : '🤖 ' + esc(engine) + ' 生成') + '</div>';
+    return local ? '<span class="msg-mode">本地规则</span>' : '';
+  }
+
+  // 把纯文本回答排成段落 + 列表，避免一大坨 <br>
+  function fmtMsg(text) {
+    var lines = String(text || '').split(/\n+/);
+    var out = '', inUl = false;
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim();
+      if (!line) { if (inUl) { out += '</ul>'; inUl = false; } continue; }
+      var bullet = line.match(/^[•\-*·]\s*(.+)$/);
+      if (bullet) {
+        if (!inUl) { out += '<ul class="msg-ul">'; inUl = true; }
+        out += '<li>' + esc(bullet[1]) + '</li>';
+        continue;
+      }
+      if (inUl) { out += '</ul>'; inUl = false; }
+      if (/^(⚠️|注意|安全提醒)/.test(line)) out += '<p class="msg-warn">' + esc(line) + '</p>';
+      else out += '<p>' + esc(line) + '</p>';
+    }
+    if (inUl) out += '</ul>';
+    return out;
   }
 
   // 有模型走模型；没模型就直接本地，绝不假装
@@ -608,7 +629,7 @@
         goal: eat.goal, exercise: currentEx().name, exerciseKcal: exerciseKcal(), budget: eat.budget,
         dishes: c.dishes.map(function (d) { return { name: d.name, nutrition: NUTRITION.lookup(d.name) }; }),
       }, local).then(function (r) {
-        $('agentMealOut').innerHTML = '<div class="callout">' + esc(r.text) + engineTag(r.engine) + '</div>';
+        $('agentMealOut').innerHTML = '<div class="callout">' + fmtMsg(r.text) + engineTag(r.engine) + '</div>';
       });
     };
     window.__lastCombos = combos;
@@ -881,7 +902,7 @@
       var box = $('aiAdjustResult');
       box.innerHTML = '<div class="callout">正在生成…</div>';
       askAgent('adjust', { eatenKcal: latest.kcal, goal: eat.goal, weightKg: eat.weight }, local).then(function (r) {
-        box.innerHTML = '<div class="callout">' + esc(r.text) + engineTag(r.engine) + '</div>';
+        box.innerHTML = '<div class="callout">' + fmtMsg(r.text) + engineTag(r.engine) + '</div>';
       });
     });
     $('btnBudgetAdvice').addEventListener('click', function () {
@@ -892,7 +913,7 @@
       var box = $('budgetAdviceResult');
       box.innerHTML = '<div class="callout">正在生成…</div>';
       askAgent('budget', { budget: budget, pastAvg: past }, local).then(function (r) {
-        box.innerHTML = '<div class="callout">' + esc(r.text) + engineTag(r.engine) + '</div>';
+        box.innerHTML = '<div class="callout">' + fmtMsg(r.text) + engineTag(r.engine) + '</div>';
       });
     });
     $('btnSportAdvice').addEventListener('click', function () {
@@ -903,7 +924,7 @@
       var box = $('sportAiAdvice');
       box.innerHTML = '<div class="callout">正在生成…</div>';
       askAgent('sport', { period: period, totalMin: s.min, totalKcal: s.kcal, sessions: s.sessions }, local).then(function (r) {
-        box.innerHTML = '<div class="callout">' + esc(r.text) + engineTag(r.engine) + '</div>';
+        box.innerHTML = '<div class="callout">' + fmtMsg(r.text) + engineTag(r.engine) + '</div>';
       });
     });
     document.querySelectorAll('#sportPeriodSeg .pill').forEach(function (p) {
@@ -936,12 +957,11 @@
 
   /* ================= 智能教练 ================= */
   function initCoach() {
-    var st0 = agentState();
-    appendMsg('ai', '你好，我是你的运动营养教练 🤖\n训练、食堂搭配、减脂增肌、体测提分都能问我。\n' +
-      (st0.agentOnline ? '当前由 ' + st0.provider + ' · ' + st0.model + ' 回答。' : '（当前未接入大模型，下面回答由本地规则引擎生成。）'));
+    appendMsg('ai', '你好，我是你的运动营养教练 🏃\n训练、食堂搭配、减脂增肌、体测提分，都可以直接问我。');
+    appendMsg('ai', '小提示：你可以先告诉我目标（减脂 / 增肌 / 维持）和今天练了什么，我会给更具体的建议。');
 
     function show(t, text, engine) {
-      t.innerHTML = esc(text).replace(/\n/g, '<br>') + engineTag(engine);
+      t.innerHTML = fmtMsg(text) + engineTag(engine);
     }
     function send(text) {
       var inp = $('coachInput');
@@ -1232,7 +1252,7 @@
           runScore + ' 分，' + (gender === 'male' ? '引体' : '仰卧起坐') + '约 ' + strengthScore + ' 分，总分 ' + total +
           '。请给未来 3 天最优先的训练与饮食安排，120 字内。' + (injury ? '（我有伤病：' + injury + '）' : ''),
       }, local).then(function (r) {
-        $('agentFtOut').innerHTML = '<div class="callout">' + esc(r.text) + engineTag(r.engine) + '</div>';
+        $('agentFtOut').innerHTML = '<div class="callout">' + fmtMsg(r.text) + engineTag(r.engine) + '</div>';
       });
     };
     box.querySelectorAll('[data-checkin]').forEach(function (b) {

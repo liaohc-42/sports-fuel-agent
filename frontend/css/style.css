@@ -831,6 +831,24 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .agent-card { border-color: var(--green); box-shadow: 4px 4px 0 rgba(31, 92, 58, .16); }
 .ch-row { margin-top: 7px; font-size: 11px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; color: var(--ink-3); }
 .ch-chip { border: 1px solid #d9cbb2; background: var(--paper); border-radius: 999px; padding: 1px 8px; color: var(--ink-3); }
+
+/* ---------- 12. 教练回答排版 ---------- */
+.msg.ai { padding: 11px 13px; line-height: 1.65; }
+.msg.ai p { margin: 0 0 6px; }
+.msg.ai p:last-child { margin-bottom: 0; }
+.msg-ul { margin: 4px 0 8px 18px; padding: 0; }
+.msg-ul li { margin: 3px 0; line-height: 1.55; }
+.msg-warn {
+  color: var(--brick); background: var(--brick-soft);
+  border-radius: 8px; padding: 5px 9px; font-size: 12.5px;
+}
+.msg-mode {
+  display: inline-block; margin-top: 6px; font-size: 10px; color: var(--ink-3);
+  border: 1px solid #d9cbb2; border-radius: 999px; padding: 0 7px;
+}
+.callout p { margin: 0 0 5px; }
+.callout p:last-child { margin-bottom: 0; }
+.callout .msg-ul { margin: 4px 0 6px 18px; }
 .ch-chip.on { border-color: var(--green); background: var(--green-soft); color: var(--green); font-weight: 700; }
 
 
