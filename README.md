@@ -5,16 +5,32 @@
 
 纯**原生 HTML / CSS / JavaScript** 前端 + **Node.js (Express)** 后端，前端一键部署到 **GitHub Pages**，后端可部署到 **Vercel**。**无需后端、无需联网、无需付费**即可完整演示（内置本地规则引擎兜底）。
 
-> **2026-11-03 重构**：产品升级为「吃 + 练 + 场馆」三线，融合了同学方案的**积分雷达**与**场馆人流**；UI 改为「纸质票据 + 硬阴影」色系（米白 / 砖红 / 深绿 / 墨）。
-> 国内演示入口（阿里云 ECS，Nginx + systemd）：**http://120.78.120.161/**
+> **2026-11-04 重构**：产品升级为「练 + 吃 + 教练 + 场馆」四线，融合了同学方案的**积分雷达**与**场馆人流**；UI 改为「纸质票据 + 硬阴影」色系（米白 / 砖红 / 深绿 / 墨）。
 
-### 🧭 三块能力
+### 🔗 访问方式（两个，任选）
+
+| 方式 | 地址 | 说明 |
+|---|---|---|
+| **国内直连（推荐）** | **http://120.78.120.161/** | 阿里云 ECS，Nginx + Node，前端与 `/api` 同源 |
+| **域名访问** | **http://sportsfuel.120.78.120.161.nip.io/** | 同一台机器，免费通配 DNS 映射（无需备案） |
+| 备份（静态） | https://liaohc-42.github.io/sports-fuel-agent/ | GitHub Pages；无法连后端时自动走本地规则引擎 |
+
+> ⚠️ GitHub Pages 是 HTTPS，而 ECS 是 HTTP，浏览器会拦截「HTTPS 页面调 HTTP 接口」；所以要在 GitHub 版上用真模型需要反向代理 + 证书。**演示请用前两个入口。**
+
+### 🧭 四块能力
 
 | 板块 | 解决什么 | 关键实现 |
 |---|---|---|
 | **吃** | 练完这顿怎么搭 | 目标三段式 → 钩菜 → 2–3 套横向对比 + 宏量营养条 + 一句话解释 |
-| **练** | 校园积分机会、体测怎么提分 | 13 条积分机会（筛选/搜索/详情/意向/讨论）+ **提分性价比榜** |
+| **练** | 校园积分机会、体测怎么提分 | 13 条积分机会（筛选/搜索/详情/意向/讨论）+ **提分性价比榜** + 表 8 加分 |
+| **教练** | 有个随时能问的运动营养教练 | 4 个入口共用一套 Agent，JSON 校验 + 状态诚实标注 |
 | **场馆** | 现在去哪、几点人少 | 五校区 SVG 地图 + **两级人流兜底**（实时上报 → 历史规律 → 默认） |
+
+### 🏁 答辩材料
+
+- [答辩稿（4 人分工 · 8 分钟）](docs/答辩稿.md)
+- [答辩 PPT（14 页，含逐页讲稿备注）](docs/答辩PPT-练完吃啥.pptx)
+- [赛制与评分细则](docs/赛制与评分.md) ｜ [数据说明](docs/数据说明.md) ｜ [服务器运维](docs/服务器运维.md)
 
 ---
 
@@ -82,41 +98,49 @@ sports-fuel-agent/
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml            ← GitHub Pages 自动部署
-├── frontend/                     ← 前端（纯静态，部署到 GitHub Pages）
+├── frontend/                     ← 前端（纯静态，部署到 GitHub Pages / ECS）
 │   ├── index.html
 │   ├── css/
 │   │   └── style.css
 │   ├── js/
-│   │   ├── app.js                ← 主逻辑（配餐/记录/原理/体测）
-│   │   └── api.js                ← 后端通信 + 本地规则引擎（离线兜底）
+│   │   ├── app.js                ← 主逻辑（练/吃/体测/记录/路由）
+│   │   ├── api.js                ← 后端通信 + 本地规则引擎（离线兜底）
+│   │   ├── credits.js            ← 积分雷达（列表/详情/意向/讨论/评价/AI 摘要）
+│   │   ├── venues.js             ← 场馆与人流（两级兜底 + SVG + 上报）
+│   │   └── campus.js             ← 约运动 / 装备 / 我的（本地演示版）
 │   └── data/
 │       ├── nutrition.js          ← 营养数据库（常见菜品）
-│       ├── dishes.js             ← 通用菜品库（默认数据源，网上常见菜品）
-│       ├── exercise.js           ← 运动 MET 数据库（强度/热量）
+│       ├── dishes.js             ← 通用菜品库（默认数据源）
+│       ├── exercise.js           ← 运动 MET 数据库（含长跑月/定向越野等校园项目）
+│       ├── credits.js            ← 13 条积分机会
+│       ├── venues.js             ← 五校区 22 个场馆 + 拥挤规律
 │       └── canteen.js            ← 五校区食堂数据（由 Excel 自动生成）
-├── backend/                      ← 后端（本地测试 / 部署到 Vercel）
-│   ├── server.js                 ← Express 入口（代理 GLM-4-Flash）
+├── backend/                      ← 后端（ECS / Vercel 均可）
+│   ├── server.js                 ← Express 入口（/api/agent /vision /health /canteen）
 │   ├── api/
-│   │   └── agent.js              ← 提示词构造 + 智谱 API 调用
+│   │   └── agent.js              ← GLM / DeepSeek / Ollama 三通道 + JSON 校验 + 视觉
 │   ├── data/
 │   │   └── canteen.json          ← 食堂数据（手动更新用）
 │   ├── package.json
-│   ├── .env.example              ← 🔑 Key 配置模板
+│   ├── .env.example              ← 🔑 Key 配置模板（三通道）
 │   └── vercel.json               ← Vercel 部署配置
 ├── scripts/
 │   ├── xlsx_to_canteen.py        ← Excel → 食堂数据转换脚本
 │   ├── build_single_file.js      ← 打包单文件离线版
 │   ├── deploy_github.js          ← 一键部署到 GitHub Pages（无需 git）
-│   ├── make_pptx.py              ← 生成答辩 PPT
-│   └── *_check_* / *_test.js     ← 开发期校验与冒烟测试
+│   ├── make_pptx.py              ← 生成答辩 PPT（14 页 + 讲稿备注）
+│   └── _boot_test.js / _test_*.js ← 9 套自动化测试
 ├── dist/
 │   └── 练完吃啥-离线单文件版.html  ← 双击即用的单文件版（离线演示）
 └── docs/
-    ├── 答辩稿.md                 ← 8 分钟汇报脚本 + Q&A 预案
-    ├── 答辩PPT-练完吃啥.pptx     ← 12 页答辩演示 PPT（16:9）
+    ├── 答辩稿.md                 ← 4 人分工 · 8 分钟脚本 + Q&A 分工
+    ├── 答辩PPT-练完吃啥.pptx     ← 14 页答辩 PPT（16:9，含备注）
+    ├── 赛制与评分.md             ← 比赛规则与评分维度映射
+    ├── 数据说明.md               ← 数据来源与估算口径（含表 8 加分）
+    ├── 服务器运维.md             ← ECS / Nginx / systemd 运维
+    ├── 后端上线清单.md           ← 三通道配置与上线检查
     ├── 使用说明.md               ← 用户/评委使用指南
-    ├── 完善路线.md               ← 后续迭代方向
-    └── 数据说明.md               ← 数据来源与估算口径
+    └── 完善路线.md               ← 后续迭代方向
 ```
 
 ---

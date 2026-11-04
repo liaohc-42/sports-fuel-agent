@@ -22,6 +22,7 @@ const app = express();
 const ALLOWED_ORIGINS = new Set([
   'https://liaohc-42.github.io',
   'http://120.78.120.161',
+  'http://sportsfuel.120.78.120.161.nip.io',
   'http://localhost:3000',
   'http://localhost:8080',
   'http://127.0.0.1:8080',
